@@ -1,0 +1,32 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+en:
+  activerecord:
+    attributes:
+      spree/store_credit:
+        amount_used: "Amount used"
+  spree:
+    memo: "Memo"
+    admin:
+      user:
+        store_credit: "Store Credit"
+      store_credits:
+        add: "Add store credit"
+        new: "New store credit"
+        edit: "Editing store credit"
+        back_to_user_list: "Back to user list"
+        back_to_store_credit_list: "Back to store credit list"
+        credited_html_header: "Amount<br/>Credited"
+        used_html_header: "Amount<br/>Used"
+        type_html_header: "Credit<br/>Type"
+        created_by: "Created By"
+        issued_on: "Issued On"
+        select_reason: "Select a reason for this store credit"
+        unable_to_create: "Unable to create store credit"
+        unable_to_update: "Unable to update store credit"
+        unable_to_delete: "Unable to delete store credit"
+        resource_name: "store credits"
+        errors:
+          cannot_change_used_store_credit: "Store credit that has been claimed cannot be changed"
+          amount_used_cannot_be_greater: "cannot be greater than the credited amount"
