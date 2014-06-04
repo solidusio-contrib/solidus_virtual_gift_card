@@ -1,2 +1,1 @@
-class Spree::StoreCreditCategory < ActiveRecord::Base
-end
+class Spree::StoreCreditCategory < ActiveRecord::Base; end
