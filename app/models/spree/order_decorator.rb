@@ -10,24 +10,33 @@ module SpreeStoreCredits::OrderDecorator
   module InstanceMethods
     def add_store_credit_payments
       payments.store_credits.where(state: 'checkout').map(&:invalidate!)
-      return if user.nil? || user.store_credits.empty?
-
-      payment_method = Spree::PaymentMethod.find_by_type('Spree::PaymentMethod::StoreCredit')
 
       remaining_total = outstanding_balance
-      user.store_credits.each do |credit|
-        next if credit.amount_remaining.zero?
 
-        amount_to_take = [credit.amount_remaining, remaining_total].min
-        payments.create!(source: credit,
-                         payment_method: payment_method,
-                         amount: amount_to_take,
-                         uncaptured_amount: amount_to_take,
-                         state: 'checkout',
-                         response_code: credit.generate_authorization_code)
-        remaining_total -= amount_to_take
+      if user && user.store_credits.any?
+        payment_method = Spree::PaymentMethod.find_by_type('Spree::PaymentMethod::StoreCredit')
+        raise "Store credit payment method could not be found" unless payment_method
 
-        break if remaining_total.zero?
+        user.store_credits.each do |credit|
+          break if remaining_total.zero?
+
+          next if credit.amount_remaining.zero?
+          amount_to_take = [credit.amount_remaining, remaining_total].min
+          payments.create!(source: credit,
+                           payment_method: payment_method,
+                           amount: amount_to_take,
+                           uncaptured_amount: amount_to_take,
+                           state: 'checkout',
+                           response_code: credit.generate_authorization_code)
+          remaining_total -= amount_to_take
+        end
+      end
+
+      credit_card_payment = existing_credit_card_payment
+      reconcile_with_credit_card(credit_card_payment, remaining_total)
+
+      if payments.valid.sum(:amount) != total
+        errors.add(:base, Spree.t("store_credits.errors.unable_to_fund")) and return false
       end
     end
 
@@ -68,6 +77,28 @@ module SpreeStoreCredits::OrderDecorator
 
     def display_store_credit_remaining_after_capture
       Spree::Money.new(total_available_store_credit - total_applicable_store_credit, { currency: currency })
+    end
+
+    private
+
+    def existing_credit_card_payment
+      other_payments = payments.valid.not_store_credits
+      raise "Found #{other_payments.size} payments and only expected 1" if other_payments.size > 1
+      other_payments.first
+    end
+
+    def reconcile_with_credit_card(other_payment, amount)
+      return unless other_payment
+
+      unless other_payment.source.is_a?(Spree::CreditCard)
+        raise "Found unexpected payment method. Credit cards are the only other supported payment type"
+      end
+
+      if amount.zero?
+        other_payment.invalidate!
+      else
+        other_payment.update_attributes!(amount: amount)
+      end
     end
   end
 end

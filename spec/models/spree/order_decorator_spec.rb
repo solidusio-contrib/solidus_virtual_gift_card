@@ -26,6 +26,125 @@ end
 
 describe "Order" do
   describe "#add_store_credit_payments" do
+    let(:order_total) { 500.00 }
+
+    before { create(:store_credit_payment_method) }
+
+    subject { order.add_store_credit_payments }
+
+    context "there is no store credit" do
+      let(:order)       { create(:store_credits_order_without_user, total: order_total) }
+
+      context "there is a credit card payment" do
+        let!(:cc_payment) { create(:payment, order: order) }
+
+        before do
+          # callbacks recalculate total based on line items
+          # this ensures the total is what we expect
+          order.update_column(:total, order_total)
+          subject
+          order.reload
+        end
+
+        it "charges the outstanding balance to the credit card" do
+          order.payments.count.should eq 1
+          order.payments.first.source.should be_a(Spree::CreditCard)
+          order.payments.first.amount.should eq order_total
+        end
+      end
+
+      context "there are no other payments" do
+        it "adds an error to the model" do
+          subject.should be false
+          order.errors.full_messages.should include(Spree.t("store_credits.errors.unable_to_fund"))
+        end
+      end
+
+      context "there is a payment of an unknown type" do
+        let!(:check_payment) { create(:check_payment, order: order) }
+
+        it "raises an error" do
+          expect { subject }.to raise_error
+        end
+      end
+    end
+
+    context "there is enough store credit to pay for the entire order" do
+      let(:store_credit) { create(:store_credit, amount: order_total) }
+      let(:order)        { create(:order, user: store_credit.user, total: order_total) }
+
+      context "there are no other payments" do
+        before do
+          subject
+          order.reload
+        end
+
+        it "creates a store credit payment for the full amount" do
+          order.payments.count.should eq 1
+          order.payments.first.should be_store_credit
+          order.payments.first.amount.should eq order_total
+        end
+      end
+
+      context "there is a credit card payment" do
+        let!(:cc_payment) { create(:payment, order: order) }
+
+        before { subject }
+
+        it "should invalidate the credit card payment" do
+          cc_payment.reload.should be_invalid
+        end
+      end
+
+      context "there is a payment of an unknown type" do
+        let!(:check_payment) { create(:check_payment, order: order) }
+
+        it "raises an error" do
+          expect { subject }.to raise_error
+        end
+      end
+    end
+
+    context "the available store credit is not enough to pay for the entire order" do
+      let(:expected_cc_total)  { 100.0 }
+      let(:store_credit_total) { order_total - expected_cc_total }
+      let(:store_credit)       { create(:store_credit, amount: store_credit_total) }
+      let(:order)              { create(:order, user: store_credit.user, total: order_total) }
+
+
+      context "there are no other payments" do
+        it "adds an error to the model" do
+          subject.should be false
+          order.errors.full_messages.should include(Spree.t("store_credits.errors.unable_to_fund"))
+        end
+      end
+
+      context "there is a credit card payment" do
+        let!(:cc_payment) { create(:payment, order: order) }
+
+        before do
+          # callbacks recalculate total based on line items
+          # this ensures the total is what we expect
+          order.update_column(:total, order_total)
+          subject
+          order.reload
+        end
+
+        it "charges the outstanding balance to the credit card" do
+          order.payments.count.should eq 2
+          order.payments.first.source.should be_a(Spree::CreditCard)
+          order.payments.first.amount.should eq expected_cc_total
+        end
+      end
+
+      context "there is a payment of an unknown type" do
+        let!(:check_payment) { create(:check_payment, order: order) }
+
+        it "raises an error" do
+          expect { subject }.to raise_error
+        end
+      end
+    end
   end
 
   describe "#covered_by_store_credit" do
