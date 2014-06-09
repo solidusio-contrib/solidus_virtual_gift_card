@@ -19,15 +19,10 @@ module SpreeStoreCredits::OrderDecorator
 
         user.store_credits.each do |credit|
           break if remaining_total.zero?
-
           next if credit.amount_remaining.zero?
-          amount_to_take = [credit.amount_remaining, remaining_total].min
-          payments.create!(source: credit,
-                           payment_method: payment_method,
-                           amount: amount_to_take,
-                           uncaptured_amount: amount_to_take,
-                           state: 'checkout',
-                           response_code: credit.generate_authorization_code)
+
+          amount_to_take = store_credit_amount(credit, remaining_total)
+          create_store_credit_payment(payment_method, credit, amount_to_take)
           remaining_total -= amount_to_take
         end
       end
@@ -98,6 +93,19 @@ module SpreeStoreCredits::OrderDecorator
       else
         other_payment.update_attributes!(amount: amount)
       end
+    end
+
+    def create_store_credit_payment(payment_method, credit, amount)
+      payments.create!(source: credit,
+                       payment_method: payment_method,
+                       amount: amount,
+                       uncaptured_amount: amount,
+                       state: 'checkout',
+                       response_code: credit.generate_authorization_code)
+    end
+
+    def store_credit_amount(credit, total)
+      [credit.amount_remaining, total].min
     end
   end
 end
