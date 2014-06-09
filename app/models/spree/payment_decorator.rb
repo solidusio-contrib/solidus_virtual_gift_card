@@ -4,6 +4,7 @@ module SpreeStoreCredits::PaymentDecorator
   included do
     delegate :store_credit?, to: :payment_method
     scope :store_credits, -> { where(source_type: Spree::StoreCredit.to_s) }
+    scope :not_store_credits, -> { where(arel_table[:source_type].not_eq(Spree::StoreCredit.to_s).or(arel_table[:source_type].eq(nil))) }
     after_create :create_eligible_credit_event
     prepend(InstanceMethods)
   end
@@ -19,7 +20,8 @@ module SpreeStoreCredits::PaymentDecorator
     end
 
     def invalidate_old_payments
-      order.payments.with_state('checkout').where("id != ?", self.id).where(source_type: self.source_type).each do |payment|
+      return if store_credit? # store credits shouldn't invalidate other payment types
+      order.payments.with_state('checkout').where("id != ?", self.id).each do |payment|
         payment.invalidate! unless payment.store_credit?
       end
     end
