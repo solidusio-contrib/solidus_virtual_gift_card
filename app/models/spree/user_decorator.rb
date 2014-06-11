@@ -2,7 +2,7 @@ module Spree::UserDecorator
   extend ActiveSupport::Concern
 
   included do
-    has_many :store_credits
+    has_many :store_credits, -> { includes(:credit_type) }
 
     prepend(InstanceMethods)
   end

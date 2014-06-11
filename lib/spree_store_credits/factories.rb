@@ -12,10 +12,21 @@ FactoryGirl.define do
     category         { create(:store_credit_category) }
     amount           { 150.00 }
     currency         { "USD" }
+    credit_type      { create(:primary_credit_type) }
   end
 
   factory :store_credit_category, class: Spree::StoreCreditCategory do
     name             "Exchange"
+  end
+
+  factory :primary_credit_type, class: Spree::StoreCreditType do
+    name      Spree::StoreCreditType::DEFAULT_TYPE_NAME
+    priority  { "1" }
+  end
+
+  factory :secondary_credit_type, class: Spree::StoreCreditType do
+    name      { "Refund" }
+    priority  { "2" }
   end
 
   factory :store_credit_payment_method, class: Spree::PaymentMethod do

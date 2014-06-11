@@ -4,6 +4,7 @@ class Spree::StoreCredit < ActiveRecord::Base
   belongs_to :user
   belongs_to :category, class_name: "Spree::StoreCreditCategory"
   belongs_to :created_by, class_name: "Spree::User"
+  belongs_to :credit_type, class_name: 'Spree::StoreCreditType', :foreign_key => 'type_id'
   has_many :store_credit_events
 
   validates_presence_of :user, :category, :created_by
@@ -11,9 +12,14 @@ class Spree::StoreCredit < ActiveRecord::Base
   validates_numericality_of :amount_used, { greater_than_or_equal_to: 0 }
   validate :amount_used_less_than_or_equal_to_amount
   validate :amount_authorized_less_than_or_equal_to_amount
+  validates_presence_of :credit_type
 
   delegate :name, to: :category, prefix: true
   delegate :email, to: :created_by, prefix: true
+
+  scope :order_by_priority, -> { includes(:credit_type).order('spree_store_credit_types.priority ASC') }
+
+  before_validation :associate_credit_type
 
   def display_amount
     Spree::Money.new(amount)
@@ -146,4 +152,7 @@ class Spree::StoreCredit < ActiveRecord::Base
     end
   end
 
+  def associate_credit_type
+    self.credit_type = Spree::StoreCreditType.find_by_name(Spree::StoreCreditType::DEFAULT_TYPE_NAME) unless self.credit_type
+  end
 end
