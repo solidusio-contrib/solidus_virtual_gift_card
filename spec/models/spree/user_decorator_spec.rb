@@ -18,7 +18,7 @@ describe "User" do
       let(:store_credit)             { create(:store_credit, user: user, amount: amount, amount_used: 0.0) }
       let!(:additional_store_credit) { create(:store_credit, user: user, amount: additional_amount, amount_used: 0.0) }
 
-      subject { store_credit.user}
+      subject { store_credit.user }
 
       context "part of the store credit has been used" do
         let(:amount_used) { 35.00 }
@@ -65,8 +65,6 @@ describe "User" do
           subject.total_available_store_credit.to_f.should eq (amount + additional_amount)
         end
       end
-
     end
   end
-
 end

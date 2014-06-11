@@ -69,7 +69,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
       resp.success?.should be_true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: 'capture')
+      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
     end
   end
 
@@ -93,7 +93,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       resp = subject.void(auth_event.authorization_code)
       resp.success?.should be_true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: 'void')
+      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::VOID_ACTION)
     end
   end
 
@@ -102,10 +102,10 @@ describe Spree::PaymentMethod::StoreCredit do
       amount = 100.0
       store_credit = create(:store_credit)
       auth_code = store_credit.generate_authorization_code
-      store_credit.store_credit_events.create!(action: 'eligible',
+      store_credit.store_credit_events.create!(action: Spree::StoreCredit::ELIGIBLE_ACTION,
                                                amount: amount,
                                                authorization_code: auth_code)
-      store_credit.store_credit_events.create!(action: 'capture',
+      store_credit.store_credit_events.create!(action: Spree::StoreCredit::CAPTURE_ACTION,
                                                amount: amount,
                                                authorization_code: auth_code)
 
@@ -118,13 +118,13 @@ describe Spree::PaymentMethod::StoreCredit do
       amount = 100.0
       store_credit = create(:store_credit)
       auth_code = store_credit.generate_authorization_code
-      store_credit.store_credit_events.create!(action: 'eligible',
+      store_credit.store_credit_events.create!(action: Spree::StoreCredit::ELIGIBLE_ACTION,
                                                amount: amount,
                                                authorization_code: auth_code)
 
       resp = subject.purchase(amount * 100.0, store_credit, gateway_options)
       resp.success?.should be_true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: 'capture')
+      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
     end
   end
 
@@ -149,7 +149,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       resp = subject.credit(100.0, auth_event.authorization_code, gateway_options)
       resp.success?.should be_true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: 'credit')
+      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
     end
   end
 end

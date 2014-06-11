@@ -29,6 +29,11 @@ require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/authorization_helpers'
 require 'spree/testing_support/url_helpers'
 
+# Requires support files for api testing
+require 'spree/api/testing_support/caching'
+require 'spree/api/testing_support/helpers'
+require 'spree/api/testing_support/setup'
+
 # Requires factories defined in lib/spree_store_credits/factories.rb
 require 'spree_store_credits/factories'
 
@@ -81,6 +86,13 @@ RSpec.configure do |config|
   config.fail_fast = ENV['FAIL_FAST'] || false
   config.order = "random"
 
+  config.include Spree::Api::TestingSupport::Helpers, :type => :controller
+  config.extend Spree::Api::TestingSupport::Setup, :type => :controller
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
   config.include Devise::TestHelpers, type: :controller
+  config.extend AuthenticationSupport
+
+  config.before do
+    Spree::Api::Config[:requires_authentication] = true
+  end
 end

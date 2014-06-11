@@ -1,6 +1,13 @@
 class Spree::StoreCredit < ActiveRecord::Base
   acts_as_paranoid
 
+  VOID_ACTION       = 'void'
+  CREDIT_ACTION     = 'credit'
+  CAPTURE_ACTION    = 'capture'
+  ELIGIBLE_ACTION   = 'eligible'
+  AUTHORIZE_ACTION  = 'authorize'
+  ALLOCATION_ACTION = 'allocation'
+
   belongs_to :user
   belongs_to :category, class_name: "Spree::StoreCreditCategory"
   belongs_to :created_by, class_name: "Spree::User"
@@ -20,6 +27,9 @@ class Spree::StoreCredit < ActiveRecord::Base
   scope :order_by_priority, -> { includes(:credit_type).order('spree_store_credit_types.priority ASC') }
 
   before_validation :associate_credit_type
+  after_save :store_event
+
+  attr_accessor :action, :authorization_code, :action_amount
 
   def display_amount
     Spree::Money.new(amount)
@@ -35,10 +45,9 @@ class Spree::StoreCredit < ActiveRecord::Base
 
   def authorize(amount, order_currency, authorization_code = generate_authorization_code)
     if validate_authorization(amount, order_currency)
-      update_attributes(amount_authorized: self.amount_authorized + amount)
-
-      event = self.store_credit_events.create!(action: 'authorize', amount: amount, authorization_code: authorization_code)
-      event.authorization_code
+      action, authorization_code, action_amount = AUTHORIZE_ACTION, authorization_code, amount
+      update_attributes!(amount_authorized: self.amount_authorized + amount)
+      authorization_code
     else
       errors.add(:base, Spree.t('store_credit_payment_method.insufficient_authorized_amount'))
       false
@@ -62,9 +71,9 @@ class Spree::StoreCredit < ActiveRecord::Base
         errors.add(:base, Spree.t('store_credit_payment_method.currency_mismatch'))
         false
       else
-        self.update_attributes!(amount_used: self.amount_used + amount, amount_authorized: self.amount_authorized - amount)
-        event = self.store_credit_events.create!(action: 'capture', amount: amount, authorization_code: authorization_code)
-        event.authorization_code
+        action, authorization_code, action_amount = CAPTURE_ACTION, authorization_code, amount
+        update_attributes!(amount_used: self.amount_used + amount, amount_authorized: self.amount_authorized - amount)
+        authorization_code
       end
     else
       errors.add(:base, Spree.t('store_credit_payment_method.insufficient_authorized_amount'))
@@ -73,15 +82,9 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   def void(authorization_code)
-    if capture_event = store_credit_events.find_by(action: 'capture', authorization_code: authorization_code)
-      return_amount = capture_event.amount
-
-      self.update_attributes!(amount_used: amount_used - capture_event.amount)
-      self.store_credit_events.create!(action: 'void', amount: capture_event.amount, authorization_code: authorization_code)
-      true
-    elsif auth_event = store_credit_events.find_by(action: 'authorize', authorization_code: authorization_code)
+    if auth_event = store_credit_events.find_by(action: AUTHORIZE_ACTION, authorization_code: authorization_code)
+      action, authorization_code, action_amount = VOID_ACTION, authorization_code, auth_event.amount
       self.update_attributes!(amount_authorized: amount_authorized - auth_event.amount)
-      self.store_credit_events.create!(action: 'void', amount: auth_event.amount, authorization_code: authorization_code)
       true
     else
       errors.add(:base, Spree.t('store_credit_payment_method.unable_to_void', auth_code: authorization_code))
@@ -91,14 +94,14 @@ class Spree::StoreCredit < ActiveRecord::Base
 
   def credit(amount, authorization_code, order_currency)
     # Find the amount related to this authorization_code in order to add the store credit back
-    capture_event = store_credit_events.find_by(action: 'capture', authorization_code: authorization_code)
+    capture_event = store_credit_events.find_by(action: CAPTURE_ACTION, authorization_code: authorization_code)
 
     if currency != order_currency  # sanity check to make sure the order currency hasn't changed since the auth
       errors.add(:base, Spree.t('store_credit_payment_method.currency_mismatch'))
       false
     elsif capture_event && amount <= capture_event.amount
+      action, authorization_code, action_amount = CREDIT_ACTION, authorization_code, amount
       self.update_attributes!(amount_used: amount_used - amount)
-      self.store_credit_events.create!(action: 'credit', amount: amount, authorization_code: authorization_code)
       true
     else
       errors.add(:base, Spree.t('store_credit_payment_method.unable_to_credit', auth_code: authorization_code))
@@ -106,16 +109,8 @@ class Spree::StoreCredit < ActiveRecord::Base
     end
   end
 
-  def amount_used
-    self.read_attribute(:amount_used) || 0
-  end
-
-  def amount_authorized
-    self.read_attribute(:amount_authorized) || 0
-  end
-
   def actions
-    %w{capture void credit}
+    [CAPTURE_ACTION, VOID_ACTION, CREDIT_ACTION]
   end
 
   def can_capture?(payment)
@@ -123,7 +118,7 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   def can_void?(payment)
-    payment.pending? || payment.completed?
+    payment.pending?
   end
 
   def can_credit?(payment)
@@ -137,6 +132,22 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   private
+
+  def store_event
+    return unless amount_changed? || amount_used_changed?
+
+    event = if action
+      store_credit_events.build(action: action)
+    else
+      store_credit_events.where(action: ALLOCATION_ACTION).first_or_initialize
+    end
+
+    event.update_attributes!(
+      amount: action_amount || amount,
+      authorization_code: authorization_code || event.authorization_code || generate_authorization_code,
+      user_total_amount: user.total_available_store_credit
+    )
+  end
 
   def amount_used_less_than_or_equal_to_amount
     return true if amount_used.nil?
@@ -155,4 +166,5 @@ class Spree::StoreCredit < ActiveRecord::Base
   def associate_credit_type
     self.credit_type = Spree::StoreCreditType.find_by_name(Spree::StoreCreditType::DEFAULT_TYPE_NAME) unless self.credit_type
   end
+
 end

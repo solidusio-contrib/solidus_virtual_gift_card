@@ -257,19 +257,19 @@ describe "StoreCredit" do
     context "capture event found for auth_code" do
       let(:captured_amount) { 10.0 }
       let!(:capture_event) { create(:store_credit_auth_event,
-                                    action: 'capture',
+                                    action: Spree::StoreCredit::CAPTURE_ACTION,
                                     authorization_code: auth_code,
                                     amount: captured_amount,
                                     store_credit: store_credit) }
 
       subject { store_credit.void(auth_code) }
 
-      it "returns true" do
-        subject.should be_true
+      it "returns false" do
+        subject.should be_false
       end
 
-      it "returns the capture amount to the store credit" do
-        expect { subject }.to change{ store_credit.amount_used.to_f }.by(-captured_amount)
+      it "does not change the amount used on the store credit" do
+        expect { subject }.to_not change{ store_credit.amount_used.to_f }
       end
     end
 
@@ -299,7 +299,7 @@ describe "StoreCredit" do
     let(:amount_used)     { 10.0 }
     let(:store_credit)    { create(:store_credit, amount_used: amount_used) }
     let!(:capture_event)  { create(:store_credit_auth_event,
-                                   action: 'capture',
+                                   action: Spree::StoreCredit::CAPTURE_ACTION,
                                    authorization_code: event_auth_code,
                                    amount: captured_amount,
                                    store_credit: store_credit) }
@@ -434,7 +434,7 @@ describe "StoreCredit" do
     end
 
     context "void payment" do
-      let(:payment_state) { 'void' }
+      let(:payment_state) { Spree::StoreCredit::VOID_ACTION }
 
       it "returns false" do
         subject.should be_false
@@ -481,7 +481,7 @@ describe "StoreCredit" do
     end
 
     context "void payment" do
-      let(:payment_state) { 'void' }
+      let(:payment_state) { Spree::StoreCredit::VOID_ACTION }
 
       it "returns false" do
         subject.should be_false
@@ -499,8 +499,8 @@ describe "StoreCredit" do
     context "complete payment" do
       let(:payment_state) { 'completed' }
 
-      it "returns true" do
-        subject.should be_true
+      it "returns false" do
+        subject.should be_false
       end
     end
   end
@@ -546,6 +546,52 @@ describe "StoreCredit" do
 
           it "returns true" do
             subject.should be_true
+          end
+        end
+      end
+    end
+
+    describe "#store_events" do
+      context "create" do
+        context "user has one store credit" do
+          let(:store_credit_amount) { 100.0 }
+
+          subject { create(:store_credit, amount: store_credit_amount) }
+
+          it "creates a store credit event" do
+            expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+          end
+
+          it "makes the store credit event an allocation event" do
+            subject.store_credit_events.first.action.should eq Spree::StoreCredit::ALLOCATION_ACTION
+          end
+
+          it "saves the user's total store credit in the event" do
+            subject.store_credit_events.first.user_total_amount.should eq store_credit_amount
+          end
+        end
+
+        context "user has multiple store credits" do
+          let(:store_credit_amount)            { 100.0 }
+          let(:additional_store_credit_amount) { 200.0 }
+
+          let(:user)                           { create(:user) }
+          let!(:store_credit)                  { create(:store_credit, user: user, amount: store_credit_amount) }
+
+          subject { create(:store_credit, user: user, amount: additional_store_credit_amount) }
+
+          it "saves the user's total store credit in the event" do
+            subject.store_credit_events.first.user_total_amount.should eq (store_credit_amount + additional_store_credit_amount)
+          end
+        end
+
+        context "an action is specified" do
+          it "creates an event with the set action" do
+            store_credit = build(:store_credit)
+            store_credit.action = Spree::StoreCredit::VOID_ACTION
+            store_credit.authorization_code = "1-SC-TEST"
+
+            expect { store_credit.save! }.to change { Spree::StoreCreditEvent.where(action: Spree::StoreCredit::VOID_ACTION).count }.by(1)
           end
         end
       end
