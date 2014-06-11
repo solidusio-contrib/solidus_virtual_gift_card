@@ -18,7 +18,6 @@ class Spree::StoreCredit < ActiveRecord::Base
   delegate :email, to: :created_by, prefix: true
 
   scope :order_by_priority, -> { includes(:credit_type).order('spree_store_credit_types.priority ASC') }
-  scope :chronological, -> { order("spree_store_credits.created_at DESC") }
 
   before_validation :associate_credit_type
 

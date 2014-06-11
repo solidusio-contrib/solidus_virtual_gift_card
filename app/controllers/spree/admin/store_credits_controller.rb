@@ -10,7 +10,7 @@ module Spree
       before_filter :ensure_unused_store_credit, only: [:update]
 
       def index
-        @store_credits = @user.store_credits.chronological
+        @store_credits = @user.store_credits.reverse_order
       end
 
       def create
