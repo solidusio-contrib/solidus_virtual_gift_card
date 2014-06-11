@@ -145,6 +145,31 @@ describe "Order" do
         end
       end
     end
+
+    context "there are multiple store credits" do
+      context "they have different credit type priorities" do
+        let(:amount_difference)       { 100 }
+        let!(:secondary_store_credit) { create(:store_credit, amount: order_total, credit_type: create(:secondary_credit_type)) }
+        let!(:primary_store_credit)   { create(:store_credit, amount: (order_total - amount_difference), user: secondary_store_credit.user) }
+        let(:order)                   { create(:order, user: primary_store_credit.user, total: order_total) }
+
+        before do
+          subject
+          order.reload
+        end
+
+        it "uses the primary store credit type over the secondary" do
+          primary_payment = order.payments.first
+          secondary_payment = order.payments.last
+
+          order.payments.size.should eq 2
+          primary_payment.source.should eq primary_store_credit
+          secondary_payment.source.should eq secondary_store_credit
+          primary_payment.amount.should eq(order_total - amount_difference)
+          secondary_payment.amount.should eq(amount_difference)
+        end
+      end
+    end
   end
 
   describe "#covered_by_store_credit" do

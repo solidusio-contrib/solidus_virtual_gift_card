@@ -58,7 +58,10 @@ describe Spree::Admin::StoreCreditsController do
   describe "POST create" do
     subject { spree_post :create, parameters }
 
-    before  { controller.stub(try_spree_current_user: admin_user) }
+    before  {
+      controller.stub(try_spree_current_user: admin_user)
+      create(:primary_credit_type)
+    }
 
     context "the passed parameters are valid" do
       let(:parameters) do
