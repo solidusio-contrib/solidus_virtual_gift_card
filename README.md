@@ -1,7 +1,13 @@
 SpreeStoreCredits
 =================
 
-Introduction goes here.
+A Spree store credit implementation that applies store credit as a payment method.
+
+Takes into account purchasing through the API, with the default to use all available store credit.
+
+Store credit can be granted in admin, and is frozen after first usage. Store credit behaves like a credit card in that once an amount is authorized, it cannot be used elsewhere.
+
+Store credit can be stored in multiple buckets (e.g. promotional and refund) because those are taxed differently and implementors might want to prioritize use / refund different types.
 
 Installation
 ------------
@@ -35,5 +41,10 @@ Simply add this require statement to your spec_helper:
 ```ruby
 require 'spree_store_credits/factories'
 ```
+
+TODO
+----
+
+* Integrate the frontend, this was implemented with just admin and api
 
 Copyright (c) 2014 [Bonobos], released under the New BSD License
