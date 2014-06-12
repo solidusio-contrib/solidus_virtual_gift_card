@@ -20,6 +20,10 @@ en:
       select_one_store_credit: "Select store credit to go towards remaining balance"
     memo: "Memo"
     store_credits:
+      credit: "Credit"
+      authorized: "Authorized"
+      captured: "Used"
+      allocated: "Added"
       errors:
         unable_to_fund: "Unable to pay for order using store credits"
     admin:

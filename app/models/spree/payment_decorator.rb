@@ -14,7 +14,7 @@ module SpreeStoreCredits::PaymentDecorator
 
     def create_eligible_credit_event
       return unless store_credit?
-      source.store_credit_events.create!(action: 'eligible',
+      source.store_credit_events.create!(action: Spree::StoreCredit::ELIGIBLE_ACTION,
                                          amount: amount,
                                          authorization_code: response_code)
     end

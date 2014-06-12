@@ -10,7 +10,7 @@ module Spree
     end
 
     def can_void?(payment)
-      payment.state != 'void'
+      payment.pending?
     end
 
     def authorize(amount_in_cents, store_credit, gateway_options = {})
@@ -33,10 +33,10 @@ module Spree
     end
 
     def purchase(amount_in_cents, store_credit, gateway_options = {})
-      eligible_events = store_credit.store_credit_events.where(amount: amount_in_cents / 100.0, action: 'eligible')
+      eligible_events = store_credit.store_credit_events.where(amount: amount_in_cents / 100.0, action: Spree::StoreCredit::ELIGIBLE_ACTION)
       event = eligible_events.find do |eligible_event|
         store_credit.store_credit_events.where(authorization_code: eligible_event.authorization_code)
-                                        .where.not(action: 'eligible').empty?
+                                        .where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION).empty?
       end
 
       if event.blank?
