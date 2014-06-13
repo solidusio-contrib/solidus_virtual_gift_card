@@ -2,6 +2,12 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
+  date:
+    formats:
+      date_slash: '%m/%d/%Y'
+  time:
+    formats:
+      date_slash: '%m/%d/%Y'
   activerecord:
     attributes:
       spree/store_credit:

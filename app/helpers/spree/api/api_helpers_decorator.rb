@@ -1,6 +1,6 @@
 Spree::Api::ApiHelpers.module_eval do
   def store_credit_history_attributes
-    [:display_amount, :display_user_total_amount, :display_action]
+    [:display_amount, :display_user_total_amount, :display_action, :display_event_date]
   end
 
   def order_attributes_with_store_credit_decoration
