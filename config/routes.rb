@@ -6,9 +6,9 @@ Spree::Core::Engine.routes.draw do
   end
 
   namespace :api, defaults: { format: 'json' } do
-    resources :users, only: [] do
-      member do
-        get :store_credit_history
+    resources :store_credit_events, only: [] do
+      collection do
+        get :mine
       end
     end
   end
