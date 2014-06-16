@@ -44,8 +44,11 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   def authorize(amount, order_currency, authorization_code = generate_authorization_code)
+    # Don't authorize again on capture
+    return true if store_credit_events.find_by(action: AUTHORIZE_ACTION, authorization_code: authorization_code)
+
     if validate_authorization(amount, order_currency)
-      action, authorization_code, action_amount = AUTHORIZE_ACTION, authorization_code, amount
+      self.action, self.authorization_code, self.action_amount = AUTHORIZE_ACTION, authorization_code, amount
       update_attributes!(amount_authorized: self.amount_authorized + amount)
       authorization_code
     else
@@ -71,7 +74,7 @@ class Spree::StoreCredit < ActiveRecord::Base
         errors.add(:base, Spree.t('store_credit_payment_method.currency_mismatch'))
         false
       else
-        action, authorization_code, action_amount = CAPTURE_ACTION, authorization_code, amount
+        self.action, self.authorization_code, self.action_amount = CAPTURE_ACTION, authorization_code, amount
         update_attributes!(amount_used: self.amount_used + amount, amount_authorized: self.amount_authorized - amount)
         authorization_code
       end
@@ -83,7 +86,7 @@ class Spree::StoreCredit < ActiveRecord::Base
 
   def void(authorization_code)
     if auth_event = store_credit_events.find_by(action: AUTHORIZE_ACTION, authorization_code: authorization_code)
-      action, authorization_code, action_amount = VOID_ACTION, authorization_code, auth_event.amount
+      self.action, self.authorization_code, self.action_amount = VOID_ACTION, authorization_code, auth_event.amount
       self.update_attributes!(amount_authorized: amount_authorized - auth_event.amount)
       true
     else
@@ -100,7 +103,7 @@ class Spree::StoreCredit < ActiveRecord::Base
       errors.add(:base, Spree.t('store_credit_payment_method.currency_mismatch'))
       false
     elsif capture_event && amount <= capture_event.amount
-      action, authorization_code, action_amount = CREDIT_ACTION, authorization_code, amount
+      self.action, self.authorization_code, self.action_amount = CREDIT_ACTION, authorization_code, amount
       self.update_attributes!(amount_used: amount_used - amount)
       true
     else
@@ -134,7 +137,7 @@ class Spree::StoreCredit < ActiveRecord::Base
   private
 
   def store_event
-    return unless amount_changed? || amount_used_changed?
+    return unless amount_changed? || amount_used_changed? || amount_authorized_changed? || action == ELIGIBLE_ACTION
 
     event = if action
       store_credit_events.build(action: action)

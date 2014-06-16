@@ -118,15 +118,28 @@ describe "StoreCredit" do
       let(:authorization_amount)       { 1.0 }
       let(:added_authorization_amount) { 3.0 }
 
-      before { store_credit.update_attributes(amount_authorized: authorization_amount) }
+      context "amount has not been authorized yet" do
 
-      it "returns true" do
-        store_credit.authorize(store_credit.amount - authorization_amount, store_credit.currency).should be_true
+        before { store_credit.update_attributes(amount_authorized: authorization_amount) }
+
+        it "returns true" do
+          store_credit.authorize(store_credit.amount - authorization_amount, store_credit.currency).should be_true
+        end
+
+        it "adds the new amount to authorized amount" do
+          store_credit.authorize(added_authorization_amount, store_credit.currency)
+          store_credit.reload.amount_authorized.should eq (authorization_amount + added_authorization_amount)
+        end
       end
 
-      it "adds the new amount to authorized amount" do
-        store_credit.authorize(added_authorization_amount, store_credit.currency)
-        store_credit.reload.amount_authorized.should eq (authorization_amount + added_authorization_amount)
+      context "authorization has already happened" do
+        let!(:auth_event) { create(:store_credit_auth_event, store_credit: store_credit) }
+
+        before { store_credit.update_attributes(amount_authorized: store_credit.amount) }
+
+        it "returns true" do
+          store_credit.authorize(store_credit.amount, store_credit.currency, auth_event.authorization_code).should be_true
+        end
       end
     end
 

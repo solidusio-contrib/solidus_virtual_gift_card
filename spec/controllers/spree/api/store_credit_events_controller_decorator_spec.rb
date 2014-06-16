@@ -50,7 +50,7 @@ describe Spree::Api::StoreCreditEventsController do
         end
 
         it "should contain the store credit allocation event" do
-          assigns(:store_credit_events).should eq store_credit.store_credit_events
+          assigns(:store_credit_events).first.should eq store_credit.store_credit_events.first
         end
 
         it "returns a 200" do
