@@ -4,6 +4,8 @@ module Spree
 
     belongs_to :store_credit
 
+    scope :exposed_events, -> { where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION) }
+
     delegate :currency, to: :store_credit
 
     def display_amount
