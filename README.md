@@ -7,7 +7,7 @@ Takes into account purchasing through the API, with the default to use all avail
 
 Store credit can be granted in admin, and is frozen after first usage. Store credit behaves like a credit card in that once an amount is authorized, it cannot be used elsewhere.
 
-Store credit can be stored in multiple buckets (e.g. promotional and refund) because those are taxed differently and implementors might want to prioritize use / refund different types.
+Store credit can be stored in multiple buckets (e.g. expiring and non-expiring) because those are taxed differently and implementors might want to prioritize use / refund different types.
 
 Installation
 ------------
