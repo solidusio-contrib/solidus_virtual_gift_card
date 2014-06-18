@@ -99,7 +99,6 @@ module SpreeStoreCredits::OrderDecorator
       payments.create!(source: credit,
                        payment_method: payment_method,
                        amount: amount,
-                       uncaptured_amount: amount,
                        state: 'checkout',
                        response_code: credit.generate_authorization_code)
     end
