@@ -94,5 +94,6 @@ RSpec.configure do |config|
 
   config.before do
     Spree::Api::Config[:requires_authentication] = true
+    Spree::StoreCredits::Configuration.set_configs(non_expiring_credit_types: ['Non-expiring'])
   end
 end
