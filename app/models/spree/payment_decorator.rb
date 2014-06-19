@@ -10,10 +10,24 @@ module SpreeStoreCredits::PaymentDecorator
   end
 
   module InstanceMethods
+    def cancel!
+      if payment_method.store_credit?
+        credit!(amount)
+      else
+        super
+      end
+    end
+
     private
 
     def create_eligible_credit_event
-      return unless store_credit?
+      # When cancelling an order, a payment with the negative amount
+      # of the payment total is created to refund the customer. That
+      # payment has a source of itself (Spree::Payment) no matter the
+      # type of payment getting refunded, hence the additional check
+      # if the source is a store credit.
+      return unless store_credit? && source.is_a?(Spree::StoreCredit)
+
       source.action = Spree::StoreCredit::ELIGIBLE_ACTION
       source.authorization_code = response_code
       source.action_amount = amount
