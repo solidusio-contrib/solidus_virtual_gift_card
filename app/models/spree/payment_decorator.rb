@@ -11,7 +11,7 @@ module SpreeStoreCredits::PaymentDecorator
 
   module InstanceMethods
     def cancel!
-      if payment_method.store_credit?
+      if store_credit?
         credit!(amount)
       else
         super
