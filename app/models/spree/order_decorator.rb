@@ -75,6 +75,22 @@ module SpreeStoreCredits::OrderDecorator
 
     private
 
+    def after_cancel
+      super
+
+      # Free up authorized store credits
+      payments.store_credits.pending.each { |payment| payment.void! }
+
+      # payment_state has to be updated because after_cancel on
+      # super does an update_column on the payment_state to set
+      # it to 'credit_owed' but that is not correct if the
+      # payments are captured store credits that get totally refunded
+
+      reload
+      updater.update_payment_state
+      updater.persist_totals
+    end
+
     def existing_credit_card_payment
       other_payments = payments.valid.not_store_credits
       raise "Found #{other_payments.size} payments and only expected 1" if other_payments.size > 1
@@ -99,7 +115,6 @@ module SpreeStoreCredits::OrderDecorator
       payments.create!(source: credit,
                        payment_method: payment_method,
                        amount: amount,
-                       uncaptured_amount: amount,
                        state: 'checkout',
                        response_code: credit.generate_authorization_code)
     end
