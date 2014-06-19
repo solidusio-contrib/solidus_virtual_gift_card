@@ -149,8 +149,8 @@ describe "Order" do
     context "there are multiple store credits" do
       context "they have different credit type priorities" do
         let(:amount_difference)       { 100 }
-        let!(:secondary_store_credit) { create(:store_credit, amount: order_total, credit_type: create(:secondary_credit_type)) }
-        let!(:primary_store_credit)   { create(:store_credit, amount: (order_total - amount_difference), user: secondary_store_credit.user) }
+        let!(:primary_store_credit)   { create(:store_credit, amount: (order_total - amount_difference)) }
+        let!(:secondary_store_credit) { create(:store_credit, amount: order_total, user: primary_store_credit.user, credit_type: create(:secondary_credit_type)) }
         let(:order)                   { create(:order, user: primary_store_credit.user, total: order_total) }
 
         before do

@@ -5,6 +5,35 @@ describe "StoreCredit" do
   let(:currency) { "TEST" }
   let(:store_credit) { create(:store_credit) }
 
+
+  describe "callbacks" do
+    subject { store_credit.save }
+
+    context "category is a non-expiring type" do
+      let!(:secondary_credit_type) { create(:secondary_credit_type) }
+
+      before do
+        store_credit.category.stub(:non_expiring?).and_return(true)
+      end
+
+      it "sets the credit type to non-expiring" do
+        subject
+        store_credit.credit_type.name.should eq secondary_credit_type.name
+      end
+    end
+
+    context "category is an expiring type" do
+      before do
+        store_credit.category.stub(:non_expiring?).and_return(false)
+      end
+
+      it "sets the credit type to non-expiring" do
+        subject
+        store_credit.credit_type.name.should eq "Expiring"
+      end
+    end
+  end
+
   describe "validations" do
     describe "used amount should not be greater than the credited amount" do
       context "the used amount is defined" do

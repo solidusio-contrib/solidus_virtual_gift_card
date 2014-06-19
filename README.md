@@ -9,6 +9,20 @@ Store credit can be granted in admin, and is frozen after first usage. Store cre
 
 Store credit can be stored in multiple buckets (e.g. expiring and non-expiring) because those are taxed differently and implementors might want to prioritize use / refund different types.
 
+Credit Types
+------------
+
+Out of the box, there are Expiring and Non-expiring store credits, with the Expiring type having top priority of being used in a purchase.
+
+To add new ones, add a migration with a priority value set, and on purchase it will take the credits from lowest numerical priority to highest. You will also need to overwrite `Spree::StoreCredit#associate_credit_type`
+
+Configure the gem with non-expiring categorizations in an initializer:
+
+```ruby
+Spree::StoreCredits::Configuration.set_configs(non_expiring_credit_types: ['Example'])
+```
+
+
 Installation
 ------------
 
