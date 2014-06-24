@@ -19,6 +19,10 @@ FactoryGirl.define do
     name             "Exchange"
   end
 
+  factory :store_credit_gift_card_category, class: Spree::StoreCreditCategory do
+    name      Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME
+  end
+
   factory :primary_credit_type, class: Spree::StoreCreditType do
     name      Spree::StoreCreditType::DEFAULT_TYPE_NAME
     priority  { "1" }
@@ -53,5 +57,11 @@ FactoryGirl.define do
   factory :store_credits_order_without_user, class: Spree::Order do
     number             { generate(:store_credits_order_number) }
     bill_address
+  end
+
+  factory :virtual_gift_card, class: Spree::VirtualGiftCard do
+    purchaser   { create(:user) }
+    amount      { '25' }
+    currency    { 'USD' }
   end
 end
