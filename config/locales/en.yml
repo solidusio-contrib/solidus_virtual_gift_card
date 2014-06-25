@@ -35,6 +35,9 @@ en:
     admin:
       user:
         store_credit: "Store Credit"
+      gift_cards:
+        errors:
+          not_found: "Gift card was not found"
       store_credits:
         add: "Add store credit"
         new: "New store credit"
