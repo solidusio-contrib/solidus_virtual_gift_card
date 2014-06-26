@@ -21,6 +21,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     "Gift Card ##{self.redemption_code}"
   end
 
+  def formatted_redemption_code
+    redemption_code.scan(/.{4}/).join('-')
+  end
+
   def store_credit_category
     Spree::StoreCreditCategory.where(name: Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME).first
   end

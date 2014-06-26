@@ -80,7 +80,6 @@ describe "VirtualGiftCard" do
   describe '#redeem!' do
     let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD') }
     let(:redeemer) { create(:user) }
-
     subject { gift_card.redeem!(redeemer) }
 
     context 'it has already been redeemed' do
@@ -148,6 +147,19 @@ describe "VirtualGiftCard" do
         subject
         gift_card.redeemer.should be_present
       end
+    end
+  end
+
+  describe '#formatted_redemption_code' do
+    let(:redemption_code) { 'AAAABBBBCCCCDDDD' }
+    let(:formatted_redemption_code) { 'AAAA-BBBB-CCCC-DDDD' }
+    let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD') }
+
+    subject { gift_card.formatted_redemption_code }
+
+    it 'inserts dashes into the code after every 4 characters' do
+      gift_card.should_receive(:redemption_code).and_return(redemption_code)
+      subject.should eq formatted_redemption_code
     end
   end
 end

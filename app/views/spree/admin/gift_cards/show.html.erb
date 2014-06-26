@@ -13,7 +13,7 @@
   <tbody>
     <% @gift_cards.each do |gift_card| %>
       <tr>
-        <td class="align-center"><%= gift_card.redemption_code %></td>
+        <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
         <td class="align-center"><%= gift_card.amount %></td>
         <td class="align-center"><%= "#{gift_card.purchaser.first_name} #{gift_card.purchaser.last_name}" %></td>
         <% if gift_card.redeemed? %>
