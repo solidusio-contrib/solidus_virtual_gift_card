@@ -2,5 +2,5 @@
 
 <%= form_for :gift_card, url: admin_gift_cards_path, html: {id: 'lookup-redemption-code'} do |f| %>
   Redemption code: <%= f.text_field :redemption_code %><br />
-  <%= f.submit 'Lookup Gift Card' %>
+  <%= f.submit 'Lookup Gift Card', class: 'lookup-gift-card-button' %>
 <% end %>

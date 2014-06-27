@@ -6,6 +6,7 @@
       <th class="align-center">Redemption Code</th>
       <th class="align-center">Amount</th>
       <th class="align-center">Purchased by</th>
+      <th class="align-center">Purchased at</th>
       <th class="align-center">Redeemed by</th>
       <th class="align-center">Redeemed at</th>
     </tr>
@@ -14,11 +15,12 @@
     <% @gift_cards.each do |gift_card| %>
       <tr>
         <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
-        <td class="align-center"><%= gift_card.amount %></td>
-        <td class="align-center"><%= "#{gift_card.purchaser.first_name} #{gift_card.purchaser.last_name}" %></td>
+        <td class="align-center"><%= number_to_currency(gift_card.amount) %></td>
+        <td class="align-center"><%= link_to "#{gift_card.purchaser.first_name} #{gift_card.purchaser.last_name}", edit_admin_user_path(gift_card.purchaser) %></td>
+        <td class="align-center"><%= gift_card.created_at.localtime.strftime("%F %I:%M%p") %></td>
         <% if gift_card.redeemed? %>
-          <td class="align-center"><%= "#{gift_card.redeemer.first_name} #{gift_card.redeemer.last_name}" %></td>
-          <td class="align-center"><%= "#{gift_card.redeemed_at.localtime.strftime("%F %I:%M%p")}" %></td>
+          <td class="align-center"><%= link_to "#{gift_card.redeemer.first_name} #{gift_card.redeemer.last_name}", edit_admin_user_path(gift_card.redeemer) %></td>
+          <td class="align-center"><%= gift_card.redeemed_at.localtime.strftime("%F %I:%M%p") %></td>
         <% else %>
           <td class="align-center"></td>
           <td class="align-center"></td>
