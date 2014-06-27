@@ -4,6 +4,6 @@ module Spree::RedemptionCodeGenerator
   end
 
   def self.format_redemption_code_for_lookup(redemption_code)
-    redemption_code.delete('-')
+    redemption_code.delete('-').upcase
   end
 end
