@@ -6,12 +6,14 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   validates :amount, numericality: { greater_than: 0 }
   validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil) }
+  scope :unredeemed, -> { where(redeemed_at: nil) }
+  scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
 
   def redeemed?
     redeemed_at.present?
   end
 
-  def redeem!(redeemer)
+  def redeem(redeemer)
     return false if redeemed?
     self.build_store_credit(amount: self.amount, currency: self.currency, memo: self.memo, user: redeemer, created_by: redeemer, category: self.store_credit_category).save
     self.update_attributes( redeemed_at: Time.now, redeemer: redeemer )
@@ -27,6 +29,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   def store_credit_category
     Spree::StoreCreditCategory.where(name: Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME).first
+  end
+
+  def self.active_by_redemption_code(redemption_code)
+    Spree::VirtualGiftCard.unredeemed.by_redemption_code(redemption_code).first
   end
 
   private
@@ -46,6 +52,6 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   end
 
   def duplicate_redemption_code?(redemption_code)
-    Spree::VirtualGiftCard.where(redemption_code: redemption_code).where(redeemed_at: nil).present?
+    Spree::VirtualGiftCard.active_by_redemption_code(redemption_code)
   end
 end
