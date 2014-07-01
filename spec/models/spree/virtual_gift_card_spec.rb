@@ -77,10 +77,10 @@ describe "VirtualGiftCard" do
     end
   end
 
-  describe '#redeem!' do
+  describe '#redeem' do
     let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD') }
     let(:redeemer) { create(:user) }
-    subject { gift_card.redeem!(redeemer) }
+    subject { gift_card.redeem(redeemer) }
 
     context 'it has already been redeemed' do
       before { gift_card.redeemed_at = Date.yesterday }

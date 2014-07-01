@@ -38,6 +38,7 @@ en:
       gift_cards:
         errors:
           not_found: "Gift card was not found"
+          please_try_again: "Please try again"
       store_credits:
         add: "Add store credit"
         new: "New store credit"
