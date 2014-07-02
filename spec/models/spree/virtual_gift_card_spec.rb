@@ -19,7 +19,7 @@ describe "VirtualGiftCard" do
   end
 
   context 'before create callbacks' do
-    let(:gift_card) { Spree::VirtualGiftCard.new(amount: 20, currency: 'USD', purchaser: create(:user)) }
+    let(:gift_card) { Spree::VirtualGiftCard.new(amount: 20, currency: 'USD', purchaser: create(:user), line_item: create(:line_item) ) }
     subject { gift_card.save }
 
     context 'no collision on redemption code' do
@@ -78,7 +78,7 @@ describe "VirtualGiftCard" do
   end
 
   describe '#redeem' do
-    let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD', purchaser: create(:user)) }
+    let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD', purchaser: create(:user), line_item: create(:line_item)) }
     let(:redeemer) { create(:user) }
     subject { gift_card.redeem(redeemer) }
 

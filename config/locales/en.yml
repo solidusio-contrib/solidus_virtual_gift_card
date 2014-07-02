@@ -36,6 +36,7 @@ en:
       user:
         store_credit: "Store Credit"
       gift_cards:
+        gift_card: "Gift Card"
         errors:
           not_found: "Gift card was not found"
           please_try_again: "Please try again"

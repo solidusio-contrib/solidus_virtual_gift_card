@@ -1,12 +1,16 @@
 class Spree::VirtualGiftCard < ActiveRecord::Base
+  include ActionView::Helpers::NumberHelper
+
   belongs_to :store_credit, class_name: 'Spree::StoreCredit'
   belongs_to :purchaser, class_name: 'Spree::User'
   belongs_to :redeemer, class_name: 'Spree::User'
+  belongs_to :line_item, class_name: 'Spree::LineItem'
   before_create :set_redemption_code
+
 
   validates :amount, numericality: { greater_than: 0 }
   validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil) }
-  validates_presence_of :purchaser_id
+  validates_presence_of :purchaser_id, :line_item_id
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
@@ -27,6 +31,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   def formatted_redemption_code
     redemption_code.scan(/.{4}/).join('-')
+  end
+
+  def formatted_amount
+    number_to_currency(amount)
   end
 
   def store_credit_category
