@@ -1,7 +1,7 @@
 class Spree::Api::GiftCardsController < Spree::Api::BaseController
 
   def redeem
-    redemption_code = Spree::RedemptionCodeGenerator.format_redemption_code_for_lookup(gift_card_params)
+    redemption_code = Spree::RedemptionCodeGenerator.format_redemption_code_for_lookup(params[:redemption_code] || "")
     @gift_card = Spree::VirtualGiftCard.active_by_redemption_code(redemption_code)
 
     if !@gift_card
@@ -14,10 +14,6 @@ class Spree::Api::GiftCardsController < Spree::Api::BaseController
   end
 
   private
-
-  def gift_card_params
-    params.require(:redemption_code)
-  end
 
   def redeem_fail_response
    {

@@ -53,8 +53,8 @@ describe Spree::Api::GiftCardsController do
       context "there is no redemption code in the request body" do
         let(:parameters) { {} }
 
-        it "returns a 422" do
-          subject.status.should eq 422
+        it "returns a 404" do
+          subject.status.should eq 404
         end
       end
 
