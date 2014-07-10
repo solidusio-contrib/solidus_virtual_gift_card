@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "StoreCredit" do
 
   let(:currency) { "TEST" }
-  let(:store_credit) { create(:store_credit) }
+  let(:store_credit) { build(:store_credit) }
 
 
   describe "callbacks" do
@@ -11,6 +11,7 @@ describe "StoreCredit" do
 
     context "category is a non-expiring type" do
       let!(:secondary_credit_type) { create(:secondary_credit_type) }
+      let(:store_credit) { build(:store_credit, credit_type: nil)}
 
       before do
         store_credit.category.stub(:non_expiring?).and_return(true)
@@ -30,6 +31,19 @@ describe "StoreCredit" do
       it "sets the credit type to non-expiring" do
         subject
         store_credit.credit_type.name.should eq "Expiring"
+      end
+    end
+
+    context "the type is set" do
+      let!(:secondary_credit_type) { create(:secondary_credit_type)}
+      let(:store_credit) { build(:store_credit, credit_type: secondary_credit_type)}
+
+      before do
+        store_credit.category.stub(:non_expiring?).and_return(false)
+      end
+
+      it "doesn't overwrite the type" do
+        expect{ subject }.to_not change{ store_credit.credit_type }
       end
     end
   end

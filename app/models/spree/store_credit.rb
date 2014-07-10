@@ -167,7 +167,9 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   def associate_credit_type
-    credit_type_name = category.try(:non_expiring?) ? 'Non-expiring' : 'Expiring'
-    self.credit_type = Spree::StoreCreditType.find_by_name(credit_type_name)
+    unless self.credit_type
+      credit_type_name = category.try(:non_expiring?) ? 'Non-expiring' : 'Expiring'
+      self.credit_type = Spree::StoreCreditType.find_by_name(credit_type_name)
+    end
   end
 end
