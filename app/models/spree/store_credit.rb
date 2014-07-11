@@ -14,12 +14,11 @@ class Spree::StoreCredit < ActiveRecord::Base
   belongs_to :credit_type, class_name: 'Spree::StoreCreditType', :foreign_key => 'type_id'
   has_many :store_credit_events
 
-  validates_presence_of :user, :category, :created_by
+  validates_presence_of :user_id, :category_id, :type_id, :created_by_id
   validates_numericality_of :amount, { greater_than: 0 }
   validates_numericality_of :amount_used, { greater_than_or_equal_to: 0 }
   validate :amount_used_less_than_or_equal_to_amount
   validate :amount_authorized_less_than_or_equal_to_amount
-  validates_presence_of :credit_type
 
   delegate :name, to: :category, prefix: true
   delegate :email, to: :created_by, prefix: true
@@ -167,7 +166,9 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   def associate_credit_type
-    credit_type_name = category.try(:non_expiring?) ? 'Non-expiring' : 'Expiring'
-    self.credit_type = Spree::StoreCreditType.find_by_name(credit_type_name)
+    unless self.type_id
+      credit_type_name = category.try(:non_expiring?) ? 'Non-expiring' : 'Expiring'
+      self.credit_type = Spree::StoreCreditType.find_by_name(credit_type_name)
+    end
   end
 end
