@@ -63,5 +63,6 @@ FactoryGirl.define do
     purchaser   { create(:user) }
     amount      { '25' }
     currency    { 'USD' }
+    line_item   { create(:line_item) }
   end
 end
