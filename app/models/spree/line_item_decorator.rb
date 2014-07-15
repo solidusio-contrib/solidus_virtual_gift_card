@@ -3,7 +3,7 @@ module Spree::LineItemDecorator
 
   included do
     has_many :gift_cards, class_name: Spree::VirtualGiftCard
-    Spree::LineItem.delegate :gift_card?, :gift_card, to: :product
+    delegate :gift_card?, :gift_card, to: :product
     prepend(InstanceMethods)
   end
 
