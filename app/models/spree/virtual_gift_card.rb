@@ -34,7 +34,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   end
 
   def formatted_amount
-    number_to_currency(amount)
+    number_to_currency(amount, precision: 0)
   end
 
   def store_credit_category
