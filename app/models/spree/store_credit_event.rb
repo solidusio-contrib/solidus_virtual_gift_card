@@ -5,6 +5,7 @@ module Spree
     belongs_to :store_credit
 
     scope :exposed_events, -> { where.not(action: [Spree::StoreCredit::ELIGIBLE_ACTION, Spree::StoreCredit::AUTHORIZE_ACTION]) }
+    scope :reverse_chronological, -> { order(created_at: :desc) }
 
     delegate :currency, to: :store_credit
 

@@ -3,7 +3,7 @@ module Spree::UserDecorator
 
   included do
     has_many :store_credits, -> { includes(:credit_type) }
-    has_many :store_credit_events, -> { order 'created_at ASC' }, through: :store_credits
+    has_many :store_credit_events, through: :store_credits
 
     prepend(InstanceMethods)
   end
