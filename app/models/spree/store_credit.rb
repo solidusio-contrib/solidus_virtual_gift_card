@@ -103,7 +103,7 @@ class Spree::StoreCredit < ActiveRecord::Base
       false
     elsif capture_event && amount <= capture_event.amount
       self.action, self.authorization_code, self.action_amount = CREDIT_ACTION, authorization_code, amount
-      self.update_attributes!(amount_used: amount_used - amount)
+      create_credit_record(amount)
       true
     else
       errors.add(:base, Spree.t('store_credit_payment_method.unable_to_credit', auth_code: authorization_code))
@@ -134,6 +134,20 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   private
+
+  def create_credit_record(amount)
+    # Setting credit_to_new_allocation to true will create a new allocation anytime #credit is called
+    # If it is not set, it will update the store credit's amount in place
+    if Spree::StoreCredits::Configuration.credit_to_new_allocation
+      Spree::StoreCredit.create(amount: amount, user_id: self.user_id, category_id: self.category_id, created_by_id: self.created_by_id, currency: self.currency, type_id: self.type_id, memo: credit_allocation_memo)
+    else
+      self.update_attributes!(amount_used: amount_used - amount)
+    end
+  end
+
+  def credit_allocation_memo
+    "This is a credit from store credit ID #{self.id}"
+  end
 
   def store_event
     return unless amount_changed? || amount_used_changed? || amount_authorized_changed? || action == ELIGIBLE_ACTION
