@@ -416,13 +416,52 @@ describe "StoreCredit" do
       let(:captured_amount) { 100.0 }
       let(:auth_code)       { event_auth_code }
 
-      it "returns true" do
-        subject.should be_true
+      context "credit_to_new_allocation is set" do
+        before { Spree::StoreCredits::Configuration.stub(:credit_to_new_allocation).and_return(true) }
+
+        it "returns true" do
+          subject.should be_true
+        end
+
+        it "creates a new record" do
+          expect { subject }.to change { Spree::StoreCredit.count }.by(1)
+        end
+
+        context "credits the passed amount to a new store credit record" do
+          before do
+            subject
+            @new_store_credit = Spree::StoreCredit.last
+          end
+
+          it "does not set the amount used on hte originating store credit" do
+            store_credit.reload.amount_used.should eq amount_used
+          end
+
+          it "sets the correct amount on the new store credit" do
+            @new_store_credit.amount.should eq credit_amount
+          end
+
+          [:user_id, :category_id, :created_by_id, :currency, :type_id].each do |attr|
+            it "sets attribute #{attr} inherited from the originating store credit" do
+              @new_store_credit.send(attr).should eq store_credit.send(attr)
+            end
+          end
+
+          it "sets a memo" do
+            @new_store_credit.memo.should eq "This is a credit from store credit ID #{store_credit.id}"
+          end
+        end
       end
 
-      it "credits the passed amount to the store credit amount used" do
-        subject
-        store_credit.reload.amount_used.should eq (amount_used - credit_amount)
+      context "credit_to_new_allocation is not set" do
+        it "returns true" do
+          subject.should be_true
+        end
+
+        it "credits the passed amount to the store credit amount used" do
+          subject
+          store_credit.reload.amount_used.should eq (amount_used - credit_amount)
+        end
       end
     end
   end
