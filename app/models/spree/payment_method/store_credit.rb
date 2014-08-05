@@ -53,7 +53,7 @@ module Spree
 
     def credit(amount_in_cents, auth_code, gateway_options)
       action = -> (store_credit) {
-        store_credit.credit(amount_in_cents / 100.0, auth_code, gateway_options[:currency])
+        store_credit.credit(amount_in_cents / 100.0, auth_code, gateway_options[:currency] || store_credit.currency)
       }
 
       handle_action(action, :credit, auth_code)
