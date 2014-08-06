@@ -423,8 +423,12 @@ describe "StoreCredit" do
           subject.should be_true
         end
 
-        it "creates a new record" do
+        it "creates a new store credit record" do
           expect { subject }.to change { Spree::StoreCredit.count }.by(1)
+        end
+
+        it "does not create a new store credit event on the parent store credit" do
+          expect { subject }.to_not change { store_credit.store_credit_events.count }
         end
 
         context "credits the passed amount to a new store credit record" do
@@ -461,6 +465,10 @@ describe "StoreCredit" do
         it "credits the passed amount to the store credit amount used" do
           subject
           store_credit.reload.amount_used.should eq (amount_used - credit_amount)
+        end
+
+        it "creates a new store credit event" do
+          expect { subject }.to change { store_credit.store_credit_events.count }.by(1)
         end
       end
     end
