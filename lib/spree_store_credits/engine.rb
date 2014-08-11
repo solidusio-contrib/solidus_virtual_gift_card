@@ -16,5 +16,9 @@ module SpreeStoreCredits
     end
 
     config.to_prepare &method(:activate).to_proc
+
+    initializer "spree.gateway.payment_methods", :after => "spree.register.payment_methods" do |app|
+      app.config.spree.payment_methods << Spree::PaymentMethod::StoreCredit
+    end
   end
 end
