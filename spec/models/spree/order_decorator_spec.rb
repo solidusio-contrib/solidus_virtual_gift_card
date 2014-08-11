@@ -86,7 +86,7 @@ describe "Order" do
 
       context "there are no other payments" do
         it "adds an error to the model" do
-          subject.should be false
+          expect(subject).to be false
           order.errors.full_messages.should include(Spree.t("store_credits.errors.unable_to_fund"))
         end
       end
@@ -145,7 +145,7 @@ describe "Order" do
 
       context "there are no other payments" do
         it "adds an error to the model" do
-          subject.should be false
+          expect(subject).to be false
           order.errors.full_messages.should include(Spree.t("store_credits.errors.unable_to_fund"))
         end
       end
@@ -208,7 +208,7 @@ describe "Order" do
       subject { create(:store_credits_order_without_user) }
 
       it "returns false" do
-        subject.covered_by_store_credit.should be_false
+        expect(subject.covered_by_store_credit).to be false
       end
     end
 
@@ -224,7 +224,7 @@ describe "Order" do
         end
 
         it "returns true" do
-          subject.covered_by_store_credit.should be_true
+          expect(subject.covered_by_store_credit).to be true
         end
       end
 
@@ -235,7 +235,7 @@ describe "Order" do
         end
 
         it "returns false" do
-          subject.covered_by_store_credit.should be_false
+          expect(subject.covered_by_store_credit).to be false
         end
       end
     end

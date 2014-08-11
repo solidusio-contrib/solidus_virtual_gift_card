@@ -166,7 +166,7 @@ describe "StoreCredit" do
         before { store_credit.update_attributes(amount_authorized: authorization_amount) }
 
         it "returns true" do
-          store_credit.authorize(store_credit.amount - authorization_amount, store_credit.currency).should be_true
+          expect(store_credit.authorize(store_credit.amount - authorization_amount, store_credit.currency)).to be_truthy
         end
 
         it "adds the new amount to authorized amount" do
@@ -181,14 +181,14 @@ describe "StoreCredit" do
         before { store_credit.update_attributes(amount_authorized: store_credit.amount) }
 
         it "returns true" do
-          store_credit.authorize(store_credit.amount, store_credit.currency, auth_event.authorization_code).should be_true
+          expect(store_credit.authorize(store_credit.amount, store_credit.currency, auth_event.authorization_code)).to be true
         end
       end
     end
 
     context "amount is invalid" do
       it "returns false" do
-        store_credit.authorize(store_credit.amount * 2, store_credit.currency).should be_false
+        expect(store_credit.authorize(store_credit.amount * 2, store_credit.currency)).to be false
       end
     end
   end
@@ -198,7 +198,7 @@ describe "StoreCredit" do
       subject { store_credit.validate_authorization(store_credit.amount * 2, store_credit.currency) }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error to the model" do
@@ -211,7 +211,7 @@ describe "StoreCredit" do
       subject { store_credit.validate_authorization(store_credit.amount, "EUR") }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error to the model" do
@@ -224,7 +224,7 @@ describe "StoreCredit" do
       subject { store_credit.validate_authorization(store_credit.amount, store_credit.currency) }
 
       it "returns true" do
-        subject.should be_true
+        expect(subject).to be true
       end
     end
   end
@@ -242,7 +242,7 @@ describe "StoreCredit" do
       subject { store_credit.capture(authorized_amount * 2, auth_code,store_credit.currency) }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error to the model" do
@@ -259,7 +259,7 @@ describe "StoreCredit" do
       subject { store_credit.capture(authorized_amount, auth_code, "EUR") }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error to the model" do
@@ -278,7 +278,7 @@ describe "StoreCredit" do
       subject { store_credit.capture(authorized_amount - remaining_authorized_amount, auth_code, store_credit.currency) }
 
       it "returns true" do
-        subject.should be_true
+        expect(subject).to be_truthy
       end
 
       it "updates the authorized amount to the difference between the captured amount and the authorized amount" do
@@ -301,7 +301,7 @@ describe "StoreCredit" do
       subject { store_credit.void(auth_code) }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error to the model" do
@@ -321,7 +321,7 @@ describe "StoreCredit" do
       subject { store_credit.void(auth_code) }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "does not change the amount used on the store credit" do
@@ -341,7 +341,7 @@ describe "StoreCredit" do
       subject { store_credit.void(auth_code) }
 
       it "returns true" do
-        subject.should be_true
+        expect(subject).to be true
       end
 
       it "returns the capture amount to the store credit" do
@@ -369,7 +369,7 @@ describe "StoreCredit" do
       let(:auth_code)       { event_auth_code }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error message about the currency mismatch" do
@@ -385,7 +385,7 @@ describe "StoreCredit" do
       let(:auth_code)       { "UNKNOWN_CODE" }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error message about the currency mismatch" do
@@ -401,7 +401,7 @@ describe "StoreCredit" do
       let(:auth_code)       { event_auth_code }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
 
       it "adds an error message about the currency mismatch" do
@@ -420,7 +420,7 @@ describe "StoreCredit" do
         before { Spree::StoreCredits::Configuration.stub(:credit_to_new_allocation).and_return(true) }
 
         it "returns true" do
-          subject.should be_true
+          expect(subject).to be true
         end
 
         it "creates a new store credit record" do
@@ -459,7 +459,7 @@ describe "StoreCredit" do
 
       context "credit_to_new_allocation is not set" do
         it "returns true" do
-          subject.should be_true
+          expect(subject).to be true
         end
 
         it "credits the passed amount to the store credit amount used" do
@@ -524,7 +524,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'pending' }
 
       it "returns true" do
-        subject.should be_true
+        expect(subject).to be true
       end
     end
 
@@ -532,7 +532,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'checkout' }
 
       it "returns true" do
-        subject.should be_true
+        expect(subject).to be true
       end
     end
 
@@ -540,7 +540,7 @@ describe "StoreCredit" do
       let(:payment_state) { Spree::StoreCredit::VOID_ACTION }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
 
@@ -548,7 +548,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'invalid' }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
 
@@ -556,7 +556,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'completed' }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
   end
@@ -571,7 +571,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'pending' }
 
       it "returns true" do
-        subject.should be_true
+        expect(subject).to be true
       end
     end
 
@@ -579,7 +579,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'checkout' }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
 
@@ -587,7 +587,7 @@ describe "StoreCredit" do
       let(:payment_state) { Spree::StoreCredit::VOID_ACTION }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
 
@@ -595,7 +595,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'invalid' }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
 
@@ -603,7 +603,7 @@ describe "StoreCredit" do
       let(:payment_state) { 'completed' }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
   end
@@ -618,7 +618,7 @@ describe "StoreCredit" do
       let(:payment_state) { "pending" }
 
       it "returns false" do
-        subject.should be_false
+        expect(subject).to be false
       end
     end
 
@@ -629,7 +629,7 @@ describe "StoreCredit" do
         before { payment.order.stub(payment_state: 'paid') }
 
         it "returns false" do
-          subject.should be_false
+          expect(subject).to be false
         end
       end
 
@@ -640,7 +640,7 @@ describe "StoreCredit" do
           before { payment.stub(credit_allowed: 0.0) }
 
           it "returns false" do
-            subject.should be_false
+            expect(subject).to be false
           end
         end
 
@@ -648,7 +648,7 @@ describe "StoreCredit" do
           before { payment.stub(credit_allowed: 5.0) }
 
           it "returns true" do
-            subject.should be_true
+            expect(subject).to be true
           end
         end
       end

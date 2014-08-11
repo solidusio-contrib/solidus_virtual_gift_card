@@ -68,12 +68,12 @@ describe "VirtualGiftCard" do
     it 'is redeemed if there is a redeemed_at set' do
       gift_card.redeemed_at = Time.now
       subject
-      gift_card.redeemed?.should be true
+      expect(gift_card.redeemed?).to be true
     end
 
     it 'is not redeemed if there is no timestamp for redeemed_at' do
       subject
-      gift_card.redeemed?.should be false
+      expect(gift_card.redeemed?).to be false
     end
   end
 
@@ -86,7 +86,7 @@ describe "VirtualGiftCard" do
       before { gift_card.redeemed_at = Date.yesterday }
 
       it 'should return false' do
-        subject.should be false
+        expect(subject).to be false
       end
 
       context 'does nothing to the gift card' do
@@ -135,7 +135,7 @@ describe "VirtualGiftCard" do
       end
 
       it 'returns true' do
-        subject.should be true
+        expect(subject).to be true
       end
 
       it 'sets redeemed_at' do

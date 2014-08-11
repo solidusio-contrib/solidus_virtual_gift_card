@@ -8,7 +8,7 @@ describe Spree::StoreCreditCategory, :type => :model do
       let(:category_name) { Spree::StoreCredits::Configuration.non_expiring_credit_types.first }
 
       it "returns true" do
-        subject.should be true
+        expect(subject).to be true
       end
     end
 
@@ -16,7 +16,7 @@ describe Spree::StoreCreditCategory, :type => :model do
       let(:category_name) { "Expiring" }
 
       it "returns false" do
-        subject.should be false
+        expect(subject).to be false
       end
     end
   end

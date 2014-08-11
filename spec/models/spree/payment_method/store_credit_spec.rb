@@ -8,21 +8,21 @@ describe Spree::PaymentMethod::StoreCredit do
   context "#authorize" do
     it "declines an unknown store credit" do
       resp = subject.authorize(100, nil, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
     end
 
     it "declines a store credit with insuffient funds" do
       store_credit = create(:store_credit)
       resp = subject.authorize((store_credit.amount_remaining * 100) + 1, store_credit, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.insufficient_funds')
     end
 
     it "declines a store credit not matching the order currency" do
       store_credit = create(:store_credit, currency: 'AUD')
       resp = subject.authorize((store_credit.amount_remaining * 100) - 1, store_credit, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
     end
 
@@ -30,7 +30,7 @@ describe Spree::PaymentMethod::StoreCredit do
       store_credit = create(:store_credit)
       resp = subject.authorize((store_credit.amount_remaining * 100) - 1, store_credit, gateway_options)
 
-      resp.success?.should be_true
+      expect(resp.success?).to be true
       resp.authorization.should_not be_nil
     end
   end
@@ -40,7 +40,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
     it "declines an unknown store credit" do
       resp = subject.capture(100, -1, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
     end
 
@@ -50,7 +50,7 @@ describe Spree::PaymentMethod::StoreCredit do
       Spree::StoreCredit.any_instance.stub(authorize: true)
 
       resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.insufficient_authorized_amount')
     end
 
@@ -59,7 +59,7 @@ describe Spree::PaymentMethod::StoreCredit do
       auth_event = create(:store_credit_auth_event, store_credit: store_credit, amount: authorized_amount)
 
       resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
     end
 
@@ -68,7 +68,7 @@ describe Spree::PaymentMethod::StoreCredit do
       auth_event = create(:store_credit_auth_event, store_credit: store_credit, amount: authorized_amount)
 
       resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
-      resp.success?.should be_true
+      expect(resp.success?).to be true
       resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
     end
   end
@@ -76,7 +76,7 @@ describe Spree::PaymentMethod::StoreCredit do
   context "#void" do
     it "declines an unknown store credit" do
       resp = subject.void(1)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
     end
 
@@ -85,14 +85,14 @@ describe Spree::PaymentMethod::StoreCredit do
       Spree::StoreCredit.any_instance.stub(void: false)
 
       resp = subject.void(auth_event.authorization_code, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
     end
 
     it "voids a valid store credit void request" do
       auth_event = create(:store_credit_auth_event)
 
       resp = subject.void(auth_event.authorization_code)
-      resp.success?.should be_true
+      expect(resp.success?).to be true
       resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::VOID_ACTION)
     end
   end
@@ -110,7 +110,7 @@ describe Spree::PaymentMethod::StoreCredit do
                                                authorization_code: auth_code)
 
       resp = subject.purchase(amount * 100.0, store_credit, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
     end
 
@@ -123,7 +123,7 @@ describe Spree::PaymentMethod::StoreCredit do
                                                authorization_code: auth_code)
 
       resp = subject.purchase(amount * 100.0, store_credit, gateway_options)
-      resp.success?.should be_true
+      expect(resp.success?).to be true
       resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
     end
   end
@@ -131,7 +131,7 @@ describe Spree::PaymentMethod::StoreCredit do
   context "#credit" do
     it "declines an unknown store credit" do
       resp = subject.credit(100.0, 1, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
       resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
     end
 
@@ -140,7 +140,7 @@ describe Spree::PaymentMethod::StoreCredit do
       Spree::StoreCredit.any_instance.stub(credit: false)
 
       resp = subject.credit(100.0, auth_event.authorization_code, gateway_options)
-      resp.success?.should be_false
+      expect(resp.success?).to be false
     end
 
     it "credits a valid store credit credit request" do
@@ -148,7 +148,7 @@ describe Spree::PaymentMethod::StoreCredit do
       Spree::StoreCredit.any_instance.stub(credit: true)
 
       resp = subject.credit(100.0, auth_event.authorization_code, gateway_options)
-      resp.success?.should be_true
+      expect(resp.success?).to be true
       resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
     end
   end
