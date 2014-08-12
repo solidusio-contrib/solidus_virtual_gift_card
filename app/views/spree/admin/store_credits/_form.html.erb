@@ -2,7 +2,7 @@
   <div class="alpha twelve columns">
     <%= f.field_container :amount do %>
       <%= f.label :amount, Spree.t(:amount) %> <span class="required">*</span><br />
-      <%= f.number_field :amount, min: 0.00 %>
+      <%= f.number_field :amount, min: 0.00, step: :any %>
       <%= f.error_message_on :amount %>
     <% end %>
   </div>
