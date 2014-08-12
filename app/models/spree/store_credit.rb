@@ -164,6 +164,12 @@ class Spree::StoreCredit < ActiveRecord::Base
     "#{self.id}-SC-#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}"
   end
 
+  class << self
+    def default_created_by
+      Spree.user_class.find_by(email: "spree@example.com")
+    end
+  end
+
   private
 
   def create_credit_record(amount, action_attributes={})

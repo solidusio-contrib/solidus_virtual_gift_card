@@ -9,4 +9,10 @@ class Spree::StoreCreditCategory < ActiveRecord::Base
   def non_expiring_category_types
     DEFAULT_NON_EXPIRING_TYPES | Spree::StoreCredits::Configuration.non_expiring_credit_types
   end
+
+  class << self
+    def default_reimbursement_category(options = {})
+      Spree::StoreCreditCategory.first
+    end
+  end
 end
