@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe "VirtualGiftCard" do
   let!(:gc_category) { create(:store_credit_gift_card_category) }
+  let!(:secondary_credit_type) { create(:secondary_credit_type) }
 
   context 'validations' do
     let(:invalid_gift_card) { Spree::VirtualGiftCard.new(amount: 0, currency: 'USD', purchaser: create(:user)) }
@@ -146,6 +147,11 @@ describe "VirtualGiftCard" do
       it 'sets the redeeming user association' do
         subject
         gift_card.redeemer.should be_present
+      end
+
+      it 'sets the admin as the store credit event originator' do
+        expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+        expect(Spree::StoreCreditEvent.last.originator).to eq gift_card
       end
     end
   end

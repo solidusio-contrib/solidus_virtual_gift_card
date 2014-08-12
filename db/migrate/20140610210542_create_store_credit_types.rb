@@ -11,7 +11,7 @@ class CreateStoreCreditTypes < ActiveRecord::Migration
     add_index :spree_store_credits, :type_id
     add_index :spree_store_credit_types, :priority
 
-    default_type = Spree::StoreCreditType.create(:name => 'Promotional', :priority => 1)
-    Spree::StoreCredit.update_all(:type_id => default_type.id)
+    default_type = Spree::StoreCreditType.create!(name: 'Promotional', priority: 1)
+    Spree::StoreCredit.update_all(type_id: default_type.id)
   end
 end

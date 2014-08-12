@@ -91,6 +91,11 @@ describe Spree::Admin::StoreCreditsController do
         subject
         user.reload.store_credits.first.created_by.should eq admin_user
       end
+
+      it 'sets the admin as the store credit event originator' do
+        expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+        expect(Spree::StoreCreditEvent.last.originator).to eq admin_user
+      end
     end
 
     context "the passed parameters are invalid" do
