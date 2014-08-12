@@ -28,10 +28,12 @@ module SpreeStoreCredits::PaymentDecorator
       # if the source is a store credit.
       return unless store_credit? && source.is_a?(Spree::StoreCredit)
 
-      source.action = Spree::StoreCredit::ELIGIBLE_ACTION
-      source.authorization_code = response_code
-      source.action_amount = amount
-      source.save! # creates the store credit event
+      # creates the store credit event
+      source.update_attributes!({
+        action: Spree::StoreCredit::ELIGIBLE_ACTION,
+        action_amount: amount,
+        action_authorization_code: response_code,
+      })
     end
 
     def invalidate_old_payments

@@ -6,94 +6,164 @@ describe Spree::PaymentMethod::StoreCredit do
   let(:gateway_options) { payment.gateway_options }
 
   context "#authorize" do
-    it "declines an unknown store credit" do
-      resp = subject.authorize(100, nil, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+    subject do
+      Spree::PaymentMethod::StoreCredit.new.authorize(auth_amount, store_credit, gateway_options)
     end
 
-    it "declines a store credit with insuffient funds" do
-      store_credit = create(:store_credit)
-      resp = subject.authorize((store_credit.amount_remaining * 100) + 1, store_credit, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.insufficient_funds')
+    let(:auth_amount) { store_credit.amount_remaining * 100 }
+    let(:store_credit) { create(:store_credit) }
+    let(:gateway_options) { super().merge(originator: originator) }
+    let(:originator) { nil }
+
+    context 'without an invalid store credit' do
+      let(:store_credit) { nil }
+      let(:auth_amount) { 10 }
+
+      it "declines an unknown store credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+      end
     end
 
-    it "declines a store credit not matching the order currency" do
-      store_credit = create(:store_credit, currency: 'AUD')
-      resp = subject.authorize((store_credit.amount_remaining * 100) - 1, store_credit, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
+    context 'with insuffient funds' do
+      let(:auth_amount) { (store_credit.amount_remaining * 100) + 1 }
+
+      it "declines a store credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.insufficient_funds')
+      end
     end
 
-    it "authorizes a valid store credit" do
-      store_credit = create(:store_credit)
-      resp = subject.authorize((store_credit.amount_remaining * 100) - 1, store_credit, gateway_options)
+    context 'when the currency does not match the order currency' do
+      let(:store_credit) { create(:store_credit, currency: 'AUD') }
 
-      expect(resp.success?).to be true
-      resp.authorization.should_not be_nil
+      it "declines the credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
+      end
+    end
+
+    context 'with a valid request' do
+      it "authorizes a valid store credit" do
+        expect(subject.success?).to be true
+        subject.authorization.should_not be_nil
+      end
+
+      context 'with an originator' do
+        let(:originator) { double('originator') }
+
+        it 'passes the originator' do
+          Spree::StoreCredit.any_instance.should_receive(:authorize)
+            .with(anything, anything, action_originator: originator)
+          subject
+        end
+      end
     end
   end
 
   context "#capture" do
-    let(:authorized_amount) { 10.00 }
-
-    it "declines an unknown store credit" do
-      resp = subject.capture(100, -1, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+    subject do
+      Spree::PaymentMethod::StoreCredit.new.capture(capture_amount, auth_code, gateway_options)
     end
 
-    it "declines a store credit when unable to authorize the amount" do
-      store_credit = create(:store_credit, amount_authorized: authorized_amount - 1)
-      auth_event = create(:store_credit_auth_event, store_credit: store_credit, amount: authorized_amount - 1)
-      Spree::StoreCredit.any_instance.stub(authorize: true)
+    let(:capture_amount) { 10_00 }
+    let(:auth_code) { auth_event.authorization_code }
+    let(:gateway_options) { super().merge(originator: originator) }
 
-      resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.insufficient_authorized_amount')
+    let(:authorized_amount) { capture_amount/100.0 }
+    let(:auth_event) { create(:store_credit_auth_event, store_credit: store_credit, amount: authorized_amount) }
+    let(:store_credit) { create(:store_credit, amount_authorized: authorized_amount) }
+    let(:originator) { nil }
+
+    context 'with an invalid auth code' do
+      let(:auth_code) { -1 }
+
+      it "declines an unknown store credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+      end
     end
 
-    it "declines a store credit not matching the order currency" do
-      store_credit = create(:store_credit, currency: 'AUD', amount_authorized: authorized_amount)
-      auth_event = create(:store_credit_auth_event, store_credit: store_credit, amount: authorized_amount)
+    context 'when unable to authorize the amount' do
+      let(:authorized_amount) { (capture_amount-1)/100 }
 
-      resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
+      before do
+        Spree::StoreCredit.any_instance.stub(authorize: true)
+      end
+
+      it "declines a store credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.insufficient_authorized_amount')
+      end
     end
 
-    it "captures a valid store credit" do
-      store_credit = create(:store_credit, amount_authorized: authorized_amount)
-      auth_event = create(:store_credit_auth_event, store_credit: store_credit, amount: authorized_amount)
+    context 'when the currency does not match the order currency' do
+      let(:store_credit) { create(:store_credit, currency: 'AUD', amount_authorized: authorized_amount) }
 
-      resp = subject.capture(authorized_amount * 100, auth_event.authorization_code, gateway_options)
-      expect(resp.success?).to be true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
+      it "declines the credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
+      end
+    end
+
+    context 'with a valid request' do
+      it "captures the store credit" do
+        subject.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
+        expect(subject.success?).to be true
+      end
+
+      context 'with an originator' do
+        let(:originator) { double('originator') }
+
+        it 'passes the originator' do
+          Spree::StoreCredit.any_instance.should_receive(:capture)
+            .with(anything, anything, anything, action_originator: originator)
+          subject
+        end
+      end
     end
   end
 
   context "#void" do
-    it "declines an unknown store credit" do
-      resp = subject.void(1)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+    subject do
+      Spree::PaymentMethod::StoreCredit.new.void(auth_code, gateway_options)
     end
 
-    it "returns an error response when the store credit isn't voided successfully" do
-      auth_event = create(:store_credit_auth_event)
-      Spree::StoreCredit.any_instance.stub(void: false)
+    let(:auth_code) { auth_event.authorization_code }
+    let(:gateway_options) { super().merge(originator: originator) }
+    let(:auth_event) { create(:store_credit_auth_event) }
+    let(:originator) { nil }
 
-      resp = subject.void(auth_event.authorization_code, gateway_options)
-      expect(resp.success?).to be false
+    context 'with an invalid auth code' do
+      let(:auth_code) { 1 }
+
+      it "declines an unknown store credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+      end
+    end
+
+    context 'when the store credit is not voided successfully' do
+      before { Spree::StoreCredit.any_instance.stub(void: false) }
+
+      it "returns an error response" do
+        expect(subject.success?).to be false
+      end
     end
 
     it "voids a valid store credit void request" do
-      auth_event = create(:store_credit_auth_event)
+      expect(subject.success?).to be true
+      subject.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::VOID_ACTION)
+    end
 
-      resp = subject.void(auth_event.authorization_code)
-      expect(resp.success?).to be true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::VOID_ACTION)
+    context 'with an originator' do
+      let(:originator) { double('originator') }
+
+      it 'passes the originator' do
+        Spree::StoreCredit.any_instance.should_receive(:void)
+          .with(anything, action_originator: originator)
+        subject
+      end
     end
   end
 
@@ -129,27 +199,50 @@ describe Spree::PaymentMethod::StoreCredit do
   end
 
   context "#credit" do
-    it "declines an unknown store credit" do
-      resp = subject.credit(100.0, 1, gateway_options)
-      expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+    subject do
+      Spree::PaymentMethod::StoreCredit.new.credit(credit_amount, auth_code, gateway_options)
     end
 
-    it "returns an error response when the store credit isn't credited successfully" do
-      auth_event = create(:store_credit_auth_event)
-      Spree::StoreCredit.any_instance.stub(credit: false)
+    let(:credit_amount) { 100.0 }
+    let(:auth_code) { auth_event.authorization_code }
+    let(:gateway_options) { super().merge(originator: originator) }
+    let(:auth_event) { create(:store_credit_auth_event) }
+    let(:originator) { nil }
 
-      resp = subject.credit(100.0, auth_event.authorization_code, gateway_options)
-      expect(resp.success?).to be false
+    context 'with an invalid auth code' do
+      let(:auth_code) { 1 }
+
+      it "declines an unknown store credit" do
+        expect(subject.success?).to be false
+        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+      end
     end
 
-    it "credits a valid store credit credit request" do
-      auth_event = create(:store_credit_auth_event)
-      Spree::StoreCredit.any_instance.stub(credit: true)
+    context "when the store credit isn't credited successfully" do
+      before { Spree::StoreCredit.any_instance.stub(credit: false) }
 
-      resp = subject.credit(100.0, auth_event.authorization_code, gateway_options)
-      expect(resp.success?).to be true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
+      it "returns an error response" do
+        expect(subject.success?).to be false
+      end
+    end
+
+    context 'with a valid credit request' do
+      before { Spree::StoreCredit.any_instance.stub(credit: true) }
+
+      it "credits a valid store credit credit request" do
+        expect(subject.success?).to be true
+        subject.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
+      end
+    end
+
+    context 'with an originator' do
+      let(:originator) { double('originator') }
+
+      it 'passes the originator' do
+        Spree::StoreCredit.any_instance.should_receive(:credit)
+          .with(anything, anything, anything, action_originator: originator)
+        subject
+      end
     end
   end
 end

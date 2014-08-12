@@ -21,7 +21,15 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   def redeem(redeemer)
     return false if redeemed?
-    self.build_store_credit(amount: self.amount, currency: self.currency, memo: self.memo, user: redeemer, created_by: redeemer, category: self.store_credit_category).save
+    self.build_store_credit({
+      amount: self.amount,
+      currency: self.currency,
+      memo: self.memo,
+      user: redeemer,
+      created_by: redeemer,
+      action_originator: self,
+      category: self.store_credit_category,
+    }).save
     self.update_attributes( redeemed_at: Time.now, redeemer: redeemer )
   end
 

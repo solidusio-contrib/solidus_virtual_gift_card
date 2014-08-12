@@ -93,6 +93,8 @@ RSpec.configure do |config|
   config.include Devise::TestHelpers, type: :controller
   config.extend AuthenticationSupport
 
+  config.extend WithModel
+
   config.before do
     Spree::Api::Config[:requires_authentication] = true
     Spree::StoreCredits::Configuration.set_configs(non_expiring_credit_types: ['Non-expiring'])

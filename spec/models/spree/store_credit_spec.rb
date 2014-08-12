@@ -160,6 +160,7 @@ describe "StoreCredit" do
     context "amount is valid" do
       let(:authorization_amount)       { 1.0 }
       let(:added_authorization_amount) { 3.0 }
+      let(:originator) { nil }
 
       context "amount has not been authorized yet" do
 
@@ -173,6 +174,19 @@ describe "StoreCredit" do
           store_credit.authorize(added_authorization_amount, store_credit.currency)
           store_credit.reload.amount_authorized.should eq (authorization_amount + added_authorization_amount)
         end
+
+        context "originator is present" do
+          with_model 'OriginatorThing'
+
+          let(:originator) { OriginatorThing.create! } # won't actually be a user. just giving it a valid model here
+
+          subject { store_credit.authorize(added_authorization_amount, store_credit.currency, action_originator: originator) }
+
+          it "records the originator" do
+            expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+            expect(Spree::StoreCreditEvent.last.originator).to eq originator
+          end
+        end
       end
 
       context "authorization has already happened" do
@@ -181,7 +195,7 @@ describe "StoreCredit" do
         before { store_credit.update_attributes(amount_authorized: store_credit.amount) }
 
         it "returns true" do
-          expect(store_credit.authorize(store_credit.amount, store_credit.currency, auth_event.authorization_code)).to be true
+          expect(store_credit.authorize(store_credit.amount, store_credit.currency, action_authorization_code: auth_event.authorization_code)).to be true
         end
       end
     end
@@ -274,8 +288,9 @@ describe "StoreCredit" do
 
     context "valid capture" do
       let(:remaining_authorized_amount) { 1 }
+      let(:originator) { nil }
 
-      subject { store_credit.capture(authorized_amount - remaining_authorized_amount, auth_code, store_credit.currency) }
+      subject { store_credit.capture(authorized_amount - remaining_authorized_amount, auth_code, store_credit.currency, action_originator: originator) }
 
       it "returns true" do
         expect(subject).to be_truthy
@@ -290,15 +305,30 @@ describe "StoreCredit" do
         subject
         store_credit.reload.amount_used.should eq authorized_amount - remaining_authorized_amount
       end
+
+      context "originator is present" do
+        with_model 'OriginatorThing'
+
+        let(:originator) { OriginatorThing.create! } # won't actually be a user. just giving it a valid model here
+
+        it "records the originator" do
+          expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+          expect(Spree::StoreCreditEvent.last.originator).to eq originator
+        end
+      end
     end
   end
 
   describe "#void" do
     let(:auth_code)    { "1-SC-20141111111111" }
     let(:store_credit) { create(:store_credit, amount_used: 150.0) }
+    let(:originator) { nil }
+
+    subject do
+      store_credit.void(auth_code, action_originator: originator)
+    end
 
     context "no event found for auth_code" do
-      subject { store_credit.void(auth_code) }
 
       it "returns false" do
         expect(subject).to be false
@@ -318,8 +348,6 @@ describe "StoreCredit" do
                                     amount: captured_amount,
                                     store_credit: store_credit) }
 
-      subject { store_credit.void(auth_code) }
-
       it "returns false" do
         expect(subject).to be false
       end
@@ -338,14 +366,23 @@ describe "StoreCredit" do
                                  amount: authorized_amount,
                                  store_credit: store_credit) }
 
-      subject { store_credit.void(auth_code) }
-
       it "returns true" do
         expect(subject).to be true
       end
 
       it "returns the capture amount to the store credit" do
         expect { subject }.to change{ store_credit.amount_authorized.to_f }.by(-authorized_amount)
+      end
+
+      context "originator is present" do
+        with_model 'OriginatorThing'
+
+        let(:originator) { OriginatorThing.create! } # won't actually be a user. just giving it a valid model here
+
+        it "records the originator" do
+          expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+          expect(Spree::StoreCreditEvent.last.originator).to eq originator
+        end
       end
     end
   end
@@ -359,8 +396,9 @@ describe "StoreCredit" do
                                    authorization_code: event_auth_code,
                                    amount: captured_amount,
                                    store_credit: store_credit) }
+    let(:originator) { nil }
 
-    subject { store_credit.credit(credit_amount, auth_code, currency) }
+    subject { store_credit.credit(credit_amount, auth_code, currency, action_originator: originator) }
 
     context "currency does not match" do
       let(:currency)        { "AUD" }
@@ -453,6 +491,17 @@ describe "StoreCredit" do
 
           it "sets a memo" do
             @new_store_credit.memo.should eq "This is a credit from store credit ID #{store_credit.id}"
+          end
+        end
+
+        context "originator is present" do
+          with_model 'OriginatorThing'
+
+          let(:originator) { OriginatorThing.create! } # won't actually be a user. just giving it a valid model here
+
+          it "records the originator" do
+            expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+            expect(Spree::StoreCreditEvent.last.originator).to eq originator
           end
         end
       end
@@ -692,7 +741,7 @@ describe "StoreCredit" do
           it "creates an event with the set action" do
             store_credit = build(:store_credit)
             store_credit.action = Spree::StoreCredit::VOID_ACTION
-            store_credit.authorization_code = "1-SC-TEST"
+            store_credit.action_authorization_code = "1-SC-TEST"
 
             expect { store_credit.save! }.to change { Spree::StoreCreditEvent.where(action: Spree::StoreCredit::VOID_ACTION).count }.by(1)
           end

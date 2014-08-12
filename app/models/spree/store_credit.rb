@@ -28,7 +28,7 @@ class Spree::StoreCredit < ActiveRecord::Base
   before_validation :associate_credit_type
   after_save :store_event
 
-  attr_accessor :action, :authorization_code, :action_amount
+  attr_accessor :action, :action_amount, :action_originator, :action_authorization_code
 
   def display_amount
     Spree::Money.new(amount)
@@ -42,13 +42,26 @@ class Spree::StoreCredit < ActiveRecord::Base
     amount - amount_used - amount_authorized
   end
 
-  def authorize(amount, order_currency, authorization_code = generate_authorization_code)
-    # Don't authorize again on capture
-    return true if store_credit_events.find_by(action: AUTHORIZE_ACTION, authorization_code: authorization_code)
+  def authorize(amount, order_currency, options={})
+    authorization_code = options[:action_authorization_code]
+    if authorization_code
+      if store_credit_events.find_by(action: AUTHORIZE_ACTION, authorization_code: authorization_code)
+        # Don't authorize again on capture
+        return true
+      end
+    else
+      authorization_code = generate_authorization_code
+    end
 
     if validate_authorization(amount, order_currency)
-      self.action, self.authorization_code, self.action_amount = AUTHORIZE_ACTION, authorization_code, amount
-      update_attributes!(amount_authorized: self.amount_authorized + amount)
+      update_attributes!({
+        action: AUTHORIZE_ACTION,
+        action_amount: amount,
+        action_originator: options[:action_originator],
+        action_authorization_code: authorization_code,
+
+        amount_authorized: self.amount_authorized + amount,
+      })
       authorization_code
     else
       errors.add(:base, Spree.t('store_credit_payment_method.insufficient_authorized_amount'))
@@ -65,16 +78,23 @@ class Spree::StoreCredit < ActiveRecord::Base
     return errors.blank?
   end
 
-  def capture(amount, authorization_code, order_currency)
-    return false unless authorize(amount, order_currency, authorization_code)
+  def capture(amount, authorization_code, order_currency, options={})
+    return false unless authorize(amount, order_currency, action_authorization_code: authorization_code)
 
     if amount <= amount_authorized
       if currency != order_currency
         errors.add(:base, Spree.t('store_credit_payment_method.currency_mismatch'))
         false
       else
-        self.action, self.authorization_code, self.action_amount = CAPTURE_ACTION, authorization_code, amount
-        update_attributes!(amount_used: self.amount_used + amount, amount_authorized: self.amount_authorized - amount)
+        update_attributes!({
+          action: CAPTURE_ACTION,
+          action_amount: amount,
+          action_originator: options[:action_originator],
+          action_authorization_code: authorization_code,
+
+          amount_used: self.amount_used + amount,
+          amount_authorized: self.amount_authorized - amount,
+        })
         authorization_code
       end
     else
@@ -83,10 +103,16 @@ class Spree::StoreCredit < ActiveRecord::Base
     end
   end
 
-  def void(authorization_code)
+  def void(authorization_code, options={})
     if auth_event = store_credit_events.find_by(action: AUTHORIZE_ACTION, authorization_code: authorization_code)
-      self.action, self.authorization_code, self.action_amount = VOID_ACTION, authorization_code, auth_event.amount
-      self.update_attributes!(amount_authorized: amount_authorized - auth_event.amount)
+      self.update_attributes!({
+        action: VOID_ACTION,
+        action_amount: auth_event.amount,
+        action_authorization_code: authorization_code,
+        action_originator: options[:action_originator],
+
+        amount_authorized: amount_authorized - auth_event.amount,
+      })
       true
     else
       errors.add(:base, Spree.t('store_credit_payment_method.unable_to_void', auth_code: authorization_code))
@@ -94,7 +120,7 @@ class Spree::StoreCredit < ActiveRecord::Base
     end
   end
 
-  def credit(amount, authorization_code, order_currency)
+  def credit(amount, authorization_code, order_currency, options={})
     # Find the amount related to this authorization_code in order to add the store credit back
     capture_event = store_credit_events.find_by(action: CAPTURE_ACTION, authorization_code: authorization_code)
 
@@ -102,8 +128,13 @@ class Spree::StoreCredit < ActiveRecord::Base
       errors.add(:base, Spree.t('store_credit_payment_method.currency_mismatch'))
       false
     elsif capture_event && amount <= capture_event.amount
-      self.action, self.authorization_code, self.action_amount = CREDIT_ACTION, authorization_code, amount
-      create_credit_record(amount)
+      action_attributes = {
+        action: CREDIT_ACTION,
+        action_amount: amount,
+        action_originator: options[:action_originator],
+        action_authorization_code: authorization_code,
+      }
+      create_credit_record(amount, action_attributes)
       true
     else
       errors.add(:base, Spree.t('store_credit_payment_method.unable_to_credit', auth_code: authorization_code))
@@ -135,14 +166,26 @@ class Spree::StoreCredit < ActiveRecord::Base
 
   private
 
-  def create_credit_record(amount)
+  def create_credit_record(amount, action_attributes={})
     # Setting credit_to_new_allocation to true will create a new allocation anytime #credit is called
     # If it is not set, it will update the store credit's amount in place
-    if Spree::StoreCredits::Configuration.credit_to_new_allocation
-      Spree::StoreCredit.create(amount: amount, user_id: self.user_id, category_id: self.category_id, created_by_id: self.created_by_id, currency: self.currency, type_id: self.type_id, memo: credit_allocation_memo)
+    credit = if Spree::StoreCredits::Configuration.credit_to_new_allocation
+      Spree::StoreCredit.new({
+        amount: amount,
+        user_id: self.user_id,
+        category_id: self.category_id,
+        created_by_id: self.created_by_id,
+        currency: self.currency,
+        type_id: self.type_id,
+        memo: credit_allocation_memo,
+      })
     else
-      self.update_attributes!(amount_used: amount_used - amount)
+      self.amount_used = amount_used - amount
+      self
     end
+
+    credit.assign_attributes(action_attributes)
+    credit.save!
   end
 
   def credit_allocation_memo
@@ -158,11 +201,12 @@ class Spree::StoreCredit < ActiveRecord::Base
       store_credit_events.where(action: ALLOCATION_ACTION).first_or_initialize
     end
 
-    event.update_attributes!(
+    event.update_attributes!({
       amount: action_amount || amount,
-      authorization_code: authorization_code || event.authorization_code || generate_authorization_code,
-      user_total_amount: user.total_available_store_credit
-    )
+      authorization_code: action_authorization_code || event.authorization_code || generate_authorization_code,
+      user_total_amount: user.total_available_store_credit,
+      originator: action_originator,
+    })
   end
 
   def amount_used_less_than_or_equal_to_amount

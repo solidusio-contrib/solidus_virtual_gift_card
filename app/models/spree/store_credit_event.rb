@@ -3,6 +3,7 @@ module Spree
     acts_as_paranoid
 
     belongs_to :store_credit
+    belongs_to :originator, polymorphic: true
 
     scope :exposed_events, -> { where.not(action: [Spree::StoreCredit::ELIGIBLE_ACTION, Spree::StoreCredit::AUTHORIZE_ACTION]) }
     scope :reverse_chronological, -> { order(created_at: :desc) }
