@@ -80,13 +80,15 @@ module Spree
     private
 
     def handle_action_call(store_credit, action, action_name, auth_code=nil)
-      if response = action.call(store_credit)
-        # note that we only need to return the auth code on an 'auth', but it's innocuous to always return
-        ActiveMerchant::Billing::Response.new(true,
-                                              Spree.t('store_credit_payment_method.successful_action', action: action_name),
-                                              {}, { authorization: auth_code || response })
-      else
-        ActiveMerchant::Billing::Response.new(false, store_credit.errors.full_messages.join, {}, {})
+      store_credit.with_lock do
+        if response = action.call(store_credit)
+          # note that we only need to return the auth code on an 'auth', but it's innocuous to always return
+          ActiveMerchant::Billing::Response.new(true,
+                                                Spree.t('store_credit_payment_method.successful_action', action: action_name),
+                                                {}, { authorization: auth_code || response })
+        else
+          ActiveMerchant::Billing::Response.new(false, store_credit.errors.full_messages.join, {}, {})
+        end
       end
     end
 
