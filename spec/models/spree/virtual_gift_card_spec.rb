@@ -23,6 +23,14 @@ describe "VirtualGiftCard" do
     let(:gift_card) { Spree::VirtualGiftCard.new(amount: 20, currency: 'USD', purchaser: create(:user), line_item: create(:line_item) ) }
     subject { gift_card.save }
 
+    context 'a redemption code is set already' do
+      before { gift_card.redemption_code = 'foo' }
+      it 'keeps that redemption code' do
+        subject
+        expect(gift_card.redemption_code).to eq 'foo'
+      end
+    end
+
     context 'no collision on redemption code' do
       it 'sets an initial redemption code' do
         subject

@@ -5,7 +5,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   belongs_to :purchaser, class_name: 'Spree::User'
   belongs_to :redeemer, class_name: 'Spree::User'
   belongs_to :line_item, class_name: 'Spree::LineItem'
-  before_create :set_redemption_code
+  before_create :set_redemption_code, unless: -> { redemption_code }
 
 
   validates :amount, numericality: { greater_than: 0 }
