@@ -22,6 +22,13 @@ Configure the gem with non-expiring categorizations in an initializer:
 Spree::StoreCredits::Configuration.set_configs(non_expiring_credit_types: ['Example'])
 ```
 
+Returns and Exchanges
+------------
+In order for the store credit reimbursement option to work in your store, you must add this into an initializer:
+
+```ruby
+Spree::Reimbursement.reimbursement_models = [Spree::Refund, Spree::Reimbursement::Credit]
+```
 
 Installation
 ------------
