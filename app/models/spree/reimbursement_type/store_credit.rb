@@ -22,7 +22,7 @@ class Spree::ReimbursementType::StoreCredit < Spree::ReimbursementType
 
     def create_creditable(reimbursement, unpaid_amount)
       category = Spree::StoreCreditCategory.default_reimbursement_category(category_options(reimbursement))
-      Spree::StoreCredit.new(user: reimbursement.order.user, amount: unpaid_amount, category: category, created_by: Spree::StoreCredit.default_created_by, memo: "Refund for uncreditable payments on order #{reimbursement.order.number}")
+      Spree::StoreCredit.new(user: reimbursement.order.user, amount: unpaid_amount, category: category, created_by: Spree::StoreCredit.default_created_by, memo: "Refund for uncreditable payments on order #{reimbursement.order.number}", currency: reimbursement.order.currency)
     end
 
     def store_credit_payments(reimbursement)

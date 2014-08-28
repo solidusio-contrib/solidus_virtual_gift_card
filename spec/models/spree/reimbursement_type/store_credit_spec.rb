@@ -8,6 +8,10 @@ module Spree
     let(:simulate)                { false }
     let!(:default_refund_reason)  { Spree::RefundReason.find_or_create_by!(name: Spree::RefundReason::RETURN_PROCESSING_REASON, mutable: false) }
 
+    let!(:primary_credit_type)    { create(:primary_credit_type) }
+    let!(:created_by_user)        { create(:user, email: Spree::StoreCredit::DEFAULT_CREATED_BY_EMAIL) }
+    let!(:default_reimbursement_category) { create(:store_credit_category) }
+
     subject { Spree::ReimbursementType::StoreCredit.reimburse(reimbursement, [return_item], simulate)}
 
     before do
@@ -72,6 +76,11 @@ module Spree
           it 'creates one lump credit for all outstanding balance payable to the customer' do
             expect { subject }.to change { Spree::Reimbursement::Credit.count }.by(1)
             expect(subject.sum(&:amount)).to eq reimbursement.return_items.to_a.sum(&:total)
+          end
+
+          it "creates a store credit with the same currency as the reimbursement's order" do
+            expect { subject }.to change { Spree::StoreCredit.count }.by(1)
+            Spree::StoreCredit.last.currency.should eq reimbursement.order.currency
           end
         end
       end
