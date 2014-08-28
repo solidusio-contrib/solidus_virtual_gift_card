@@ -8,6 +8,8 @@ class Spree::StoreCredit < ActiveRecord::Base
   AUTHORIZE_ACTION  = 'authorize'
   ALLOCATION_ACTION = 'allocation'
 
+  DEFAULT_CREATED_BY_EMAIL = "spree@example.com"
+
   belongs_to :user
   belongs_to :category, class_name: "Spree::StoreCreditCategory"
   belongs_to :created_by, class_name: "Spree::User"
@@ -166,7 +168,7 @@ class Spree::StoreCredit < ActiveRecord::Base
 
   class << self
     def default_created_by
-      Spree.user_class.find_by(email: "spree@example.com")
+      Spree.user_class.find_by(email: DEFAULT_CREATED_BY_EMAIL)
     end
   end
 
