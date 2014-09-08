@@ -33,7 +33,7 @@ FactoryGirl.define do
     priority  { "2" }
   end
 
-  factory :store_credit_payment_method, class: Spree::PaymentMethod do
+  factory :store_credit_payment_method, class: Spree::PaymentMethod::StoreCredit do
     type          "Spree::PaymentMethod::StoreCredit"
     name          "Store Credit"
     description   "Store Credit"

@@ -245,4 +245,37 @@ describe Spree::PaymentMethod::StoreCredit do
       end
     end
   end
+
+  context "#cancel" do
+    subject do
+      Spree::PaymentMethod::StoreCredit.new.cancel(auth_code)
+    end
+
+    let(:store_credit) { create(:store_credit, amount_used: captured_amount) }
+    let(:auth_code)    { "1-SC-20141111111111" }
+    let(:captured_amount) { 10.0 }
+
+    let!(:capture_event) { create(:store_credit_auth_event,
+                                    action: Spree::StoreCredit::CAPTURE_ACTION,
+                                    authorization_code: auth_code,
+                                    amount: captured_amount,
+                                    store_credit: store_credit) }
+
+    context "store credit event found" do
+      it "creates a store credit for the same amount that was captured" do
+        Spree::StoreCredit.any_instance.should_receive(:credit).with(captured_amount, auth_code, store_credit.currency)
+        subject
+      end
+    end
+
+    context "store credit event not found" do
+      subject do
+        Spree::PaymentMethod::StoreCredit.new.cancel('INVALID')
+      end
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+    end
+  end
 end

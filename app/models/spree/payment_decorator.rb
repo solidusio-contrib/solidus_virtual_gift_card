@@ -10,9 +10,11 @@ module SpreeStoreCredits::PaymentDecorator
   end
 
   module InstanceMethods
+
     def cancel!
       if store_credit?
-        credit!(amount)
+        canceled = payment_method.cancel(response_code)
+        self.void if canceled
       else
         super
       end
