@@ -9,6 +9,17 @@ describe "StoreCredit" do
   describe "callbacks" do
     subject { store_credit.save }
 
+    context "amount used is greater than zero" do
+      let(:store_credit) { create(:store_credit, amount: 100, amount_used: 1) }
+      subject { store_credit.destroy }
+
+      it 'can not delete the store credit' do
+        subject
+        store_credit.reload.should eq store_credit
+        store_credit.errors[:amount_used].should include(Spree.t('admin.store_credits.errors.amount_used_not_zero'))
+      end
+    end
+
     context "category is a non-expiring type" do
       let!(:secondary_credit_type) { create(:secondary_credit_type) }
       let(:store_credit) { build(:store_credit, credit_type: nil)}

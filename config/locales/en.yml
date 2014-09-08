@@ -61,3 +61,4 @@ en:
           cannot_change_used_store_credit: "Store credit that has been claimed cannot be changed"
           amount_used_cannot_be_greater: "cannot be greater than the credited amount"
           amount_authorized_exceeds_total_credit: " exceeds the available credit"
+          amount_used_not_zero: "is greater than zero. Can not delete store credit"
