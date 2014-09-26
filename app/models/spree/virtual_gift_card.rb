@@ -10,7 +10,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   validates :amount, numericality: { greater_than: 0 }
   validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil) }
-  validates_presence_of :purchaser_id, :line_item_id
+  validates_presence_of :purchaser_id
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
