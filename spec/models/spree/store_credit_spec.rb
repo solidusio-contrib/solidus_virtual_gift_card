@@ -685,14 +685,6 @@ describe "StoreCredit" do
     context "payment is completed" do
       let(:payment_state) { "completed" }
 
-      context "credit is not owed on the order" do
-        before { payment.order.stub(payment_state: 'paid') }
-
-        it "returns false" do
-          expect(subject).to be false
-        end
-      end
-
       context "credit is owed on the order" do
         before { payment.order.stub(payment_state: 'credit_owed') }
 

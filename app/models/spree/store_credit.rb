@@ -158,9 +158,7 @@ class Spree::StoreCredit < ActiveRecord::Base
   end
 
   def can_credit?(payment)
-    return false unless payment.completed?
-    return false unless payment.order.payment_state == 'credit_owed'
-    payment.credit_allowed > 0
+    payment.completed? && payment.credit_allowed > 0
   end
 
   def generate_authorization_code
