@@ -25,13 +25,13 @@ module Spree
     def display_action
       case action
       when Spree::StoreCredit::CAPTURE_ACTION
-        Spree.t('store_credits.captured')
+        Spree.t('store_credit.captured')
       when Spree::StoreCredit::AUTHORIZE_ACTION
-        Spree.t('store_credits.authorized')
+        Spree.t('store_credit.authorized')
       when Spree::StoreCredit::ALLOCATION_ACTION
-        Spree.t('store_credits.allocated')
+        Spree.t('store_credit.allocated')
       when Spree::StoreCredit::VOID_ACTION, Spree::StoreCredit::CREDIT_ACTION
-        Spree.t('store_credits.credit')
+        Spree.t('store_credit.credit')
       end
     end
 

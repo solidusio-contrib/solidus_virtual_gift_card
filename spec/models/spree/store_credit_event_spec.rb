@@ -46,7 +46,7 @@ describe "StoreCreditEvent" do
       let(:action) { Spree::StoreCredit::CAPTURE_ACTION }
 
       it "returns used" do
-        subject.display_action.should eq Spree.t('store_credits.captured')
+        subject.display_action.should eq Spree.t('store_credit.captured')
       end
     end
 
@@ -54,7 +54,7 @@ describe "StoreCreditEvent" do
       let(:action) { Spree::StoreCredit::AUTHORIZE_ACTION }
 
       it "returns authorized" do
-        subject.display_action.should eq Spree.t('store_credits.authorized')
+        subject.display_action.should eq Spree.t('store_credit.authorized')
       end
     end
 
@@ -62,7 +62,7 @@ describe "StoreCreditEvent" do
       let(:action) { Spree::StoreCredit::ALLOCATION_ACTION }
 
       it "returns added" do
-        subject.display_action.should eq Spree.t('store_credits.allocated')
+        subject.display_action.should eq Spree.t('store_credit.allocated')
       end
     end
 
@@ -70,7 +70,7 @@ describe "StoreCreditEvent" do
       let(:action) { Spree::StoreCredit::VOID_ACTION }
 
       it "returns credit" do
-        subject.display_action.should eq Spree.t('store_credits.credit')
+        subject.display_action.should eq Spree.t('store_credit.credit')
       end
     end
 
@@ -78,7 +78,7 @@ describe "StoreCreditEvent" do
       let(:action) { Spree::StoreCredit::CREDIT_ACTION }
 
       it "returns credit" do
-        subject.display_action.should eq Spree.t('store_credits.credit')
+        subject.display_action.should eq Spree.t('store_credit.credit')
       end
     end
   end
