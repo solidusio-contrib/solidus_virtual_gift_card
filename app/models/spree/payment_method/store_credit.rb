@@ -19,7 +19,7 @@ module Spree
       else
         action = -> (store_credit) {
           store_credit.authorize(
-            amount_in_cents / 100.0,
+            amount_in_cents / 100.0.to_d,
             gateway_options[:currency],
             action_originator: gateway_options[:originator]
           )
@@ -31,7 +31,7 @@ module Spree
     def capture(amount_in_cents, auth_code, gateway_options = {})
       action = -> (store_credit) {
         store_credit.capture(
-          amount_in_cents / 100.0,
+          amount_in_cents / 100.0.to_d,
           auth_code,
           gateway_options[:currency],
           action_originator: gateway_options[:originator]
@@ -42,7 +42,7 @@ module Spree
     end
 
     def purchase(amount_in_cents, store_credit, gateway_options = {})
-      eligible_events = store_credit.store_credit_events.where(amount: amount_in_cents / 100.0, action: Spree::StoreCredit::ELIGIBLE_ACTION)
+      eligible_events = store_credit.store_credit_events.where(amount: amount_in_cents / 100.0.to_d, action: Spree::StoreCredit::ELIGIBLE_ACTION)
       event = eligible_events.find do |eligible_event|
         store_credit.store_credit_events.where(authorization_code: eligible_event.authorization_code)
                                         .where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION).empty?
@@ -67,7 +67,7 @@ module Spree
         currency = gateway_options[:currency] || store_credit.currency
         originator = gateway_options[:originator]
 
-        store_credit.credit(amount_in_cents / 100.0, auth_code, currency, action_originator: originator)
+        store_credit.credit(amount_in_cents / 100.0.to_d, auth_code, currency, action_originator: originator)
       end
 
       handle_action(action, :credit, auth_code)

@@ -3,7 +3,8 @@ require 'spec_helper'
 describe "StoreCredit" do
 
   let(:currency) { "TEST" }
-  let(:store_credit) { build(:store_credit) }
+  let(:store_credit) { build(:store_credit, store_credit_attrs) }
+  let(:store_credit_attrs) { {} }
 
 
   describe "callbacks" do
@@ -251,6 +252,15 @@ describe "StoreCredit" do
       it "returns true" do
         expect(subject).to be true
       end
+    end
+
+    context 'troublesome floats' do
+      # 8.21.to_d < 8.21 => true
+      let(:store_credit_attrs) { {amount: 8.21} }
+
+      subject { store_credit.validate_authorization(store_credit_attrs[:amount], store_credit.currency) }
+
+      it { should be_truthy }
     end
   end
 
