@@ -25,7 +25,7 @@ en:
       user_has_no_store_credits: "User does not have any available store credit"
       select_one_store_credit: "Select store credit to go towards remaining balance"
     memo: "Memo"
-    store_credits:
+    store_credit:
       credit: "Credit"
       authorized: "Authorized"
       captured: "Used"

@@ -87,7 +87,7 @@ describe "Order" do
       context "there are no other payments" do
         it "adds an error to the model" do
           expect(subject).to be false
-          order.errors.full_messages.should include(Spree.t("store_credits.errors.unable_to_fund"))
+          order.errors.full_messages.should include(Spree.t("store_credit.errors.unable_to_fund"))
         end
       end
 
@@ -146,7 +146,7 @@ describe "Order" do
       context "there are no other payments" do
         it "adds an error to the model" do
           expect(subject).to be false
-          order.errors.full_messages.should include(Spree.t("store_credits.errors.unable_to_fund"))
+          order.errors.full_messages.should include(Spree.t("store_credit.errors.unable_to_fund"))
         end
       end
 
