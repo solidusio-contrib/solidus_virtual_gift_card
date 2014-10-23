@@ -292,6 +292,19 @@ describe "Order" do
     end
   end
 
+  describe "#finalize!" do
+    context "the order contains gift cards and transitions to complete" do
+      let(:order) { create(:order_with_line_items, state: 'complete') }
+
+      subject { order.finalize! }
+
+      it "calls #create_gift_cards" do
+        order.should_receive(:create_gift_cards)
+        subject
+      end
+    end
+  end
+
   describe "#total_applicable_store_credit" do
     context "order is in the confirm state" do
       before { order.update_attributes(state: 'confirm') }

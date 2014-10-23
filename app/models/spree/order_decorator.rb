@@ -3,12 +3,16 @@ module SpreeStoreCredits::OrderDecorator
 
   included do
     Spree::Order.state_machine.before_transition to: :confirm, do: :add_store_credit_payments
-    Spree::Order.state_machine.after_transition to: :confirm, do: :create_gift_cards
 
     prepend(InstanceMethods)
   end
 
   module InstanceMethods
+    def finalize!
+      create_gift_cards
+      super
+    end
+
     def create_gift_cards
       line_items.each do |item|
         item.quantity.times do
