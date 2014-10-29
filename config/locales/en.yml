@@ -37,6 +37,7 @@ en:
         store_credit: "Store Credit"
       gift_cards:
         gift_card: "Gift Card"
+        redemption_code: "Redemption Code"
         errors:
           not_found: "Gift card was not found"
           please_try_again: "Please try again"
