@@ -3,7 +3,7 @@ class Spree::ReimbursementType::StoreCredit < Spree::ReimbursementType
 
   class << self
     def reimburse(reimbursement, return_items, simulate)
-      unpaid_amount = return_items.sum(&:total).round(2)
+      unpaid_amount = return_items.sum(&:total).to_d.round(2, :down)
       payments = store_credit_payments(reimbursement)
       reimbursement_list = []
 

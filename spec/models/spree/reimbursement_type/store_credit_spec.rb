@@ -2,8 +2,9 @@ require 'spec_helper'
 
 module Spree
   describe ReimbursementType::StoreCredit do
-    let(:reimbursement)           { create(:reimbursement, return_items_count: 1) }
+    let(:reimbursement)           { create(:reimbursement, return_items_count: 2) }
     let(:return_item)             { reimbursement.return_items.first }
+    let(:return_item2)            { reimbursement.return_items.last }
     let(:payment)                 { reimbursement.order.payments.first }
     let(:simulate)                { false }
     let!(:default_refund_reason)  { Spree::RefundReason.find_or_create_by!(name: Spree::RefundReason::RETURN_PROCESSING_REASON, mutable: false) }
@@ -12,7 +13,7 @@ module Spree
     let!(:created_by_user)        { create(:user, email: Spree::StoreCredit::DEFAULT_CREATED_BY_EMAIL) }
     let!(:default_reimbursement_category) { create(:store_credit_category) }
 
-    subject { Spree::ReimbursementType::StoreCredit.reimburse(reimbursement, [return_item], simulate)}
+    subject { Spree::ReimbursementType::StoreCredit.reimburse(reimbursement, [return_item, return_item2], simulate)}
 
     before do
       reimbursement.update!(total: reimbursement.calculated_total)
@@ -42,10 +43,17 @@ module Spree
             Spree::ReimbursementType::StoreCredit.should_receive(:store_credit_payments).and_return([])
           end
 
-          it 'creates one readonly lump credit for all outstanding balance payable to the customer' do
-            expect(subject.map(&:class)).to eq [Spree::Reimbursement::Credit]
-            expect(subject.map(&:readonly?)).to eq [true]
-            expect(subject.sum(&:amount)).to eq reimbursement.return_items.to_a.sum(&:total)
+          context 'creates one readonly lump credit for all outstanding balance payable to the customer' do
+            it 'creates a credit that is read only' do
+              expect(subject.map(&:class)).to eq [Spree::Reimbursement::Credit]
+              expect(subject.map(&:readonly?)).to eq [true]
+            end
+
+            it 'creates a credit which amounts to the sum of the return items rounded down' do
+              return_item.should_receive(:total).and_return(10.0076)
+              return_item2.should_receive(:total).and_return(10.0023)
+              expect(subject.sum(&:amount)).to eq 20.0
+            end
           end
 
           it 'does not save to the database' do
