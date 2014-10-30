@@ -1,0 +1,16 @@
+<% content_for :page_title do %>
+  <%= link_to "#{Spree.t(:editing_user)} #{@user.email}", edit_admin_user_url(@user) %>
+<% end %>
+
+<%= render :partial => 'spree/admin/users/sidebar', :locals => { :current => :gift_cards } %>
+<% content_for :page_actions do %>
+  <li><%= link_to_with_icon 'arrow-left', Spree.t("admin.store_credits.back_to_user_list"), admin_users_path, class: 'button' %></li>
+<% end %>
+
+<%= form_for :gift_card, url: redeem_admin_user_gift_cards_path do |f| %>
+  <fieldset>
+    <legend align="center"><%= Spree.t("admin.gift_cards.redeem_gift_card") %></legend>
+    <%= render :partial => 'redemption_form', :locals => { :f => f } %>
+    <%= render :partial => 'spree/admin/shared/new_resource_links', :locals => { :collection_url => edit_admin_user_url(@user) } %>
+  </fieldset>
+<% end %>

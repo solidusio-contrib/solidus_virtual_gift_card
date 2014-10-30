@@ -3,6 +3,13 @@ Spree::Core::Engine.routes.draw do
     resources :users, only: [] do
       resources :store_credits
 
+      resources :gift_cards, only: [] do
+        collection do
+          get :lookup
+          post :redeem
+        end
+      end
+
       collection do
         resources :gift_cards, only: [:index, :show]
       end
