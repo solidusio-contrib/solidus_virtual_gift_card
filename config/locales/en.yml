@@ -37,10 +37,14 @@ en:
         store_credit: "Store Credit"
       gift_cards:
         gift_card: "Gift Card"
+        redeem: "Redeem"
+        redeem_gift_card: "Redeem Gift Card"
+        redeemed_gift_card: "Redeemed Gift Card"
         redemption_code: "Redemption Code"
         errors:
           not_found: "Gift card was not found"
           please_try_again: "Please try again"
+          unable_to_redeem_gift_card: "Unable to redeem gift card"
       store_credits:
         add: "Add store credit"
         new: "New store credit"
