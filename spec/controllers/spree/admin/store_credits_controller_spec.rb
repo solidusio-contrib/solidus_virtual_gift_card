@@ -152,8 +152,29 @@ describe Spree::Admin::StoreCreditsController do
         }
       end
 
-      context "the store credit has been used" do
-        it_behaves_like "prevents changing used store credits"
+      context "the store credit has been partially used" do
+        before { store_credit.update_attributes(amount_used: 10.0) }
+
+        context "the new amount is greater than the used amount" do
+          let(:updated_amount) { 11.0 }
+          it "updates the amount to be the passed in amount" do
+            subject
+            store_credit.reload.amount.should eq updated_amount
+          end
+        end
+
+        context "the new amount is less than the used amount" do
+          let(:updated_amount) { 9.0 }
+          it "does not update the amount" do
+            expect { subject }.not_to change { store_credit.reload.amount }
+          end
+
+          it "responds with an error message" do
+            subject
+            expect(flash.now[:error]).to match "Unable to update"
+            expect(flash.now[:error]).to match "greater than the credited amount"
+          end
+        end
       end
 
       context "the store credit has not been used" do
@@ -161,7 +182,7 @@ describe Spree::Admin::StoreCreditsController do
           subject.should redirect_to spree.admin_user_store_credits_path(user)
         end
 
-        it "creates a new store credit" do
+        it "does not create a new store credit" do
           expect { subject }.to_not change(Spree::StoreCredit, :count)
         end
 
@@ -231,7 +252,7 @@ describe Spree::Admin::StoreCreditsController do
       end
 
       it "returns an error message" do
-        response.body.should eq Spree.t("admin.store_credits.unable_to_delete")
+        response.body.should match Spree.t("admin.store_credits.unable_to_delete")
       end
     end
 

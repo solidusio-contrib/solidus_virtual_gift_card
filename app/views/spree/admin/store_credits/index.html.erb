@@ -37,8 +37,10 @@
             <span><%= l store_credit.created_at.to_date %></span>
           </td>
           <td class="actions" data-hook="admin_store_credits_index_row_actions">
-            <% if store_credit.amount_used.zero? %>
+            <% unless store_credit.amount_remaining.zero? %>
               <%= link_to_edit_url edit_admin_user_store_credit_path(@user, store_credit), { no_text: true, class: 'edit' } if can?(:edit, store_credit) %>
+            <% end %>
+            <% if store_credit.amount_used.zero? %>
               <%= link_to_delete store_credit, { no_text: true, class: 'edit', url: admin_user_store_credit_path(@user, store_credit) } if can?(:destroy, store_credit) %>
             <% end %>
           </td>

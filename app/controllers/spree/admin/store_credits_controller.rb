@@ -7,7 +7,6 @@ module Spree
       before_filter :load_user
       before_filter :load_categories, only: [:new, :edit]
       before_filter :load_store_credit, only: [:new, :edit, :update]
-      before_filter :ensure_unused_store_credit, only: [:update]
 
       def index
         @store_credits = @user.store_credits.reverse_order
@@ -26,7 +25,7 @@ module Spree
           redirect_to admin_user_store_credits_path(@user)
         else
           load_categories
-          flash[:error] = Spree.t("admin.store_credits.unable_to_create")
+          flash[:error] = "#{Spree.t("admin.store_credits.unable_to_create")} #{@store_credit.errors.full_messages}"
           render :new
         end
       end
@@ -40,7 +39,7 @@ module Spree
           redirect_to admin_user_store_credits_path(@user)
         else
           load_categories
-          flash[:error] = Spree.t("admin.store_credits.unable_to_update")
+          flash[:error] = "#{Spree.t("admin.store_credits.unable_to_update")} #{@store_credit.errors.full_messages}"
           render :edit
         end
       end
@@ -55,7 +54,7 @@ module Spree
             format.js  { render_js_for_destroy }
           end
         else
-          render text: Spree.t("admin.store_credits.unable_to_delete"), status: :unprocessable_entity
+          render text: "#{Spree.t("admin.store_credits.unable_to_delete")} #{@store_credit.errors.full_messages}", status: :unprocessable_entity
         end
       end
 
