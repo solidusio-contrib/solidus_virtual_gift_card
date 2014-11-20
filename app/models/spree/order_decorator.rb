@@ -3,6 +3,9 @@ module SpreeStoreCredits::OrderDecorator
 
   included do
     Spree::Order.state_machine.before_transition to: :confirm, do: :add_store_credit_payments
+    Spree::Order.state_machine.after_transition to: :complete, do: :send_gift_card_emails
+
+    has_many :gift_cards, through: :line_items
 
     prepend(InstanceMethods)
   end
@@ -18,6 +21,12 @@ module SpreeStoreCredits::OrderDecorator
         item.quantity.times do
           Spree::VirtualGiftCard.create!(amount: item.price, currency: item.currency, purchaser: user, line_item: item) if item.gift_card?
         end
+      end
+    end
+
+    def send_gift_card_emails
+      gift_cards.each do |gift_card|
+        Spree::GiftCardMailer.gift_card_email(gift_card).deliver
       end
     end
 

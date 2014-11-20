@@ -67,3 +67,9 @@ en:
           amount_used_cannot_be_greater: "cannot be greater than the credited amount"
           amount_authorized_exceeds_total_credit: " exceeds the available credit"
           amount_used_not_zero: "is greater than zero. Can not delete store credit"
+    gift_card_mailer:
+      gift_card_email:
+        dear_customer: "Dear customer"
+        your_gift_card_code: "Here is your gift card code"
+        gift_card_code: "Gift card code: %{code}"
+        subject: "Your gift card code"
