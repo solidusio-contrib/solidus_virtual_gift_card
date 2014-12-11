@@ -177,15 +177,7 @@ class Spree::StoreCredit < ActiveRecord::Base
     # Setting credit_to_new_allocation to true will create a new allocation anytime #credit is called
     # If it is not set, it will update the store credit's amount in place
     credit = if Spree::StoreCredits::Configuration.credit_to_new_allocation
-      Spree::StoreCredit.new({
-        amount: amount,
-        user_id: self.user_id,
-        category_id: self.category_id,
-        created_by_id: self.created_by_id,
-        currency: self.currency,
-        type_id: self.type_id,
-        memo: credit_allocation_memo,
-      })
+      Spree::StoreCredit.new(create_credit_record_params(amount))
     else
       self.amount_used = amount_used - amount
       self
@@ -193,6 +185,18 @@ class Spree::StoreCredit < ActiveRecord::Base
 
     credit.assign_attributes(action_attributes)
     credit.save!
+  end
+
+  def create_credit_record_params(amount)
+    {
+      amount: amount,
+      user_id: self.user_id,
+      category_id: self.category_id,
+      created_by_id: self.created_by_id,
+      currency: self.currency,
+      type_id: self.type_id,
+      memo: credit_allocation_memo,
+    }
   end
 
   def credit_allocation_memo
