@@ -91,7 +91,6 @@ RSpec.configure do |config|
   config.extend Spree::Api::TestingSupport::Setup, :type => :controller
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
   config.include Devise::TestHelpers, type: :controller
-  config.extend AuthenticationSupport
 
   config.extend WithModel
 

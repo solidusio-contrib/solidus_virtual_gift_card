@@ -26,7 +26,12 @@ describe Spree::Api::GiftCardsController do
     end
 
     context "the current api user is authenticated" do
-      stub_api_controller_authentication!
+      let(:user) { create(:user) }
+
+      before do
+        allow(controller).to receive(:load_user)
+        controller.instance_variable_set(:@current_api_user, user)
+      end
 
       let(:parsed_response) { HashWithIndifferentAccess.new(JSON.parse(response.body)) }
 

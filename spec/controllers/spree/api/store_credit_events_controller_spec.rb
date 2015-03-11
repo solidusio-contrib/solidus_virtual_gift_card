@@ -3,7 +3,12 @@ require 'spec_helper'
 describe Spree::Api::StoreCreditEventsController do
   render_views
 
-  stub_api_controller_authentication!
+  let(:user) { create(:user) }
+
+  before do
+    allow(controller).to receive(:load_user)
+    controller.instance_variable_set(:@current_api_user, user)
+  end
 
   describe "GET mine" do
 
