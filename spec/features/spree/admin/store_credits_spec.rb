@@ -14,14 +14,14 @@ describe "Store credits admin" do
     it "should be on the store credits page" do
       click_link store_credit.user.email
       click_link "Store Credit"
-      page.current_path.should eq spree.admin_user_store_credits_path(store_credit.user)
+      expect(page.current_path).to eq spree.admin_user_store_credits_path(store_credit.user)
 
       store_credit_table = page.find(".twelve.columns > table")
-      store_credit_table.all('tr').count.should eq 1
-      store_credit_table.should have_content(Spree::Money.new(store_credit.amount).to_s)
-      store_credit_table.should have_content(Spree::Money.new(store_credit.amount_used).to_s)
-      store_credit_table.should have_content(store_credit.category_name)
-      store_credit_table.should have_content(store_credit.created_by_email)
+      expect(store_credit_table.all('tr').count).to eq 1
+      expect(store_credit_table).to have_content(Spree::Money.new(store_credit.amount).to_s)
+      expect(store_credit_table).to have_content(Spree::Money.new(store_credit.amount_used).to_s)
+      expect(store_credit_table).to have_content(store_credit.category_name)
+      expect(store_credit_table).to have_content(store_credit.created_by_email)
     end
   end
 
@@ -31,7 +31,7 @@ describe "Store credits admin" do
       click_link "Users"
       click_link store_credit.user.email
       click_link "Store Credit"
-      Spree::Admin::StoreCreditsController.any_instance.stub(try_spree_current_user: admin_user)
+      allow_any_instance_of(Spree::Admin::StoreCreditsController).to receive_messages(try_spree_current_user: admin_user)
     end
 
     it "should create store credit and associate it with the user" do
@@ -40,10 +40,10 @@ describe "Store credits admin" do
       select "Exchange", from: "store_credit_category_id"
       click_button "Create"
 
-      page.current_path.should eq spree.admin_user_store_credits_path(store_credit.user)
+      expect(page.current_path).to eq spree.admin_user_store_credits_path(store_credit.user)
       store_credit_table = page.find(".twelve.columns > table")
-      store_credit_table.all('tr').count.should eq 2
-      Spree::StoreCredit.count.should eq 2
+      expect(store_credit_table.all('tr').count).to eq 2
+      expect(Spree::StoreCredit.count).to eq 2
     end
   end
 
@@ -55,7 +55,7 @@ describe "Store credits admin" do
       click_link "Users"
       click_link store_credit.user.email
       click_link "Store Credit"
-      Spree::Admin::StoreCreditsController.any_instance.stub(try_spree_current_user: admin_user)
+      allow_any_instance_of(Spree::Admin::StoreCreditsController).to receive_messages(try_spree_current_user: admin_user)
     end
 
     it "should create store credit and associate it with the user" do
@@ -63,10 +63,10 @@ describe "Store credits admin" do
       page.fill_in "store_credit_amount", with: updated_amount
       click_button "Update"
 
-      page.current_path.should eq spree.admin_user_store_credits_path(store_credit.user)
+      expect(page.current_path).to eq spree.admin_user_store_credits_path(store_credit.user)
       store_credit_table = page.find(".twelve.columns > table")
-      store_credit_table.should have_content(Spree::Money.new(updated_amount).to_s)
-      store_credit.reload.amount.to_f.should eq updated_amount.to_f
+      expect(store_credit_table).to have_content(Spree::Money.new(updated_amount).to_s)
+      expect(store_credit.reload.amount.to_f).to eq updated_amount.to_f
     end
   end
 

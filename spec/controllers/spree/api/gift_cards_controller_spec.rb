@@ -21,7 +21,7 @@ describe Spree::Api::GiftCardsController do
       before { subject }
 
       it "returns a 401" do
-        response.status.should eq 401
+        expect(response.status).to eq 401
       end
     end
 
@@ -40,15 +40,15 @@ describe Spree::Api::GiftCardsController do
         end
 
         it 'does not find the gift card' do
-          assigns(:gift_card).should eq nil
+          expect(assigns(:gift_card)).to eq nil
         end
 
         it 'contains an error message' do
-          parsed_response['error_message'].should be_present
+          expect(parsed_response['error_message']).to be_present
         end
 
         it "returns a 404" do
-          subject.status.should eq 404
+          expect(subject.status).to eq 404
         end
       end
 
@@ -56,7 +56,7 @@ describe Spree::Api::GiftCardsController do
         let(:parameters) { {} }
 
         it "returns a 404" do
-          subject.status.should eq 404
+          expect(subject.status).to eq 404
         end
       end
 
@@ -64,18 +64,18 @@ describe Spree::Api::GiftCardsController do
 
         it 'finds the gift card' do
           subject
-          assigns(:gift_card).should eq gift_card
+          expect(assigns(:gift_card)).to eq gift_card
         end
 
         it 'redeems the gift card' do
-          Spree::VirtualGiftCard.stub(:active_by_redemption_code).and_return(gift_card)
-          gift_card.should_receive(:redeem).with(api_user)
+          allow(Spree::VirtualGiftCard).to receive(:active_by_redemption_code).and_return(gift_card)
+          expect(gift_card).to receive(:redeem).with(api_user)
           subject
         end
 
         it "returns a 201" do
           subject
-          subject.status.should eq 201
+          expect(subject.status).to eq 201
         end
       end
     end

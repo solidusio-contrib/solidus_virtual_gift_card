@@ -13,7 +13,7 @@ describe Spree::Admin::PaymentsController do
       before { subject }
 
       it "should set the store credits variable to nil" do
-        assigns(:store_credits).should be_nil
+        expect(assigns(:store_credits)).to be_nil
       end
     end
 
@@ -23,7 +23,7 @@ describe Spree::Admin::PaymentsController do
       before { subject }
 
       it "should set the store credits variable to an empty list" do
-        assigns(:store_credits).should be_empty
+        expect(assigns(:store_credits)).to be_empty
       end
     end
 
@@ -34,7 +34,7 @@ describe Spree::Admin::PaymentsController do
       before { subject }
 
       it "should set the store credits variable to contain the user's store credit" do
-        assigns(:store_credits).should eq [store_credit]
+        expect(assigns(:store_credits)).to eq [store_credit]
       end
     end
   end
@@ -68,7 +68,7 @@ describe Spree::Admin::PaymentsController do
 
         it "should redirect to the payments page" do
           subject
-          response.should redirect_to spree.admin_order_payments_path(order)
+          expect(response).to redirect_to spree.admin_order_payments_path(order)
         end
 
         it "creates a store credit payment" do
@@ -79,7 +79,7 @@ describe Spree::Admin::PaymentsController do
       context "a store credit id is not provided" do
         it "should redirect to the payments page" do
           subject
-          response.should redirect_to spree.admin_order_payments_path(order)
+          expect(response).to redirect_to spree.admin_order_payments_path(order)
         end
 
         it "does not create any store credit payment" do
@@ -94,7 +94,7 @@ describe Spree::Admin::PaymentsController do
 
       it "should redirect to the payments page" do
         subject
-        response.should redirect_to spree.admin_order_payments_path(order)
+        expect(response).to redirect_to spree.admin_order_payments_path(order)
       end
 
       it "does not create any store credit payment" do

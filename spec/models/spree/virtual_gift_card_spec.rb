@@ -9,12 +9,12 @@ describe "VirtualGiftCard" do
 
     context 'given an amount less than one' do
       it 'is not valid' do
-        invalid_gift_card.should_not be_valid
+        expect(invalid_gift_card).not_to be_valid
       end
 
       it 'adds an error to amount' do
         invalid_gift_card.save
-        invalid_gift_card.errors.full_messages.should include 'Amount must be greater than 0'
+        expect(invalid_gift_card.errors.full_messages).to include 'Amount must be greater than 0'
       end
     end
   end
@@ -34,7 +34,7 @@ describe "VirtualGiftCard" do
     context 'no collision on redemption code' do
       it 'sets an initial redemption code' do
         subject
-        gift_card.redemption_code.should be_present
+        expect(gift_card.redemption_code).to be_present
       end
     end
 
@@ -46,12 +46,12 @@ describe "VirtualGiftCard" do
         let(:generator) { Spree::RedemptionCodeGenerator }
 
         it 'recursively generates redemption codes' do
-          generator.should_receive(:generate_redemption_code).and_return(existing_giftcard.redemption_code)
-          generator.should_receive(:generate_redemption_code).and_return(expected_code)
+          expect(generator).to receive(:generate_redemption_code).and_return(existing_giftcard.redemption_code)
+          expect(generator).to receive(:generate_redemption_code).and_return(expected_code)
 
           subject
 
-          gift_card.redemption_code.should eq expected_code
+          expect(gift_card.redemption_code).to eq expected_code
         end
       end
 
@@ -60,11 +60,11 @@ describe "VirtualGiftCard" do
         let(:generator) { Spree::RedemptionCodeGenerator }
 
         it 'recursively generates redemption codes' do
-          generator.should_receive(:generate_redemption_code).and_return(existing_giftcard.redemption_code)
+          expect(generator).to receive(:generate_redemption_code).and_return(existing_giftcard.redemption_code)
 
           subject
 
-          gift_card.redemption_code.should eq existing_giftcard.redemption_code
+          expect(gift_card.redemption_code).to eq existing_giftcard.redemption_code
         end
       end
     end
@@ -100,7 +100,7 @@ describe "VirtualGiftCard" do
 
       context 'does nothing to the gift card' do
         it 'should not create a store credit' do
-          gift_card.store_credit.should_not be_present
+          expect(gift_card.store_credit).not_to be_present
         end
 
         it 'should not update the gift card' do
@@ -115,31 +115,31 @@ describe "VirtualGiftCard" do
         let(:store_credit) { gift_card.store_credit }
 
         it 'sets the relationship' do
-          store_credit.should be_present
+          expect(store_credit).to be_present
         end
 
         it 'sets the store credit amount' do
-          store_credit.amount.should eq gift_card.amount
+          expect(store_credit.amount).to eq gift_card.amount
         end
 
         it 'sets the store credit currency' do
-          store_credit.currency.should eq gift_card.currency
+          expect(store_credit.currency).to eq gift_card.currency
         end
 
         it "sets the 'Gift Card' category" do
-          store_credit.category.should eq gc_category
+          expect(store_credit.category).to eq gc_category
         end
 
         it 'sets the redeeming user on the store credit' do
-          store_credit.user.should eq redeemer
+          expect(store_credit.user).to eq redeemer
         end
 
         it 'sets the created_by user on the store credit' do
-          store_credit.created_by.should eq redeemer
+          expect(store_credit.created_by).to eq redeemer
         end
 
         it 'sets a memo on store credit for admins to reference the redemption code' do
-          store_credit.memo.should eq gift_card.memo
+          expect(store_credit.memo).to eq gift_card.memo
         end
       end
 
@@ -149,12 +149,12 @@ describe "VirtualGiftCard" do
 
       it 'sets redeemed_at' do
         subject
-        gift_card.redeemed_at.should be_present
+        expect(gift_card.redeemed_at).to be_present
       end
 
       it 'sets the redeeming user association' do
         subject
-        gift_card.redeemer.should be_present
+        expect(gift_card.redeemer).to be_present
       end
 
       it 'sets the admin as the store credit event originator' do
@@ -172,8 +172,8 @@ describe "VirtualGiftCard" do
     subject { gift_card.formatted_redemption_code }
 
     it 'inserts dashes into the code after every 4 characters' do
-      gift_card.should_receive(:redemption_code).and_return(redemption_code)
-      subject.should eq formatted_redemption_code
+      expect(gift_card).to receive(:redemption_code).and_return(redemption_code)
+      expect(subject).to eq formatted_redemption_code
     end
   end
 end

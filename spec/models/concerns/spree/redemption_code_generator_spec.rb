@@ -6,7 +6,7 @@ describe Spree::RedemptionCodeGenerator do
 
     it 'generates a 16 character alpha-numeric code' do
       code = subject
-      code.match('^[a-zA-Z0-9]{16}')[0].should eq code
+      expect(code.match('^[a-zA-Z0-9]{16}')[0]).to eq code
     end
   end
 
@@ -17,7 +17,7 @@ describe Spree::RedemptionCodeGenerator do
       let(:redemption_code) { "1234ABCD1234ABCD" }
 
       it 'does nothing to the code' do
-        subject.should eq redemption_code
+        expect(subject).to eq redemption_code
       end
     end
 
@@ -26,7 +26,7 @@ describe Spree::RedemptionCodeGenerator do
       let(:formatted_redemption_code) { "1234ABCD1234ABCD" }
 
       it 'strips the dashes' do
-        subject.should eq formatted_redemption_code
+        expect(subject).to eq formatted_redemption_code
       end
     end
 
@@ -35,7 +35,7 @@ describe Spree::RedemptionCodeGenerator do
       let(:formatted_redemption_code) { "1234ABCD1234ABCD" }
 
       it 'makes it all upcase' do
-        subject.should eq formatted_redemption_code
+        expect(subject).to eq formatted_redemption_code
       end
     end
   end
