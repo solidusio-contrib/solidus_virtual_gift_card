@@ -118,12 +118,9 @@ describe "Order" do
       end
 
       context "there is a credit card payment" do
-        let!(:cc_payment) { create(:payment, order: order) }
-
-        before { subject }
-
-        it "should invalidate the credit card payment" do
-          expect(cc_payment.reload.state).to eq('invalid')
+        it "invalidates the credit card payment" do
+          cc_payment = create(:payment, order: order)
+          expect { subject }.to change { cc_payment.reload.state }.to 'invalid'
         end
       end
 
