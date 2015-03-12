@@ -10,7 +10,7 @@ describe Spree::Admin::GiftCardsController do
 
     it "returns a 200 status code" do
       subject
-      response.code.should eq "200"
+      expect(response.code).to eq "200"
     end
   end
 
@@ -23,12 +23,12 @@ describe Spree::Admin::GiftCardsController do
     context 'with a valid redemption code' do
       it 'loads the gift cards' do
         subject
-        assigns(:gift_cards).should eq [gift_card]
+        expect(assigns(:gift_cards)).to eq [gift_card]
       end
 
       it 'returns a 200 status code' do
         subject
-        response.code.should eq '200'
+        expect(response.code).to eq '200'
       end
     end
 
@@ -36,12 +36,12 @@ describe Spree::Admin::GiftCardsController do
       let(:redemption_code) { "DOES-NOT-EXIST" }
 
       it "redirects to index" do
-        subject.should redirect_to spree.admin_gift_cards_path
+        expect(subject).to redirect_to spree.admin_gift_cards_path
       end
 
       it "sets the flash error" do
         subject
-        flash[:error].should eq Spree.t('admin.gift_cards.errors.not_found')
+        expect(flash[:error]).to eq Spree.t('admin.gift_cards.errors.not_found')
       end
     end
   end
@@ -52,7 +52,7 @@ describe Spree::Admin::GiftCardsController do
 
     it "returns a 200 status code" do
       subject
-      response.code.should eq "200"
+      expect(response.code).to eq "200"
     end
   end
 
@@ -66,7 +66,7 @@ describe Spree::Admin::GiftCardsController do
     context "with a gift card that has not yet been redeemed" do
 
       it "redirects to store credit index" do
-        subject.should redirect_to spree.admin_user_store_credits_path(user)
+        expect(subject).to redirect_to spree.admin_user_store_credits_path(user)
       end
 
       it "redeems the gift card" do
@@ -81,12 +81,12 @@ describe Spree::Admin::GiftCardsController do
 
       it "creates store credit for the user" do
         subject
-        user.reload.store_credits.count.should eq 1
+        expect(user.reload.store_credits.count).to eq 1
       end
 
       it "sets the store credit equal to the amount of the gift card" do
         subject
-        user.reload.store_credits.first.amount.should eq gift_card.amount
+        expect(user.reload.store_credits.first.amount).to eq gift_card.amount
       end
     end
 
@@ -95,7 +95,7 @@ describe Spree::Admin::GiftCardsController do
 
       it "renders the lookup page" do
         subject
-        response.should render_template(:lookup)
+        expect(response).to render_template(:lookup)
       end
     end
 
@@ -104,7 +104,7 @@ describe Spree::Admin::GiftCardsController do
 
       it "renders the lookup page" do
         subject
-        response.should render_template(:lookup)
+        expect(response).to render_template(:lookup)
       end
     end
   end

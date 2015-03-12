@@ -3,13 +3,18 @@ require 'spec_helper'
 describe Spree::Api::StoreCreditEventsController do
   render_views
 
-  stub_api_controller_authentication!
+  let(:api_user) { create(:user) }
+
+  before do
+    allow(controller).to receive(:load_user)
+    controller.instance_variable_set(:@current_api_user, api_user)
+  end
 
   describe "GET mine" do
 
     subject { spree_get :mine, { format: :json } }
 
-    before { controller.stub(current_api_user: current_api_user) }
+    before { allow(controller).to receive_messages(current_api_user: current_api_user) }
 
     context "the current api user is not persisted" do
       let(:current_api_user) { double(persisted?: false) }
@@ -17,7 +22,7 @@ describe Spree::Api::StoreCreditEventsController do
       before { subject }
 
       it "returns a 401" do
-        response.status.should eq 401
+        expect(response.status).to eq 401
       end
     end
 
@@ -31,11 +36,11 @@ describe Spree::Api::StoreCreditEventsController do
         before { subject }
 
         it "should set the events variable to empty list" do
-          assigns(:store_credit_events).should eq []
+          expect(assigns(:store_credit_events)).to eq []
         end
 
         it "returns a 200" do
-          subject.status.should eq 200
+          expect(subject.status).to eq 200
         end
       end
 
@@ -46,15 +51,15 @@ describe Spree::Api::StoreCreditEventsController do
         before { subject }
 
         it "should contain one store credit event" do
-          assigns(:store_credit_events).size.should eq 1
+          expect(assigns(:store_credit_events).size).to eq 1
         end
 
         it "should contain the store credit allocation event" do
-          assigns(:store_credit_events).first.should eq store_credit.store_credit_events.first
+          expect(assigns(:store_credit_events).first).to eq store_credit.store_credit_events.first
         end
 
         it "returns a 200" do
-          subject.status.should eq 200
+          expect(subject.status).to eq 200
         end
       end
     end

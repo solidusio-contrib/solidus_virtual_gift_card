@@ -21,7 +21,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines an unknown store credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.unable_to_find')
       end
     end
 
@@ -30,7 +30,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines a store credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.insufficient_funds')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.insufficient_funds')
       end
     end
 
@@ -39,21 +39,21 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines the credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.currency_mismatch')
       end
     end
 
     context 'with a valid request' do
       it "authorizes a valid store credit" do
         expect(subject.success?).to be true
-        subject.authorization.should_not be_nil
+        expect(subject.authorization).not_to be_nil
       end
 
       context 'with an originator' do
         let(:originator) { double('originator') }
 
         it 'passes the originator' do
-          Spree::StoreCredit.any_instance.should_receive(:authorize)
+          expect_any_instance_of(Spree::StoreCredit).to receive(:authorize)
             .with(anything, anything, action_originator: originator)
           subject
         end
@@ -80,7 +80,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines an unknown store credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.unable_to_find')
       end
     end
 
@@ -88,12 +88,12 @@ describe Spree::PaymentMethod::StoreCredit do
       let(:authorized_amount) { (capture_amount-1)/100 }
 
       before do
-        Spree::StoreCredit.any_instance.stub(authorize: true)
+        allow_any_instance_of(Spree::StoreCredit).to receive_messages(authorize: true)
       end
 
       it "declines a store credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.insufficient_authorized_amount')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.insufficient_authorized_amount')
       end
     end
 
@@ -102,13 +102,13 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines the credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.currency_mismatch')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.currency_mismatch')
       end
     end
 
     context 'with a valid request' do
       it "captures the store credit" do
-        subject.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
+        expect(subject.message).to include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
         expect(subject.success?).to be true
       end
 
@@ -116,7 +116,7 @@ describe Spree::PaymentMethod::StoreCredit do
         let(:originator) { double('originator') }
 
         it 'passes the originator' do
-          Spree::StoreCredit.any_instance.should_receive(:capture)
+          expect_any_instance_of(Spree::StoreCredit).to receive(:capture)
             .with(anything, anything, anything, action_originator: originator)
           subject
         end
@@ -139,12 +139,12 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines an unknown store credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.unable_to_find')
       end
     end
 
     context 'when the store credit is not voided successfully' do
-      before { Spree::StoreCredit.any_instance.stub(void: false) }
+      before { allow_any_instance_of(Spree::StoreCredit).to receive_messages(void: false) }
 
       it "returns an error response" do
         expect(subject.success?).to be false
@@ -153,14 +153,14 @@ describe Spree::PaymentMethod::StoreCredit do
 
     it "voids a valid store credit void request" do
       expect(subject.success?).to be true
-      subject.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::VOID_ACTION)
+      expect(subject.message).to include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::VOID_ACTION)
     end
 
     context 'with an originator' do
       let(:originator) { double('originator') }
 
       it 'passes the originator' do
-        Spree::StoreCredit.any_instance.should_receive(:void)
+        expect_any_instance_of(Spree::StoreCredit).to receive(:void)
           .with(anything, action_originator: originator)
         subject
       end
@@ -181,7 +181,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       resp = subject.purchase(amount * 100.0, store_credit, gateway_options)
       expect(resp.success?).to be false
-      resp.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+      expect(resp.message).to include Spree.t('store_credit_payment_method.unable_to_find')
     end
 
     it "captures a purchase if it can find a pending credit for the correct amount" do
@@ -194,7 +194,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
       resp = subject.purchase(amount * 100.0, store_credit, gateway_options)
       expect(resp.success?).to be true
-      resp.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
+      expect(resp.message).to include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CAPTURE_ACTION)
     end
   end
 
@@ -214,12 +214,12 @@ describe Spree::PaymentMethod::StoreCredit do
 
       it "declines an unknown store credit" do
         expect(subject.success?).to be false
-        subject.message.should include Spree.t('store_credit_payment_method.unable_to_find')
+        expect(subject.message).to include Spree.t('store_credit_payment_method.unable_to_find')
       end
     end
 
     context "when the store credit isn't credited successfully" do
-      before { Spree::StoreCredit.any_instance.stub(credit: false) }
+      before { allow_any_instance_of(Spree::StoreCredit).to receive_messages(credit: false) }
 
       it "returns an error response" do
         expect(subject.success?).to be false
@@ -227,11 +227,11 @@ describe Spree::PaymentMethod::StoreCredit do
     end
 
     context 'with a valid credit request' do
-      before { Spree::StoreCredit.any_instance.stub(credit: true) }
+      before { allow_any_instance_of(Spree::StoreCredit).to receive_messages(credit: true) }
 
       it "credits a valid store credit credit request" do
         expect(subject.success?).to be true
-        subject.message.should include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
+        expect(subject.message).to include Spree.t('store_credit_payment_method.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
       end
     end
 
@@ -239,7 +239,7 @@ describe Spree::PaymentMethod::StoreCredit do
       let(:originator) { double('originator') }
 
       it 'passes the originator' do
-        Spree::StoreCredit.any_instance.should_receive(:credit)
+        expect_any_instance_of(Spree::StoreCredit).to receive(:credit)
           .with(anything, anything, anything, action_originator: originator)
         subject
       end
@@ -263,7 +263,7 @@ describe Spree::PaymentMethod::StoreCredit do
 
     context "store credit event found" do
       it "creates a store credit for the same amount that was captured" do
-        Spree::StoreCredit.any_instance.should_receive(:credit).with(captured_amount, auth_code, store_credit.currency)
+        expect_any_instance_of(Spree::StoreCredit).to receive(:credit).with(captured_amount, auth_code, store_credit.currency)
         subject
       end
     end

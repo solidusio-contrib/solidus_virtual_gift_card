@@ -2,7 +2,7 @@ require 'spec_helper'
 
 shared_examples "category loader" do
   it "sets the credit_categories variable to a list of categories sorted by category name " do
-    assigns(:credit_categories).should eq [a_credit_category, b_credit_category]
+    expect(assigns(:credit_categories)).to eq [a_credit_category, b_credit_category]
   end
 end
 
@@ -30,7 +30,7 @@ describe Spree::Admin::StoreCreditsController do
 
     context "the user does not have any store credits" do
       it "sets the store_credits variable to an empty list" do
-        assigns(:store_credits).should be_empty
+        expect(assigns(:store_credits)).to be_empty
       end
     end
 
@@ -38,7 +38,7 @@ describe Spree::Admin::StoreCreditsController do
       let(:store_credit) { create(:store_credit, user: user) }
 
       it "sets the store_credits variable to a list containing the store credits" do
-        assigns(:store_credits).should eq [store_credit]
+        expect(assigns(:store_credits)).to eq [store_credit]
       end
     end
   end
@@ -51,7 +51,7 @@ describe Spree::Admin::StoreCreditsController do
     it_behaves_like "category loader"
 
     it "sets the store_credit variable to a new store credit model" do
-      assigns(:store_credit).should_not be_persisted
+      expect(assigns(:store_credit)).not_to be_persisted
     end
   end
 
@@ -59,7 +59,7 @@ describe Spree::Admin::StoreCreditsController do
     subject { spree_post :create, parameters }
 
     before  {
-      controller.stub(try_spree_current_user: admin_user)
+      allow(controller).to receive_messages(try_spree_current_user: admin_user)
       create(:primary_credit_type)
     }
 
@@ -75,7 +75,7 @@ describe Spree::Admin::StoreCreditsController do
       end
 
       it "redirects to index" do
-        subject.should redirect_to spree.admin_user_store_credits_path(user)
+        expect(subject).to redirect_to spree.admin_user_store_credits_path(user)
       end
 
       it "creates a new store credit" do
@@ -84,12 +84,12 @@ describe Spree::Admin::StoreCreditsController do
 
       it "associates the store credit with the user" do
         subject
-        user.reload.store_credits.count.should eq 1
+        expect(user.reload.store_credits.count).to eq 1
       end
 
       it "assigns the store credit's created by to the current user" do
         subject
-        user.reload.store_credits.first.created_by.should eq admin_user
+        expect(user.reload.store_credits.first.created_by).to eq admin_user
       end
 
       it 'sets the admin as the store credit event originator' do
@@ -112,7 +112,7 @@ describe Spree::Admin::StoreCreditsController do
       before { subject }
 
       it "renders the new action" do
-        response.should render_template :new
+        expect(response).to render_template :new
       end
 
       it_behaves_like "category loader"
@@ -127,7 +127,7 @@ describe Spree::Admin::StoreCreditsController do
     it_behaves_like "category loader"
 
     it "sets the store_credit variable to the persisted store credit" do
-      assigns(:store_credit).should eq store_credit
+      expect(assigns(:store_credit)).to eq store_credit
     end
   end
 
@@ -136,7 +136,7 @@ describe Spree::Admin::StoreCreditsController do
 
     subject { spree_put :update, parameters }
 
-    before  { controller.stub(try_spree_current_user: admin_user) }
+    before  { allow(controller).to receive_messages(try_spree_current_user: admin_user) }
 
     context "the passed parameters are valid" do
       let(:updated_amount) { 300.0 }
@@ -159,7 +159,7 @@ describe Spree::Admin::StoreCreditsController do
           let(:updated_amount) { 11.0 }
           it "updates the amount to be the passed in amount" do
             subject
-            store_credit.reload.amount.should eq updated_amount
+            expect(store_credit.reload.amount).to eq updated_amount
           end
         end
 
@@ -179,7 +179,7 @@ describe Spree::Admin::StoreCreditsController do
 
       context "the store credit has not been used" do
         it "redirects to index" do
-          subject.should redirect_to spree.admin_user_store_credits_path(user)
+          expect(subject).to redirect_to spree.admin_user_store_credits_path(user)
         end
 
         it "does not create a new store credit" do
@@ -188,22 +188,22 @@ describe Spree::Admin::StoreCreditsController do
 
         it "assigns the store credit's created by to the current user" do
           subject
-          store_credit.reload.created_by.should eq admin_user
+          expect(store_credit.reload.created_by).to eq admin_user
         end
 
         it "updates passed amount" do
           subject
-          store_credit.reload.amount.should eq updated_amount
+          expect(store_credit.reload.amount).to eq updated_amount
         end
 
         it "updates passed category" do
           subject
-          store_credit.reload.category.should eq a_credit_category
+          expect(store_credit.reload.category).to eq a_credit_category
         end
 
         it "maintains the user association" do
           subject
-          store_credit.reload.user.should eq user
+          expect(store_credit.reload.user).to eq user
         end
       end
     end
@@ -223,7 +223,7 @@ describe Spree::Admin::StoreCreditsController do
       before { subject }
 
       it "renders the edit action" do
-        response.should render_template :edit
+        expect(response).to render_template :edit
       end
 
       it_behaves_like "category loader"
@@ -241,18 +241,18 @@ describe Spree::Admin::StoreCreditsController do
 
     context "the destroy is unsuccessful" do
       before do
-        Spree::StoreCredit.any_instance.stub(destroy: false)
+        allow_any_instance_of(Spree::StoreCredit).to receive_messages(destroy: false)
         subject
       end
 
       subject { spree_delete :destroy, user_id: user.id, id: store_credit.id }
 
       it "returns a 422" do
-        response.status.should eq 422
+        expect(response.status).to eq 422
       end
 
       it "returns an error message" do
-        response.body.should match Spree.t("admin.store_credits.unable_to_delete")
+        expect(response.body).to match Spree.t("admin.store_credits.unable_to_delete")
       end
     end
 
@@ -260,7 +260,7 @@ describe Spree::Admin::StoreCreditsController do
       subject { spree_delete :destroy, user_id: user.id, id: store_credit.id }
 
       it "redirects to index" do
-        subject.should redirect_to spree.admin_user_store_credits_path(user)
+        expect(subject).to redirect_to spree.admin_user_store_credits_path(user)
       end
 
       it "deletes the store credit" do
@@ -273,7 +273,7 @@ describe Spree::Admin::StoreCreditsController do
 
       it "returns a 200 status code" do
         subject
-        response.code.should eq "200"
+        expect(response.code).to eq "200"
       end
 
       it "deletes the store credit" do

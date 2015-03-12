@@ -9,7 +9,7 @@ shared_examples "check total store credit from payments" do
     subject { order }
 
     it "returns the sum of the payment amounts" do
-      subject.total_applicable_store_credit.should eq (payment.amount + second_payment.amount)
+      expect(subject.total_applicable_store_credit).to eq (payment.amount + second_payment.amount)
     end
   end
 
@@ -19,7 +19,7 @@ shared_examples "check total store credit from payments" do
     subject { order }
 
     it "returns 0" do
-      subject.total_applicable_store_credit.should be_zero
+      expect(subject.total_applicable_store_credit).to be_zero
     end
   end
 end
@@ -32,8 +32,8 @@ describe "Order" do
 
     context "the line item is a gift card" do
       before do
-        line_item.stub(:gift_card?).and_return(true)
-        line_item.stub(:quantity).and_return(3)
+        allow(line_item).to receive(:gift_card?).and_return(true)
+        allow(line_item).to receive(:quantity).and_return(3)
       end
 
       it 'creates a gift card for each gift card in the line item' do
@@ -41,16 +41,16 @@ describe "Order" do
       end
 
       it 'sets the purchaser, amount, and currency' do
-        Spree::VirtualGiftCard.should_receive(:create!).exactly(3).times.with(amount: line_item.price, currency: line_item.currency, purchaser: order.user, line_item: line_item)
+        expect(Spree::VirtualGiftCard).to receive(:create!).exactly(3).times.with(amount: line_item.price, currency: line_item.currency, purchaser: order.user, line_item: line_item)
         subject
       end
     end
 
     context "the line item is not a gift card" do
-      before { line_item.stub(:gift_card?).and_return(false) }
+      before { allow(line_item).to receive(:gift_card?).and_return(false) }
 
       it 'does not create a gift card' do
-        Spree::VirtualGiftCard.should_not_receive(:create!)
+        expect(Spree::VirtualGiftCard).not_to receive(:create!)
         subject
       end
     end
@@ -78,16 +78,16 @@ describe "Order" do
         end
 
         it "charges the outstanding balance to the credit card" do
-          order.payments.count.should eq 1
-          order.payments.first.source.should be_a(Spree::CreditCard)
-          order.payments.first.amount.should eq order_total
+          expect(order.payments.count).to eq 1
+          expect(order.payments.first.source).to be_a(Spree::CreditCard)
+          expect(order.payments.first.amount).to eq order_total
         end
       end
 
       context "there are no other payments" do
         it "adds an error to the model" do
           expect(subject).to be false
-          order.errors.full_messages.should include(Spree.t("store_credit.errors.unable_to_fund"))
+          expect(order.errors.full_messages).to include(Spree.t("store_credit.errors.unable_to_fund"))
         end
       end
 
@@ -111,19 +111,16 @@ describe "Order" do
         end
 
         it "creates a store credit payment for the full amount" do
-          order.payments.count.should eq 1
-          order.payments.first.should be_store_credit
-          order.payments.first.amount.should eq order_total
+          expect(order.payments.count).to eq 1
+          expect(order.payments.first).to be_store_credit
+          expect(order.payments.first.amount).to eq order_total
         end
       end
 
       context "there is a credit card payment" do
-        let!(:cc_payment) { create(:payment, order: order) }
-
-        before { subject }
-
-        it "should invalidate the credit card payment" do
-          cc_payment.reload.state.should == 'invalid'
+        it "invalidates the credit card payment" do
+          cc_payment = create(:payment, order: order)
+          expect { subject }.to change { cc_payment.reload.state }.to 'invalid'
         end
       end
 
@@ -146,7 +143,7 @@ describe "Order" do
       context "there are no other payments" do
         it "adds an error to the model" do
           expect(subject).to be false
-          order.errors.full_messages.should include(Spree.t("store_credit.errors.unable_to_fund"))
+          expect(order.errors.full_messages).to include(Spree.t("store_credit.errors.unable_to_fund"))
         end
       end
 
@@ -162,9 +159,9 @@ describe "Order" do
         end
 
         it "charges the outstanding balance to the credit card" do
-          order.payments.count.should eq 2
-          order.payments.first.source.should be_a(Spree::CreditCard)
-          order.payments.first.amount.should eq expected_cc_total
+          expect(order.payments.count).to eq 2
+          expect(order.payments.first.source).to be_a(Spree::CreditCard)
+          expect(order.payments.first.amount).to eq expected_cc_total
         end
       end
 
@@ -193,11 +190,11 @@ describe "Order" do
           primary_payment = order.payments.first
           secondary_payment = order.payments.last
 
-          order.payments.size.should eq 2
-          primary_payment.source.should eq primary_store_credit
-          secondary_payment.source.should eq secondary_store_credit
-          primary_payment.amount.should eq(order_total - amount_difference)
-          secondary_payment.amount.should eq(amount_difference)
+          expect(order.payments.size).to eq 2
+          expect(primary_payment.source).to eq primary_store_credit
+          expect(secondary_payment.source).to eq secondary_store_credit
+          expect(primary_payment.amount).to eq(order_total - amount_difference)
+          expect(secondary_payment.amount).to eq(amount_difference)
         end
       end
     end
@@ -219,8 +216,8 @@ describe "Order" do
 
       context "user has enough store credit to pay for the order" do
         before do
-          user.stub(total_available_store_credit: 10.0)
-          subject.stub(total: 5.0)
+          allow(user).to receive_messages(total_available_store_credit: 10.0)
+          allow(subject).to receive_messages(total: 5.0)
         end
 
         it "returns true" do
@@ -230,8 +227,8 @@ describe "Order" do
 
       context "user does not have enough store credit to pay for the order" do
         before do
-          user.stub(total_available_store_credit: 0.0)
-          subject.stub(total: 5.0)
+          allow(user).to receive_messages(total_available_store_credit: 0.0)
+          allow(subject).to receive_messages(total: 5.0)
         end
 
         it "returns false" do
@@ -246,7 +243,7 @@ describe "Order" do
       subject { create(:store_credits_order_without_user) }
 
       it "returns 0" do
-        subject.total_available_store_credit.should be_zero
+        expect(subject.total_available_store_credit).to be_zero
       end
     end
 
@@ -257,11 +254,11 @@ describe "Order" do
       subject { create(:order, user: user) }
 
       before do
-        user.stub(total_available_store_credit: available_store_credit)
+        allow(user).to receive_messages(total_available_store_credit: available_store_credit)
       end
 
       it "returns the user's available store credit" do
-        subject.total_available_store_credit.should eq available_store_credit
+        expect(subject.total_available_store_credit).to eq available_store_credit
       end
     end
   end
@@ -272,14 +269,14 @@ describe "Order" do
     subject { create(:order, total: order_total) }
 
     before do
-      subject.stub(total_applicable_store_credit: applicable_store_credit)
+      allow(subject).to receive_messages(total_applicable_store_credit: applicable_store_credit)
     end
 
     context "order's user has store credits" do
       let(:applicable_store_credit) { 10.0 }
 
       it "deducts the applicable store credit" do
-        subject.order_total_after_store_credit.should eq (order_total - applicable_store_credit)
+        expect(subject.order_total_after_store_credit).to eq (order_total - applicable_store_credit)
       end
     end
 
@@ -287,7 +284,7 @@ describe "Order" do
       let(:applicable_store_credit) { 0.0 }
 
       it "returns the order total" do
-        subject.order_total_after_store_credit.should eq order_total
+        expect(subject.order_total_after_store_credit).to eq order_total
       end
     end
   end
@@ -299,7 +296,7 @@ describe "Order" do
       subject { order.finalize! }
 
       it "calls #create_gift_cards" do
-        order.should_receive(:create_gift_cards)
+        expect(order).to receive(:create_gift_cards)
         subject
       end
     end
@@ -308,10 +305,10 @@ describe "Order" do
   describe "transition to complete" do
     let(:order) { create(:order_with_line_items, state: 'confirm') }
     let!(:payment) { create(:payment, order: order, state: 'pending') }
-    subject { order.next! }
+    subject { order.complete! }
 
     it "calls #send_gift_card_emails" do
-      order.should_receive(:send_gift_card_emails)
+      expect(order).to receive(:send_gift_card_emails)
       subject
     end
 
@@ -368,7 +365,7 @@ describe "Order" do
           before { order.update_attributes(total: order_total) }
 
           it "returns the order total" do
-            subject.total_applicable_store_credit.should eq order_total
+            expect(subject.total_applicable_store_credit).to eq order_total
           end
         end
 
@@ -378,7 +375,7 @@ describe "Order" do
           before { order.update_attributes(total: order_total) }
 
           it "returns the store credit amount" do
-            subject.total_applicable_store_credit.should eq store_credit.amount
+            expect(subject.total_applicable_store_credit).to eq store_credit.amount
           end
         end
       end
@@ -389,7 +386,7 @@ describe "Order" do
         subject { order }
 
         it "returns 0" do
-          subject.total_applicable_store_credit.should be_zero
+          expect(subject.total_applicable_store_credit).to be_zero
         end
       end
 
@@ -397,7 +394,7 @@ describe "Order" do
         subject { create(:store_credits_order_without_user) }
 
         it "returns 0" do
-          subject.total_applicable_store_credit.should be_zero
+          expect(subject.total_applicable_store_credit).to be_zero
         end
       end
     end
@@ -408,14 +405,14 @@ describe "Order" do
 
     subject { create(:order) }
 
-    before { subject.stub(total_applicable_store_credit: total_applicable_store_credit) }
+    before { allow(subject).to receive_messages(total_applicable_store_credit: total_applicable_store_credit) }
 
     it "returns a money instance" do
-      subject.display_total_applicable_store_credit.should be_a(Spree::Money)
+      expect(subject.display_total_applicable_store_credit).to be_a(Spree::Money)
     end
 
     it "returns a negative amount" do
-      subject.display_total_applicable_store_credit.money.cents.should eq (total_applicable_store_credit * -100.0)
+      expect(subject.display_total_applicable_store_credit.money.cents).to eq (total_applicable_store_credit * -100.0)
     end
   end
 
@@ -424,14 +421,14 @@ describe "Order" do
 
     subject { create(:order) }
 
-    before { subject.stub(order_total_after_store_credit: order_total_after_store_credit) }
+    before { allow(subject).to receive_messages(order_total_after_store_credit: order_total_after_store_credit) }
 
     it "returns a money instance" do
-      subject.display_order_total_after_store_credit.should be_a(Spree::Money)
+      expect(subject.display_order_total_after_store_credit).to be_a(Spree::Money)
     end
 
     it "returns the order_total_after_store_credit amount" do
-      subject.display_order_total_after_store_credit.money.cents.should eq (order_total_after_store_credit * 100.0)
+      expect(subject.display_order_total_after_store_credit.money.cents).to eq (order_total_after_store_credit * 100.0)
     end
   end
 
@@ -440,14 +437,14 @@ describe "Order" do
 
     subject { create(:order) }
 
-    before { subject.stub(total_available_store_credit: total_available_store_credit) }
+    before { allow(subject).to receive_messages(total_available_store_credit: total_available_store_credit) }
 
     it "returns a money instance" do
-      subject.display_total_available_store_credit.should be_a(Spree::Money)
+      expect(subject.display_total_available_store_credit).to be_a(Spree::Money)
     end
 
     it "returns the total_available_store_credit amount" do
-      subject.display_total_available_store_credit.money.cents.should eq (total_available_store_credit * 100.0)
+      expect(subject.display_total_available_store_credit.money.cents).to eq (total_available_store_credit * 100.0)
     end
   end
 
@@ -458,17 +455,17 @@ describe "Order" do
     subject { create(:order) }
 
     before do
-      subject.stub(total_available_store_credit: total_available_store_credit,
+      allow(subject).to receive_messages(total_available_store_credit: total_available_store_credit,
                    total_applicable_store_credit: total_applicable_store_credit)
     end
 
     it "returns a money instance" do
-      subject.display_store_credit_remaining_after_capture.should be_a(Spree::Money)
+      expect(subject.display_store_credit_remaining_after_capture).to be_a(Spree::Money)
     end
 
     it "returns all of the user's available store credit minus what's applied to the order amount" do
       amount_remaining = total_available_store_credit - total_applicable_store_credit
-      subject.display_store_credit_remaining_after_capture.money.cents.should eq (amount_remaining * 100.0)
+      expect(subject.display_store_credit_remaining_after_capture.money.cents).to eq (amount_remaining * 100.0)
     end
   end
 end

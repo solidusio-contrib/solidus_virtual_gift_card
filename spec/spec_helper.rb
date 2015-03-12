@@ -75,7 +75,7 @@ RSpec.configure do |config|
 
   # Before each spec check if it is a Javascript test and switch between using database transactions or not where necessary.
   config.before :each do |example|
-    DatabaseCleaner.strategy = example.metadata[:js] ? :truncation : :transaction
+    DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.start
   end
 
@@ -91,7 +91,6 @@ RSpec.configure do |config|
   config.extend Spree::Api::TestingSupport::Setup, :type => :controller
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
   config.include Devise::TestHelpers, type: :controller
-  config.extend AuthenticationSupport
 
   config.extend WithModel
 
