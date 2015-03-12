@@ -308,7 +308,7 @@ describe "Order" do
   describe "transition to complete" do
     let(:order) { create(:order_with_line_items, state: 'confirm') }
     let!(:payment) { create(:payment, order: order, state: 'pending') }
-    subject { order.next! }
+    subject { order.complete! }
 
     it "calls #send_gift_card_emails" do
       expect(order).to receive(:send_gift_card_emails)
