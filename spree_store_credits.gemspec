@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_store_credits'
-  s.version     = '2.2.2'
+  s.version     = '2.2.3'
   s.summary     = 'Store credit as a payment method'
   s.description = 'Enables associating store credit to a user and using the store credit as a form of payment during checkout.'
   s.required_ruby_version = '>= 2.1.0'

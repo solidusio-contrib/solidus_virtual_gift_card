@@ -16,8 +16,8 @@ describe Spree::Api::StoreCreditEventsController do
 
     before { allow(controller).to receive_messages(current_api_user: current_api_user) }
 
-    context "the current api user is not persisted" do
-      let(:current_api_user) { double(persisted?: false) }
+    context "no current api user" do
+      let(:current_api_user) { nil }
 
       before { subject }
 
