@@ -1,22 +1,23 @@
 # encoding: UTF-8
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
-  s.name        = 'spree_store_credits'
+  s.name        = 'spree_virtual_gift_card'
   s.version     = '2.2.3'
-  s.summary     = 'Store credit as a payment method'
-  s.description = 'Enables associating store credit to a user and using the store credit as a form of payment during checkout.'
+  s.summary     = "Virtual gift card for purchase, drops into the user's account as store credit"
+  s.description
   s.required_ruby_version = '>= 2.1.0'
 
   s.author    = 'Bonobos'
   s.email     = 'engineering@bonobos.com'
   s.homepage  = 'http://www.bonobos.com'
 
-  #s.files       = `git ls-files`.split("\n")
-  #s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.files       = `git ls-files`.split("\n")
+  s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_path = 'lib'
   s.requirements << 'none'
 
   s.add_dependency 'spree', '2.2.2'
+  s.add_dependency 'spree_store_credits', '~> 2.2.2'
 
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'coffee-rails'

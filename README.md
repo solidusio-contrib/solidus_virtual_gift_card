@@ -1,49 +1,27 @@
-SpreeStoreCredits
+SpreeVirtualGiftCard
 =================
 
-A Spree store credit implementation that applies store credit as a payment method.
+A virtual gift card implementation for Spree.
 
-Takes into account purchasing through the API, with the default to use all available store credit.
+* Allows setup of virtual gift card products that get unique codes upon purchase
+* The virtual gift card codes can be used to add store credit to a user's account
 
-Store credit can be granted in admin, and is frozen after first usage. Store credit behaves like a credit card in that once an amount is authorized, it cannot be used elsewhere.
-
-Store credit can be stored in multiple buckets (e.g. expiring and non-expiring) because those are taxed differently and implementors might want to prioritize use / refund different types.
-
-Credit Types
-------------
-
-Out of the box, there are Expiring and Non-expiring store credits, with the Expiring type having top priority of being used in a purchase.
-
-To add new ones, add a migration with a priority value set, and on purchase it will take the credits from lowest numerical priority to highest. You will also need to overwrite `Spree::StoreCredit#associate_credit_type`
-
-Configure the gem with non-expiring categorizations in an initializer:
-
-```ruby
-Spree::StoreCredits::Configuration.set_configs(non_expiring_credit_types: ['Example'])
-```
-
-Returns and Exchanges
-------------
-In order for the store credit reimbursement option to work in your store, you must add this into an initializer:
-
-```ruby
-Spree::Reimbursement.reimbursement_models = [Spree::Refund, Spree::Reimbursement::Credit]
-```
+Relies on [https://github.com/bonobos/spree_store_credit_payment_method]() being merged into spree for store credit.
 
 Installation
 ------------
 
-Add spree_store_credits to your Gemfile:
+Add spree_virtual_gift_card to your Gemfile:
 
 ```ruby
-gem 'spree_store_credits'
+gem 'spree_virtual_gift_card'
 ```
 
 Bundle your dependencies and run the installation generator:
 
 ```shell
 bundle
-bundle exec rails g spree_store_credits:install
+bundle exec rails g spree_virtual_gift_card:install
 ```
 
 Testing
@@ -60,12 +38,7 @@ When testing your applications integration with this extension you may use it's 
 Simply add this require statement to your spec_helper:
 
 ```ruby
-require 'spree_store_credits/factories'
+require 'spree_virtual_gift_card/factories'
 ```
-
-TODO
-----
-
-* Integrate the frontend, this was implemented with just admin and api
 
 Copyright (c) 2014 [Bonobos], released under the New BSD License

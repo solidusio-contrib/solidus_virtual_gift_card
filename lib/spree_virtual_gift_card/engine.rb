@@ -1,8 +1,10 @@
-module SpreeStoreCredits
+module SpreeVirtualGiftCard
   class Engine < Rails::Engine
     require 'spree/core'
+    require 'spree_store_credits'
+
     isolate_namespace Spree
-    engine_name 'spree_store_credits'
+    engine_name 'spree_virtual_gift_card'
 
     # use rspec for tests
     config.generators do |g|
@@ -16,9 +18,5 @@ module SpreeStoreCredits
     end
 
     config.to_prepare &method(:activate).to_proc
-
-    initializer "spree.gateway.payment_methods", :after => "spree.register.payment_methods" do |app|
-      app.config.spree.payment_methods << Spree::PaymentMethod::StoreCredit
-    end
   end
 end
