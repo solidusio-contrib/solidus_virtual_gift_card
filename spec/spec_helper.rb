@@ -34,8 +34,7 @@ require 'spree/api/testing_support/caching'
 require 'spree/api/testing_support/helpers'
 require 'spree/api/testing_support/setup'
 
-# Requires factories defined in lib/spree_store_credits/factories.rb
-require 'spree_store_credits/factories'
+require "spree_virtual_gift_card/factories"
 
 RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
@@ -96,6 +95,5 @@ RSpec.configure do |config|
 
   config.before do
     Spree::Api::Config[:requires_authentication] = true
-    Spree::StoreCredits::Configuration.set_configs(non_expiring_credit_types: ['Non-expiring'])
   end
 end

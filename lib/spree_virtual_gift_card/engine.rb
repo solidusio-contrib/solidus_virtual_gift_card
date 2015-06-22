@@ -1,10 +1,9 @@
 module SpreeVirtualGiftCard
   class Engine < Rails::Engine
     require 'spree/core'
-    require 'spree_store_credits'
 
     isolate_namespace Spree
-    engine_name 'spree_virtual_gift_card'
+    engine_name 'solidus_virtual_gift_card'
 
     # use rspec for tests
     config.generators do |g|
