@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::Api::GiftCardsController do
   render_views
-  let!(:secondary_credit_type) { create(:secondary_credit_type) }
+  let!(:credit_type) { create(:secondary_credit_type, name: "Non-expiring") }
   let!(:gc_category) { create(:store_credit_gift_card_category) }
 
   describe "POST redeem" do

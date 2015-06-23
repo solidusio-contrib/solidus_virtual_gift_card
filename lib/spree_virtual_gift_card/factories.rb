@@ -1,12 +1,13 @@
 FactoryGirl.define do
   factory :store_credit_gift_card_category, class: Spree::StoreCreditCategory do
-    name SpreeVirtualGiftCard::StoreCreditCategoryDecorator::GIFT_CARD_CATEGORY_NAME
+    name Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME
   end
 
   factory :virtual_gift_card, class: Spree::VirtualGiftCard do
-    purchaser { create(:user) }
-    amount    { '25' }
-    currency  { 'USD' }
-    line_item { create(:line_item) }
+    association :purchaser, factory: :user
+    association :line_item, factory: :line_item
+
+    amount 25.0
+    currency "USD"
   end
 end

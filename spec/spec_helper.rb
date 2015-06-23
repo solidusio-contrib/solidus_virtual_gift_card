@@ -1,7 +1,7 @@
 # Run Coverage report
 require 'simplecov'
 SimpleCov.start do
-  add_filter 'spec/dummy'
+  add_filter 'spec'
   add_group 'Controllers', 'app/controllers'
   add_group 'Helpers', 'app/helpers'
   add_group 'Mailers', 'app/mailers'
@@ -25,10 +25,6 @@ require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/authorization_helpers'
 require 'spree/testing_support/url_helpers'
 
-require 'spree/api/testing_support/caching'
-require 'spree/api/testing_support/helpers'
-require 'spree/api/testing_support/setup'
-
 require "spree_virtual_gift_card/factories"
 
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
@@ -47,16 +43,12 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.use_transactional_fixtures = false
 
-  config.example_status_persistence_file_path = "./spec/failures.txt"
+  config.example_status_persistence_file_path = "./spec/examples.txt"
 
   config.include FactoryGirl::Syntax::Methods
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
   config.include Spree::TestingSupport::UrlHelpers, type: :controller
 
-  config.include Spree::Api::TestingSupport::Helpers, type: :controller
-  config.extend Spree::Api::TestingSupport::Setup, type: :controller
-  config.include Spree::TestingSupport::ControllerRequests, type: :controller
-  config.include Devise::TestHelpers, type: :controller
   config.extend WithModel
 
   # Ensure Suite is set to use transactions for speed.
@@ -72,6 +64,7 @@ RSpec.configure do |config|
     DatabaseCleaner.start
 
     Spree::Api::Config[:requires_authentication] = true
+    Spree::Config.reset
   end
 
   # After each spec clean the database.
