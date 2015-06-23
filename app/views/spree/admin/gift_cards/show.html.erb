@@ -17,10 +17,10 @@
       <tr>
         <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
         <td class="align-center"><%= number_to_currency(gift_card.amount) %></td>
-        <td class="align-center"><%= link_to "#{gift_card.purchaser.first_name} #{gift_card.purchaser.last_name}", edit_admin_user_path(gift_card.purchaser) %></td>
+        <td class="align-center"><%= link_to "#{gift_card.purchaser.email}", edit_admin_user_path(gift_card.purchaser) %></td>
         <td class="align-center"><%= gift_card.created_at.localtime.strftime("%F %I:%M%p") %></td>
         <% if gift_card.redeemed? %>
-          <td class="align-center"><%= link_to "#{gift_card.redeemer.first_name} #{gift_card.redeemer.last_name}", edit_admin_user_path(gift_card.redeemer) %></td>
+          <td class="align-center"><%= link_to "#{gift_card.redeemer.email}", edit_admin_user_path(gift_card.redeemer) %></td>
           <td class="align-center"><%= gift_card.redeemed_at.localtime.strftime("%F %I:%M%p") %></td>
         <% else %>
           <td class="align-center"></td>
