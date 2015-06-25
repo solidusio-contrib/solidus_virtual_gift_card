@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'LineItem' do
+describe Spree::LineItem do
   describe "#redemption_codes" do
     let(:line_item) { create(:line_item, quantity: 2) }
     let!(:gift_card) { create(:virtual_gift_card, line_item: line_item) }

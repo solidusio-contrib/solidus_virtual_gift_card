@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe Spree::StoreCreditCategory, :type => :model do
+describe Spree::StoreCreditCategory, type: :model do
   describe "#non_expiring?" do
     subject { build(:store_credit_category, name: category_name).non_expiring? }
-    
+
     context "non-expiring type store credit" do
-      let(:category_name) { Spree::StoreCredits::Configuration.non_expiring_credit_types.first }
+      let(:category_name) { Spree::StoreCreditCategory.non_expiring_credit_types.first }
 
       it "returns true" do
         expect(subject).to be true

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Spree::Admin::GiftCardsController do
   stub_authorization!
   let!(:gc_category) { create(:store_credit_gift_card_category) }
-  let!(:secondary_credit_type) { create(:secondary_credit_type) }
+  let!(:credit_type) { create(:secondary_credit_type, name: "Non-expiring") }
 
   describe 'GET index' do
     subject { spree_get :index }

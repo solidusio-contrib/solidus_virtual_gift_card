@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe "VirtualGiftCard" do
+describe Spree::VirtualGiftCard do
   let!(:gc_category) { create(:store_credit_gift_card_category) }
-  let!(:secondary_credit_type) { create(:secondary_credit_type) }
+  let!(:credit_type) { create(:secondary_credit_type, name: "Non-expiring") }
 
   context 'validations' do
     let(:invalid_gift_card) { Spree::VirtualGiftCard.new(amount: 0, currency: 'USD', purchaser: create(:user)) }
