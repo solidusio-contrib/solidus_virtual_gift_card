@@ -4,6 +4,7 @@ en:
     admin:
       gift_cards:
         gift_card: "Gift Card"
+        gift_card_originator: "Gift Card - Order #%{order_number}"
         redeem: "Redeem"
         redeem_gift_card: "Redeem Gift Card"
         redeemed_gift_card: "Redeemed Gift Card"
