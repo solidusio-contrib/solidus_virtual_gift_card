@@ -47,4 +47,8 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   def load_user
     @user = Spree::User.find(params[:user_id])
   end
+
+  def model_class
+    Spree::VirtualGiftCard
+  end
 end
