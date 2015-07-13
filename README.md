@@ -24,6 +24,13 @@ bundle install
 bundle exec rails g solidus_virtual_gift_card:install
 ```
 
+Authorization
+-------------
+
+For discrete authorization, two permission sets have been added to allow for granular display in the admin.
+
+`Spree::PermissionSets::VirtualGiftCardDisplay` and `Spree::PermissionSets::VirtualGiftCardManagement` have been added and can be registered via [RoleConfiguration](http://docs.solidus.io/Spree/RoleConfiguration.html)
+
 Testing
 -------
 

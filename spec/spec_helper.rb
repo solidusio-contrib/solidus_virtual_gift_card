@@ -25,6 +25,8 @@ require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/authorization_helpers'
 require 'spree/testing_support/url_helpers'
 
+require 'cancan/matchers'
+
 require "spree_virtual_gift_card/factories"
 
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
