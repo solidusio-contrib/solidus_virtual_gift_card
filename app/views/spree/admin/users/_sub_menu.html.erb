@@ -2,7 +2,9 @@
   <% content_for :sub_menu do %>
     <ul id="sub_nav" class="inline-menu">
       <%= tab :users %>
-      <%= tab :gift_cards, :match_path => '/users/gift_cards' %>
+      <% if can?(:display, Spree::VirtualGiftCard) %>
+        <%= tab :gift_cards, :match_path => '/users/gift_cards' %>
+      <% end %>
     </ul>
   <% end %>
 <% end %>
