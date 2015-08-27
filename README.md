@@ -1,12 +1,13 @@
 Solidus - Virtual Gift Card
 ===========================
-
 A virtual gift card implementation for Solidus.
 
 * Allows setup of virtual gift card products that get unique codes upon
   purchase.
 * The virtual gift card codes can be used to add store credit to a user's
   account.
+
+[![Circle CI](https://circleci.com/gh/solidusio/solidus_virtual_gift_card/tree/master.svg?style=shield)](https://circleci.com/gh/solidusio/solidus_virtual_gift_card/tree/master)
 
 Installation
 ------------
