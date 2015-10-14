@@ -11,17 +11,16 @@ module Spree
     end
 
     module InstanceMethods
-      def finalize!
-        create_gift_cards
-        super
+      def gift_card_match(line_item, options)
+        !(line_item.gift_card? && options["gift_card_details"])
       end
 
-      def create_gift_cards
-        line_items.each do |item|
-          item.quantity.times do
-            Spree::VirtualGiftCard.create!(amount: item.price, currency: item.currency, purchaser: user, line_item: item) if item.gift_card?
-          end
+      def finalize!
+        gift_cards.each do |gift_card|
+          gift_card.make_redeemable!(purchaser: user)
         end
+
+        super
       end
 
       def send_gift_card_emails
