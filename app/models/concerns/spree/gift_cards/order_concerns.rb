@@ -12,15 +12,13 @@ module Spree
 
     module InstanceMethods
       def finalize!
-        create_gift_cards
+        activate_gift_cards
         super
       end
 
-      def create_gift_cards
-        line_items.each do |item|
-          item.quantity.times do
-            Spree::VirtualGiftCard.create!(amount: item.price, currency: item.currency, purchaser: user, line_item: item) if item.gift_card?
-          end
+      def activate_gift_cards
+        gift_cards.each do |gift_card|
+          gift_card.update_attributes(redeemable: true)
         end
       end
 

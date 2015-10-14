@@ -9,5 +9,8 @@ FactoryGirl.define do
 
     amount 25.0
     currency "USD"
+    redeemable true
+    recipient_name "Tom Riddle"
+    recipient_email "me@lordvoldemort.com"
   end
 end

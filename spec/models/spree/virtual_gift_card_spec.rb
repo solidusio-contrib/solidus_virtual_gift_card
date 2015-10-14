@@ -5,7 +5,7 @@ describe Spree::VirtualGiftCard do
   let!(:credit_type) { create(:secondary_credit_type, name: "Non-expiring") }
 
   context 'validations' do
-    let(:invalid_gift_card) { Spree::VirtualGiftCard.new(amount: 0, currency: 'USD', purchaser: create(:user)) }
+    let(:invalid_gift_card) { build(:virtual_gift_card, amount: 0) }
 
     context 'given an amount less than one' do
       it 'is not valid' do
@@ -20,7 +20,7 @@ describe Spree::VirtualGiftCard do
   end
 
   context 'before create callbacks' do
-    let(:gift_card) { Spree::VirtualGiftCard.new(amount: 20, currency: 'USD', purchaser: create(:user), line_item: create(:line_item) ) }
+    let(:gift_card) { build(:virtual_gift_card) }
     subject { gift_card.save }
 
     context 'a redemption code is set already' do
@@ -39,7 +39,7 @@ describe Spree::VirtualGiftCard do
     end
 
 
-    context 'there is a collision on redemption code' do 
+    context 'there is a collision on redemption code' do
       context 'the existing giftcard has not been redeemed yet' do
         let!(:existing_giftcard) { create(:virtual_gift_card) }
         let(:expected_code) { 'EXPECTEDCODE' }
@@ -71,25 +71,41 @@ describe Spree::VirtualGiftCard do
   end
 
   describe '#redeemed?' do
-    let(:gift_card) { Spree::VirtualGiftCard.new(amount: 20, currency: 'USD') }
-    subject { gift_card.save }
+    let(:gift_card) { build(:virtual_gift_card) }
 
     it 'is redeemed if there is a redeemed_at set' do
       gift_card.redeemed_at = Time.now
-      subject
       expect(gift_card.redeemed?).to be true
     end
 
     it 'is not redeemed if there is no timestamp for redeemed_at' do
-      subject
       expect(gift_card.redeemed?).to be false
     end
   end
 
   describe '#redeem' do
-    let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD', purchaser: create(:user), line_item: create(:line_item)) }
+    let(:gift_card) { create(:virtual_gift_card) }
     let(:redeemer) { create(:user) }
     subject { gift_card.redeem(redeemer) }
+
+    context 'it is not redeemable' do
+      before { gift_card.redeemable = false }
+
+      it 'should return false' do
+        expect(subject).to be false
+      end
+
+      context 'does nothing to the gift card' do
+        it 'should not create a store credit' do
+          expect(gift_card.store_credit).not_to be_present
+        end
+
+        it 'should not update the gift card' do
+          expect { subject }.to_not change{ gift_card }
+        end
+      end
+    end
+
 
     context 'it has already been redeemed' do
       before { gift_card.redeemed_at = Date.yesterday }
@@ -109,7 +125,7 @@ describe Spree::VirtualGiftCard do
       end
     end
 
-    context 'it has not been redeemed already' do
+    context 'it has not been redeemed already and is redeemable' do
       context 'generates a store credit' do
         before { subject }
         let(:store_credit) { gift_card.store_credit }
@@ -167,7 +183,7 @@ describe Spree::VirtualGiftCard do
   describe '#formatted_redemption_code' do
     let(:redemption_code) { 'AAAABBBBCCCCDDDD' }
     let(:formatted_redemption_code) { 'AAAA-BBBB-CCCC-DDDD' }
-    let(:gift_card) { Spree::VirtualGiftCard.create(amount: 20, currency: 'USD') }
+    let(:gift_card) { build(:virtual_gift_card) }
 
     subject { gift_card.formatted_redemption_code }
 

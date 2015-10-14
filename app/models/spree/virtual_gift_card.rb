@@ -20,7 +20,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   end
 
   def redeem(redeemer)
-    return false if redeemed?
+    return false if redeemed? || !redeemable?
     create_store_credit!({
       amount: amount,
       currency: currency,
