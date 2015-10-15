@@ -10,6 +10,7 @@ module Spree
       def add(variant, quantity = 1, options = {})
         line_item = super
         create_gift_cards(line_item, options[:gift_card_details] || {})
+        line_item
       end
 
       private
