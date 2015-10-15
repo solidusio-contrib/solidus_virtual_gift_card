@@ -183,14 +183,12 @@ describe Spree::VirtualGiftCard do
   end
 
   describe '#formatted_redemption_code' do
-    let(:redemption_code) { 'AAAABBBBCCCCDDDD' }
     let(:formatted_redemption_code) { 'AAAA-BBBB-CCCC-DDDD' }
-    let(:gift_card) { build(:virtual_gift_card) }
+    let(:gift_card) { build(:redeemable_virtual_gift_card, redemption_code: 'AAAABBBBCCCCDDDD') }
 
     subject { gift_card.formatted_redemption_code }
 
     it 'inserts dashes into the code after every 4 characters' do
-      expect(gift_card).to receive(:redemption_code).and_return(redemption_code)
       expect(subject).to eq formatted_redemption_code
     end
   end

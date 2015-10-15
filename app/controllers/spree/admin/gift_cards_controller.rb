@@ -2,11 +2,25 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   before_filter :load_gift_card_history, only: [:show]
   before_filter :load_user, only: [:lookup, :redeem]
   before_filter :load_gift_card_for_redemption, only: [:redeem]
+  before_filter :load_gift_card_by_id, only: [:edit, :update]
+  before_filter :load_order, only: [:edit, :update]
 
   def index
   end
 
   def show
+  end
+
+  def edit
+  end
+
+  def update
+    if @gift_card.update_attributes!(gift_card_params)
+      flash[:success] = Spree.t("admin.gift_cards.gift_card_updated")
+      redirect_to edit_admin_order_path(@order)
+    else
+      redirect_to :back
+    end
   end
 
   def lookup
@@ -44,8 +58,20 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
     end
   end
 
+  def load_gift_card_by_id
+    @gift_card = Spree::VirtualGiftCard.find_by(id: params[:id])
+  end
+
+  def load_order
+    @order = Spree::Order.find_by(number: params[:order_id])
+  end
+
   def load_user
     @user = Spree::User.find(params[:user_id])
+  end
+
+  def gift_card_params
+    params.require(:virtual_gift_card).permit(:recipient_name, :recipient_email, :purchaser_name, :gift_message)
   end
 
   def model_class

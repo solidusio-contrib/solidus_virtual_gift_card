@@ -1,0 +1,58 @@
+<% content_for :page_title do %>
+  <%= Spree.t("admin.gift_cards.editing_gift_card") %>
+<% end %>
+
+<%= render :partial => 'spree/admin/shared/order_tabs', :locals => { :current => '' } %>
+
+<%= form_for @gift_card, url: admin_order_gift_card_path(@order, @gift_card) do |f| %>
+  <fieldset>
+    <legend align="center"><%= Spree.t("admin.gift_cards.gift_card_details") %></legend>
+    <div class="row">
+      <label>Amount:</label>
+      <%= @gift_card.formatted_amount %>
+    </div>
+
+    <div class="row">
+      <label>Redemption Code:</label>
+      <%= @gift_card.redemption_code %>
+    </div>
+
+    <div class="row">
+      <div class="alpha twelve columns">
+        <%= f.field_container :recipient_name do %>
+        <%= f.label :recipient_name, Spree.t('admin.gift_cards.recipient_name') %> <br />
+        <%= f.text_field :recipient_name, class: 'fullwidth' %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="alpha twelve columns">
+        <%= f.field_container :recipient_email do %>
+        <%= f.label :recipient_email, Spree.t('admin.gift_cards.recipient_email') %> <br />
+        <%= f.text_field :recipient_email, class: 'fullwidth' %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="alpha twelve columns">
+        <%= f.field_container :purchaser_name do %>
+        <%= f.label :purchaser_name, Spree.t('admin.gift_cards.purchaser_name') %> <br />
+        <%= f.text_field :purchaser_name, class: 'fullwidth' %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="alpha twelve columns">
+        <%= f.field_container :gift_message do %>
+        <%= f.label :gift_message, Spree.t('admin.gift_cards.gift_message') %> <br />
+        <%= f.text_area :gift_message, class: 'fullwidth' %>
+        <% end %>
+      </div>
+    </div>
+
+    <%= render :partial => 'spree/admin/shared/edit_resource_links', locals: { collection_url: edit_admin_order_path(@order) } %>
+  </fieldset>
+<% end %>

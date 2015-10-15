@@ -11,6 +11,10 @@ Spree::Core::Engine.routes.draw do
         resources :gift_cards, only: [:index, :show]
       end
     end
+
+    resources :orders, only: [] do
+      resources :gift_cards, only: [:edit, :update]
+    end
   end
 
   namespace :api, defaults: { format: 'json' } do
