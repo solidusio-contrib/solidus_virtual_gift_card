@@ -11,6 +11,10 @@ module Spree
     end
 
     module InstanceMethods
+      def gift_card_match(line_item, options)
+        !(line_item.gift_card? && options["gift_card_details"])
+      end
+
       def finalize!
         activate_gift_cards
         super
