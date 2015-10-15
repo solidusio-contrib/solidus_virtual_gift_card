@@ -6,7 +6,7 @@ describe Spree::Api::GiftCardsController do
   let!(:gc_category) { create(:store_credit_gift_card_category) }
 
   describe "POST redeem" do
-    let(:gift_card) { create(:virtual_gift_card) }
+    let(:gift_card) { create(:redeemable_virtual_gift_card) }
 
     let(:parameters) do
       {
