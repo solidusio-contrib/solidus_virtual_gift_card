@@ -17,7 +17,7 @@ module Spree
 
       def finalize!
         gift_cards.each do |gift_card|
-          gift_card.make_redeemable!
+          gift_card.make_redeemable!(purchaser: user)
         end
 
         super

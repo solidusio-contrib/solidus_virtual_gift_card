@@ -4,15 +4,14 @@ FactoryGirl.define do
   end
 
   factory :virtual_gift_card, class: Spree::VirtualGiftCard do
-    association :purchaser, factory: :user
     association :line_item, factory: :line_item
-
     amount 25.0
     currency "USD"
     recipient_name "Tom Riddle"
     recipient_email "me@lordvoldemort.com"
 
     factory :redeemable_virtual_gift_card do
+      association :purchaser, factory: :user
       redeemable true
 
       before(:create) do |gift_card, evaluator|

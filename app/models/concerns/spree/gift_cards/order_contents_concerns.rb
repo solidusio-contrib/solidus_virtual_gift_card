@@ -19,7 +19,6 @@ module Spree
         Spree::VirtualGiftCard.create!(
           amount: line_item.price,
           currency: line_item.currency,
-          purchaser: @order.user,
           line_item: line_item,
           recipient_name: gift_card_details[:recipient_name],
           recipient_email: gift_card_details[:recipient_email],

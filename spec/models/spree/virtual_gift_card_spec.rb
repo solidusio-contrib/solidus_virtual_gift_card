@@ -20,8 +20,9 @@ describe Spree::VirtualGiftCard do
   end
 
   describe '#make_redeemable!' do
+    let(:user) { create(:user) }
     let(:gift_card) { create(:virtual_gift_card) }
-    subject { gift_card.make_redeemable! }
+    subject { gift_card.make_redeemable!(purchaser: user) }
 
     context 'no collision on redemption code' do
       it 'sets a redemption code' do
