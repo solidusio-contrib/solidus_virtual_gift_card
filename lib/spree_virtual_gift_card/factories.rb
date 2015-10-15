@@ -9,8 +9,15 @@ FactoryGirl.define do
 
     amount 25.0
     currency "USD"
-    redeemable true
     recipient_name "Tom Riddle"
     recipient_email "me@lordvoldemort.com"
+
+    factory :redeemable_virtual_gift_card do
+      redeemable true
+
+      before(:create) do |gift_card, evaluator|
+        gift_card.redemption_code = gift_card.send(:generate_unique_redemption_code)
+      end
+    end
   end
 end

@@ -8,9 +8,10 @@ describe Spree::Order do
 
       subject { order.finalize! }
 
-      it "activates the gift card" do
+      it "makes the gift card redeemable" do
         subject
         expect(gift_card.reload.redeemable).to be true
+        expect(gift_card.reload.redemption_code).to be_present
       end
     end
   end

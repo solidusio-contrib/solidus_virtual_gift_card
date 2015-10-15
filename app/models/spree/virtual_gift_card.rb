@@ -5,11 +5,9 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   belongs_to :purchaser, class_name: 'Spree::User'
   belongs_to :redeemer, class_name: 'Spree::User'
   belongs_to :line_item, class_name: 'Spree::LineItem'
-  before_create :set_redemption_code, unless: -> { redemption_code }
-
 
   validates :amount, numericality: { greater_than: 0 }
-  validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil) }
+  validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil, redeemable: true) }
   validates_presence_of :purchaser_id
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
@@ -33,6 +31,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     self.update_attributes( redeemed_at: Time.now, redeemer: redeemer )
   end
 
+  def make_redeemable!
+    update_attributes!(redeemable: true, redemption_code: (self.redemption_code || generate_unique_redemption_code))
+  end
+
   def memo
     "Gift Card ##{self.redemption_code}"
   end
@@ -54,10 +56,6 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   end
 
   private
-
-  def set_redemption_code
-    self.redemption_code = generate_unique_redemption_code
-  end
 
   def generate_unique_redemption_code
     redemption_code = Spree::RedemptionCodeGenerator.generate_redemption_code

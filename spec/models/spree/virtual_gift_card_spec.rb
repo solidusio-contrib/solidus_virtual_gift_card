@@ -19,29 +19,30 @@ describe Spree::VirtualGiftCard do
     end
   end
 
-  context 'before create callbacks' do
-    let(:gift_card) { build(:virtual_gift_card) }
-    subject { gift_card.save }
+  describe '#make_redeemable!' do
+    let(:gift_card) { create(:virtual_gift_card) }
+    subject { gift_card.make_redeemable! }
 
-    context 'a redemption code is set already' do
-      before { gift_card.redemption_code = 'foo' }
-      it 'keeps that redemption code' do
+    context 'no collision on redemption code' do
+      it 'sets a redemption code' do
         subject
-        expect(gift_card.redemption_code).to eq 'foo'
+        expect(gift_card.redemption_code).to be_present
       end
     end
 
-    context 'no collision on redemption code' do
-      it 'sets an initial redemption code' do
+    context 'redemption code is already set' do
+      let(:expected_code) { "EXPECTEDCODE" }
+      before { gift_card.redemption_code = expected_code }
+      it "does not update the redemption code" do
         subject
-        expect(gift_card.redemption_code).to be_present
+        expect(gift_card.redemption_code).to eq expected_code
       end
     end
 
 
     context 'there is a collision on redemption code' do
       context 'the existing giftcard has not been redeemed yet' do
-        let!(:existing_giftcard) { create(:virtual_gift_card) }
+        let!(:existing_giftcard) { create(:virtual_gift_card, redemption_code: "ABC123-EFG456") }
         let(:expected_code) { 'EXPECTEDCODE' }
         let(:generator) { Spree::RedemptionCodeGenerator }
 
@@ -56,7 +57,7 @@ describe Spree::VirtualGiftCard do
       end
 
       context 'the existing gift card has been redeemed' do
-        let!(:existing_giftcard) { create(:virtual_gift_card, redeemed_at: Time.now) }
+        let!(:existing_giftcard) { create(:virtual_gift_card, redemption_code: "ABC123-EFG456", redeemed_at: Time.now) }
         let(:generator) { Spree::RedemptionCodeGenerator }
 
         it 'recursively generates redemption codes' do
@@ -84,7 +85,7 @@ describe Spree::VirtualGiftCard do
   end
 
   describe '#redeem' do
-    let(:gift_card) { create(:virtual_gift_card) }
+    let(:gift_card) { create(:redeemable_virtual_gift_card) }
     let(:redeemer) { create(:user) }
     subject { gift_card.redeem(redeemer) }
 

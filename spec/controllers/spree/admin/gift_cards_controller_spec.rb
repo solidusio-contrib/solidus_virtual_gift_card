@@ -15,7 +15,7 @@ describe Spree::Admin::GiftCardsController do
   end
 
   describe 'GET show' do
-    let(:gift_card) { create(:virtual_gift_card) }
+    let(:gift_card) { create(:redeemable_virtual_gift_card) }
     let(:redemption_code) { gift_card.redemption_code }
 
     subject { spree_get :show, id: redemption_code }
@@ -58,7 +58,7 @@ describe Spree::Admin::GiftCardsController do
 
   describe 'POST redeem' do
     let(:user) { create :user }
-    let(:gift_card) { create(:virtual_gift_card) }
+    let(:gift_card) { create(:redeemable_virtual_gift_card) }
     let(:redemption_code) { gift_card.redemption_code }
 
     subject { spree_post :redeem, user_id: user.id, gift_card: { redemption_code: redemption_code } }

@@ -16,14 +16,11 @@ module Spree
       end
 
       def finalize!
-        activate_gift_cards
-        super
-      end
-
-      def activate_gift_cards
         gift_cards.each do |gift_card|
-          gift_card.update_attributes(redeemable: true)
+          gift_card.make_redeemable!
         end
+
+        super
       end
 
       def send_gift_card_emails
