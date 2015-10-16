@@ -15,10 +15,11 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   end
 
   def update
-    if @gift_card.update_attributes!(gift_card_params)
+    if @gift_card.update_attributes(gift_card_params)
       flash[:success] = Spree.t("admin.gift_cards.gift_card_updated")
       redirect_to edit_admin_order_path(@order)
     else
+      flash[:error] = @gift_card.errors.full_messages.join(", ")
       redirect_to :back
     end
   end
