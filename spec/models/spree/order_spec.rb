@@ -17,19 +17,41 @@ describe Spree::Order do
   end
 
   describe "#send_gift_card_emails" do
-
     subject { order.send_gift_card_emails }
 
     context "the order has gift cards" do
-      let(:gift_card) { create(:virtual_gift_card) }
+      let(:gift_card) { create(:virtual_gift_card, send_email_at: send_email_at) }
       let(:line_item) { gift_card.line_item }
-      let(:gift_card_2) { create(:virtual_gift_card, line_item: line_item) }
+      let(:gift_card_2) { create(:virtual_gift_card, line_item: line_item, send_email_at: send_email_at) }
       let(:order) { gift_card.line_item.order }
 
-      it "should call GiftCardMailer#send" do
-        expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver: true))
-        expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver: true))
-        subject
+      context "send_email_at is not set" do
+        let(:send_email_at) { nil }
+        it "should call GiftCardMailer#send" do
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver: true))
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver: true))
+          subject
+          expect(gift_card.reload.sent_at).to be_present
+        end
+      end
+
+      context "send_email_at is in the past" do
+        let(:send_email_at) { 2.days.ago }
+        it "should call GiftCardMailer#send" do
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver: true))
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver: true))
+          subject
+          expect(gift_card.reload.sent_at).to be_present
+        end
+      end
+
+      context "send_email_at is in the future" do
+        let(:send_email_at) { 2.days.from_now }
+        it "does not call GiftCardMailer#send" do
+          expect(Spree::GiftCardMailer).to_not receive(:gift_card_email)
+          subject
+          expect(gift_card.reload.sent_at).to_not be_present
+        end
       end
     end
 
@@ -40,22 +62,6 @@ describe Spree::Order do
         expect(Spree::GiftCardMailer).to_not receive(:gift_card_email)
         subject
       end
-    end
-  end
-
-  describe "#display_total_applicable_store_credit" do
-    let(:total_applicable_store_credit) { 10.00 }
-
-    subject { create(:order) }
-
-    before { allow(subject).to receive_messages(total_applicable_store_credit: total_applicable_store_credit) }
-
-    it "returns a money instance" do
-      expect(subject.display_total_applicable_store_credit).to be_a(Spree::Money)
-    end
-
-    it "returns a negative amount" do
-      expect(subject.display_total_applicable_store_credit.money.cents).to eq (total_applicable_store_credit * -100.0)
     end
   end
 end
