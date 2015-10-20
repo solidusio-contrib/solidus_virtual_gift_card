@@ -9,7 +9,7 @@ module Spree
     module InstanceMethods
       def add(variant, quantity = 1, options = {})
         line_item = super
-        create_gift_cards(line_item, quantity, options[:gift_card_details] || {})
+        create_gift_cards(line_item, quantity, options["gift_card_details"] || {})
         line_item
       end
 
@@ -40,10 +40,10 @@ module Spree
               amount: line_item.price,
               currency: line_item.currency,
               line_item: line_item,
-              recipient_name: gift_card_details[:recipient_name],
-              recipient_email: gift_card_details[:recipient_email],
-              purchaser_name: gift_card_details[:purchaser_name],
-              gift_message: gift_card_details[:gift_message],
+              recipient_name: gift_card_details["recipient_name"],
+              recipient_email: gift_card_details["recipient_email"],
+              purchaser_name: gift_card_details["purchaser_name"],
+              gift_message: gift_card_details["gift_message"],
             )
           end
         end

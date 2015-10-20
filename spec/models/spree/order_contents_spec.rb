@@ -11,11 +11,11 @@ describe Spree::OrderContents do
   let(:gift_message) { "Thought you could use some trousers, mate" }
   let(:options) do
     {
-      gift_card_details: {
-        recipient_name: recipient_name,
-        recipient_email: recipient_email,
-        purchaser_name: purchaser_name,
-        gift_message: gift_message,
+      "gift_card_details" => {
+        "recipient_name" => recipient_name,
+        "recipient_email" => recipient_email,
+        "purchaser_name" => purchaser_name,
+        "gift_message" => gift_message,
       }
     }
   end
@@ -51,17 +51,6 @@ describe Spree::OrderContents do
 
         it "creates two gift cards" do
           expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
-        end
-
-      end
-
-      context "adding to an exisiting gift card line item" do
-        before { @line_item = order_contents.add(variant, quantity, options) }
-
-        it "creates one gift card" do
-          expect(@line_item.gift_cards.count).to be(1)
-          subject
-          expect(@line_item.gift_cards.count).to be(2)
         end
       end
     end
