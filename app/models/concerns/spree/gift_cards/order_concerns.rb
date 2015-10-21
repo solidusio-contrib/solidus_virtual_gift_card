@@ -12,7 +12,13 @@ module Spree
 
     module InstanceMethods
       def gift_card_match(line_item, options)
-        !(line_item.gift_card? && options["gift_card_details"])
+        gift_card_options = options["gift_card_details"]
+        !line_item.gift_card? ||
+          (line_item.gift_card? && gift_card_options.present? &&
+          line_item.gift_cards.any? {|gc| gc.recipient_email == gift_card_options['recipient_email']} &&
+          line_item.gift_cards.any? {|gc| gc.recipient_name == gift_card_options['recipient_name']} &&
+          line_item.gift_cards.any? {|gc| gc.purchaser_name == gift_card_options['purchaser_name']} &&
+          line_item.gift_cards.any? {|gc| gc.gift_message == gift_card_options['gift_message']})
       end
 
       def finalize!
