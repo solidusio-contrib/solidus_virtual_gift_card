@@ -44,7 +44,7 @@ module Spree
               recipient_email: gift_card_details["recipient_email"],
               purchaser_name: gift_card_details["purchaser_name"],
               gift_message: gift_card_details["gift_message"],
-              send_email_at: gift_card_details["send_email_at"] || DateTime.now,
+              send_email_at: format_date(gift_card_details["send_email_at"])
             )
           end
         end
@@ -64,6 +64,18 @@ module Spree
           elsif new_quantity < line_item.gift_cards.count
             remove_gift_cards(line_item, gift_card_count - new_quantity)
           end
+        end
+      end
+
+      def format_date(date)
+        return date if date.acts_like? :time
+
+        # parse the date if its parse-able
+        # otherwise use the current date.
+        begin
+          DateTime.parse(date)
+        rescue
+          DateTime.now
         end
       end
     end

@@ -47,6 +47,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
       recipient_name: recipient_name,
       purchaser_name: purchaser_name,
       gift_message: gift_message,
+      send_email_at: send_email_at
     }
   end
 

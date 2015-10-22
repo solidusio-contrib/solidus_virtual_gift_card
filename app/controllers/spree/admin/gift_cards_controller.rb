@@ -72,7 +72,7 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   end
 
   def gift_card_params
-    params.require(:virtual_gift_card).permit(:recipient_name, :recipient_email, :purchaser_name, :gift_message)
+    params.require(:virtual_gift_card).permit(:recipient_name, :recipient_email, :purchaser_name, :gift_message, :send_email_at)
   end
 
   def model_class
