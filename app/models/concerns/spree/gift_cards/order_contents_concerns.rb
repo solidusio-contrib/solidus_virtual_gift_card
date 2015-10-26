@@ -1,6 +1,7 @@
 module Spree
   module GiftCards::OrderContentsConcerns
     extend ActiveSupport::Concern
+    class GiftCardDateFormatError < StandardError; end
 
     included do
       prepend(InstanceMethods)
@@ -68,14 +69,13 @@ module Spree
       end
 
       def format_date(date)
-        return date if date.acts_like? :time
+        return date if date.acts_like?(:date) || date.acts_like?(:time)
+        return Date.today if date.nil?
 
-        # parse the date if its parse-able
-        # otherwise use the current date.
         begin
-          DateTime.parse(date)
-        rescue
-          DateTime.now
+          Date.parse(date)
+        rescue ArgumentError
+          raise GiftCardDateFormatError
         end
       end
     end

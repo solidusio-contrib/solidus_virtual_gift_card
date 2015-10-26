@@ -29,8 +29,7 @@ module Spree
       def send_gift_card_emails
         gift_cards.each do |gift_card|
           if gift_card.send_email_at.nil? || gift_card.send_email_at <= DateTime.now
-            Spree::GiftCardMailer.gift_card_email(gift_card).deliver
-            gift_card.touch(:sent_at)
+            gift_card.send_email
           end
         end
       end

@@ -45,7 +45,7 @@ describe Spree::OrderContents do
           expect(gift_card.recipient_email).to eq(recipient_email)
           expect(gift_card.purchaser_name).to eq(purchaser_name)
           expect(gift_card.gift_message).to eq(gift_message)
-          expect(gift_card.send_email_at).to eq(send_email_at)
+          expect(gift_card.send_email_at).to eq(send_email_at.to_date)
         end
 
         context "#format_date" do
@@ -54,16 +54,14 @@ describe Spree::OrderContents do
             it "sets to current date" do
               subject
               gift_card = Spree::VirtualGiftCard.last
-              expect(gift_card.send_email_at.to_date).to eq(DateTime.now.to_date)
+              expect(gift_card.send_email_at).to eq(Date.today)
             end
           end
 
-          context "with send_email_at as a string" do
+          context "with invalid date" do
             let(:send_email_at) { "12/14/2020" }
-            it "formats to a datetime" do
-              subject
-              gift_card = Spree::VirtualGiftCard.last
-              expect(gift_card.send_email_at.to_date).to eq(DateTime.new(2020, 12, 14).to_date)
+            it "errors" do
+             expect{ subject }.to raise_error Spree::GiftCards::OrderContentsConcerns::GiftCardDateFormatError
             end
           end
         end

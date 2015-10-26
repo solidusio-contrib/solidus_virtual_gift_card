@@ -28,8 +28,8 @@ describe Spree::Order do
       context "send_email_at is not set" do
         let(:send_email_at) { nil }
         it "should call GiftCardMailer#send" do
-          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver: true))
-          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver: true))
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver_later: true))
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver_later: true))
           subject
           expect(gift_card.reload.sent_at).to be_present
         end
@@ -38,8 +38,8 @@ describe Spree::Order do
       context "send_email_at is in the past" do
         let(:send_email_at) { 2.days.ago }
         it "should call GiftCardMailer#send" do
-          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver: true))
-          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver: true))
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver_later: true))
+          expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card_2).and_return(double(deliver_later: true))
           subject
           expect(gift_card.reload.sent_at).to be_present
         end

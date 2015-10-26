@@ -67,6 +67,11 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     Spree::VirtualGiftCard.unredeemed.by_redemption_code(redemption_code).first
   end
 
+  def send_email
+    Spree::GiftCardMailer.gift_card_email(self).deliver_later
+    touch(:sent_at)
+  end
+
   private
 
   def generate_unique_redemption_code
