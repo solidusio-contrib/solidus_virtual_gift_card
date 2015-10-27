@@ -40,6 +40,17 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     "Gift Card ##{self.redemption_code}"
   end
 
+  def details
+    {
+      amount: formatted_amount,
+      redemption_code: formatted_redemption_code,
+      recipient_email: recipient_email,
+      recipient_name: recipient_name,
+      purchaser_name: purchaser_name,
+      gift_message: gift_message,
+    }
+  end
+
   def formatted_redemption_code
     redemption_code.present? ? redemption_code.scan(/.{4}/).join('-') : ""
   end

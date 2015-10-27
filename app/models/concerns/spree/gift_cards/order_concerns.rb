@@ -12,21 +12,18 @@ module Spree
 
     module InstanceMethods
       def gift_card_match(line_item, options)
-        gift_card_options = options["gift_card_details"]
-        !line_item.gift_card? ||
-          (line_item.gift_card? && gift_card_options.present? &&
-          line_item.gift_cards.any? {|gc| gc.recipient_email == gift_card_options['recipient_email']} &&
-          line_item.gift_cards.any? {|gc| gc.recipient_name == gift_card_options['recipient_name']} &&
-          line_item.gift_cards.any? {|gc| gc.purchaser_name == gift_card_options['purchaser_name']} &&
-          line_item.gift_cards.any? {|gc| gc.gift_message == gift_card_options['gift_message']})
+        return true unless line_item.gift_card?
+        line_item.gift_cards.any? do |gift_card|
+          gift_card_detail_set = gift_card.details.stringify_keys.to_set
+          gift_card_detail_set.superset?(options["gift_card_details"].to_set)
+        end
       end
 
       def finalize!
+        super
         gift_cards.each do |gift_card|
           gift_card.make_redeemable!(purchaser: user)
         end
-
-        super
       end
 
       def send_gift_card_emails

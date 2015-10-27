@@ -14,16 +14,7 @@ module Spree
       end
 
       def gift_card_details
-        gift_cards.map do |gc|
-          {
-            amount: gc.formatted_amount,
-            redemption_code: gc.formatted_redemption_code,
-            recipient_email: gc.recipient_email,
-            recipient_name: gc.recipient_name,
-            purchaser_name: gc.purchaser_name,
-            gift_message: gc.gift_message,
-          }
-        end
+        gift_cards.map(&:details)
       end
     end
   end
