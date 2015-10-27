@@ -98,6 +98,7 @@ describe Spree::OrderContents do
                 "recipient_email" => recipient_email2,
                 "purchaser_name" => purchaser_name2,
                 "gift_message" => gift_message,
+                "send_email_at" => send_email_at,
               }
             }
           end
@@ -175,6 +176,7 @@ describe Spree::OrderContents do
               "recipient_email" => recipient_email2,
               "purchaser_name" => purchaser_name2,
               "gift_message" => gift_message,
+              "send_email_at" => send_email_at,
             }
           }
         end
