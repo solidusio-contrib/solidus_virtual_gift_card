@@ -51,7 +51,7 @@ module Spree
 
       def remove_gift_cards(line_item, quantity_diff)
         if line_item.gift_card?
-          line_item.gift_cards.order(:created_at).last(quantity_diff).each(&:destroy)
+          line_item.gift_cards.order(:created_at).last(quantity_diff).each(&:destroy!)
         end
       end
 
