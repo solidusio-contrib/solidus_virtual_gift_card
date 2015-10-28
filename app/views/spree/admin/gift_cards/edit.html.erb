@@ -55,10 +55,18 @@
 
     <div class="row">
       <div class="alpha twelve columns">
-        <%= f.field_container :send_email_at do %>
-        <%= f.label :send_email_at, Spree.t('admin.gift_cards.send_email_at') %> <br />
-        <%= f.text_field :send_email_at, :class => 'datepicker datepicker-from' %>
+        <% if @gift_card.sent_at %>
+          <div class="last-email-sent">
+            Email last sent at: <%= @gift_card.formatted_sent_at %>
+          </div>
+        <% else %>
+          <%= f.field_container :send_email_at do %>
+          <%= f.label :send_email_at, Spree.t('admin.gift_cards.send_email_at') %> <br />
+          <%= f.text_field :send_email_at, :class => 'datepicker datepicker-from' %>
+          <% end %>
         <% end %>
+
+        <%= button_link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), :icon => 'email', :data => { :confirm => "Any changes that have not been updated will not send" } %>
       </div>
     </div>
 

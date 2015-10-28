@@ -192,4 +192,29 @@ describe Spree::VirtualGiftCard do
       expect(subject).to eq formatted_redemption_code
     end
   end
+
+  describe '#formatted_sent_at' do
+    let(:gift_card) { build(:redeemable_virtual_gift_card, sent_at: DateTime.new(2015,10,30)) }
+
+    subject { gift_card.formatted_sent_at }
+
+    it 'inserts dashes into the code after every 4 characters' do
+      expect(subject).to eq "2015-10-29 08:00PM"
+    end
+  end
+
+  describe "#send_email" do
+    let(:gift_card) { create(:redeemable_virtual_gift_card) }
+
+    subject { gift_card.send_email }
+
+    it "sends the gift card email" do
+      expect(Spree::GiftCardMailer).to receive(:gift_card_email).with(gift_card).and_return(double(deliver_later: true))
+      subject
+    end
+
+    it "sets sent_at" do
+      expect { subject }.to change { gift_card.sent_at }
+    end
+  end
 end

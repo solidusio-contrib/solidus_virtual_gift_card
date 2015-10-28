@@ -2,7 +2,7 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   before_filter :load_gift_card_history, only: [:show]
   before_filter :load_user, only: [:lookup, :redeem]
   before_filter :load_gift_card_for_redemption, only: [:redeem]
-  before_filter :load_gift_card_by_id, only: [:edit, :update]
+  before_filter :load_gift_card_by_id, only: [:edit, :update, :send_email]
   before_filter :load_order, only: [:edit, :update]
 
   def index
@@ -35,6 +35,11 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
       flash[:error] = Spree.t("admin.gift_cards.errors.unable_to_redeem_gift_card")
       render :lookup
     end
+  end
+
+  def send_email
+    @gift_card.send_email
+    redirect_to :back
   end
 
   private
