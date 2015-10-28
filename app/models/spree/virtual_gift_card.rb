@@ -9,7 +9,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   validates :amount, numericality: { greater_than: 0 }
   validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil, redeemable: true) }
   validates_presence_of :purchaser_id, if: Proc.new { |gc| gc.redeemable? }
-  
+
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
 
@@ -47,7 +47,8 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
       recipient_name: recipient_name,
       purchaser_name: purchaser_name,
       gift_message: gift_message,
-      send_email_at: send_email_at
+      send_email_at: send_email_at,
+      formatted_send_email_at: formatted_send_email_at
     }
   end
 
@@ -57,6 +58,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   def formatted_amount
     number_to_currency(amount, precision: 0)
+  end
+
+  def formatted_send_email_at
+    send_email_at.strftime("%-m/%-d/%y") if send_email_at
   end
 
   def store_credit_category
