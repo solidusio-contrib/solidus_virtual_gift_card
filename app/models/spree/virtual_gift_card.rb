@@ -9,8 +9,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   validates :amount, numericality: { greater_than: 0 }
   validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil, redeemable: true) }
   validates_presence_of :purchaser_id, if: Proc.new { |gc| gc.redeemable? }
-  validates_format_of :recipient_email, with: Devise.email_regexp, if: Proc.new { |gc| gc.recipient_email.present? }
-
+  
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
 
