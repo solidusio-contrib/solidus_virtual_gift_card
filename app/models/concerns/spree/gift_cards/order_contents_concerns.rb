@@ -1,6 +1,7 @@
 module Spree
   module GiftCards::OrderContentsConcerns
     extend ActiveSupport::Concern
+    class GiftCardDateFormatError < StandardError; end
 
     included do
       prepend(InstanceMethods)
@@ -44,6 +45,7 @@ module Spree
               recipient_email: gift_card_details["recipient_email"],
               purchaser_name: gift_card_details["purchaser_name"],
               gift_message: gift_card_details["gift_message"],
+              send_email_at: format_date(gift_card_details["send_email_at"])
             )
           end
         end
@@ -63,6 +65,17 @@ module Spree
           elsif new_quantity < line_item.gift_cards.count
             remove_gift_cards(line_item, gift_card_count - new_quantity)
           end
+        end
+      end
+
+      def format_date(date)
+        return date if date.acts_like?(:date) || date.acts_like?(:time)
+        return Date.today if date.nil?
+
+        begin
+          Date.parse(date)
+        rescue ArgumentError
+          raise GiftCardDateFormatError
         end
       end
     end

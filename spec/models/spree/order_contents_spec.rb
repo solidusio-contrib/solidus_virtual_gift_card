@@ -9,6 +9,7 @@ describe Spree::OrderContents do
   let(:recipient_email) { "ron@weasly.com" }
   let(:purchaser_name) { "Harry Potter" }
   let(:gift_message) { "Thought you could use some trousers, mate" }
+  let(:send_email_at) { 2.days.from_now }
   let(:options) do
     {
       "gift_card_details" => {
@@ -16,6 +17,7 @@ describe Spree::OrderContents do
         "recipient_email" => recipient_email,
         "purchaser_name" => purchaser_name,
         "gift_message" => gift_message,
+        "send_email_at" => send_email_at,
       }
     }
   end
@@ -43,6 +45,25 @@ describe Spree::OrderContents do
           expect(gift_card.recipient_email).to eq(recipient_email)
           expect(gift_card.purchaser_name).to eq(purchaser_name)
           expect(gift_card.gift_message).to eq(gift_message)
+          expect(gift_card.send_email_at).to eq(send_email_at.to_date)
+        end
+
+        context "#format_date" do
+          context "without send_email_at" do
+            let(:send_email_at) { nil }
+            it "sets to current date" do
+              subject
+              gift_card = Spree::VirtualGiftCard.last
+              expect(gift_card.send_email_at).to eq(Date.today)
+            end
+          end
+
+          context "with invalid date" do
+            let(:send_email_at) { "12/14/2020" }
+            it "errors" do
+             expect{ subject }.to raise_error Spree::GiftCards::OrderContentsConcerns::GiftCardDateFormatError
+            end
+          end
         end
       end
 
@@ -77,6 +98,7 @@ describe Spree::OrderContents do
                 "recipient_email" => recipient_email2,
                 "purchaser_name" => purchaser_name2,
                 "gift_message" => gift_message,
+                "send_email_at" => send_email_at,
               }
             }
           end
@@ -154,6 +176,7 @@ describe Spree::OrderContents do
               "recipient_email" => recipient_email2,
               "purchaser_name" => purchaser_name2,
               "gift_message" => gift_message,
+              "send_email_at" => send_email_at,
             }
           }
         end
