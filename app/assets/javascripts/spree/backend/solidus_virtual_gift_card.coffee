@@ -7,3 +7,9 @@ window.GiftCards =
 
   init: ->
     @_bindLookupGiftCard()
+
+  setMinDate: ->
+    $(document).ready(() ->
+      $(".giftcard-datepicker").datepicker("option", "minDate", new Date())
+    )
+
