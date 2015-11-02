@@ -1,0 +1,50 @@
+<fieldset class="no-border-bottom">
+  <legend align="center" data-hook="gift-card">
+    <%= Spree.t(:gift_cards_details) %>
+  </legend>
+</fieldset>
+
+<table>
+  <colgroup>
+    <col style="width: 15%;" />
+    <col style="width: 15%;" />
+    <col style="width: 15%;" />
+    <col style="width: 30%;" />
+    <col style="width: 10%;" />
+    <col style="width: 15%;" />
+  </colgroup>
+
+  <thead>
+    <th><%= Spree.t(:recipient_email) %></th>
+    <th><%= Spree.t(:recipient_name) %></th>
+    <th><%= Spree.t(:purchaser_name) %></th>
+    <th><%= Spree.t(:gift_message) %></th>
+    <th><%= Spree.t(:send_email_at) %></th>
+  </thead>
+  
+
+  <tbody>
+    <% @order.line_items.flat_map(&:gift_cards).each do |gift_card| %>
+      <tr>
+        <td>
+          <%= gift_card.recipient_email || "n/a" %>
+        </td>
+        <td>
+          <%= gift_card.recipient_name || "n/a" %>
+        </td>
+        <td>
+          <%= gift_card.purchaser_name || "n/a" %>
+        </td>
+        <td>
+          <%= gift_card.gift_message || "n/a" %>
+        </td>
+        <td>
+          <%= gift_card.formatted_send_email_at || "Immediately" %>
+        </td>
+        <td class="actions">
+          <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => Spree.t('actions.edit') %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
