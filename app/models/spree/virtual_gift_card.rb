@@ -64,6 +64,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     send_email_at.strftime("%-m/%-d/%y") if send_email_at
   end
 
+  def formatted_sent_at
+    sent_at.localtime.strftime("%F %I:%M%p")
+  end
+
   def store_credit_category
     Spree::StoreCreditCategory.where(name: Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME).first
   end

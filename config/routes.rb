@@ -13,7 +13,11 @@ Spree::Core::Engine.routes.draw do
     end
 
     resources :orders, only: [] do
-      resources :gift_cards, only: [:edit, :update]
+      resources :gift_cards, only: [:edit, :update] do
+        member do
+          get :send_email
+        end
+      end
     end
   end
 

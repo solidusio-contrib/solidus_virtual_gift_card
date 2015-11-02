@@ -6,11 +6,12 @@
 
 <table>
   <colgroup>
-    <col style="width: 20%;" />
     <col style="width: 15%;" />
     <col style="width: 15%;" />
-    <col style="width: 40%;" />
+    <col style="width: 15%;" />
+    <col style="width: 30%;" />
     <col style="width: 10%;" />
+    <col style="width: 15%;" />
   </colgroup>
 
   <thead>
@@ -18,6 +19,7 @@
     <th><%= Spree.t(:recipient_name) %></th>
     <th><%= Spree.t(:purchaser_name) %></th>
     <th><%= Spree.t(:gift_message) %></th>
+    <th><%= Spree.t(:send_email_at) %></th>
   </thead>
   
 
@@ -35,6 +37,9 @@
         </td>
         <td>
           <%= gift_card.gift_message || "n/a" %>
+        </td>
+        <td>
+          <%= gift_card.formatted_send_email_at || "Immediately" %>
         </td>
         <td class="actions">
           <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => Spree.t('actions.edit') %>
