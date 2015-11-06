@@ -1,4 +1,4 @@
-<script async='true'>GiftCards.setMinDate()</script>
+<script async='true'>GiftCards.setAdminDatepicker()</script>
 
 <% content_for :page_title do %>
   <%= Spree.t("admin.gift_cards.editing_gift_card") %>
@@ -50,7 +50,7 @@
       <div class="alpha twelve columns">
         <%= f.field_container :gift_message do %>
         <%= f.label :gift_message, Spree.t('admin.gift_cards.gift_message') %> <br />
-        <%= f.text_area :gift_message, class: 'fullwidth' %>
+        <%= f.text_area :gift_message, class: 'fullwidth', maxlength: '140' %>
         <% end %>
       </div>
     </div>
