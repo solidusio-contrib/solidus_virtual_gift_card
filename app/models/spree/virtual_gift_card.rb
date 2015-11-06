@@ -78,7 +78,7 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   def send_email
     Spree::GiftCardMailer.gift_card_email(self).deliver_later
-    touch(:sent_at)
+    update_attributes!(sent_at: DateTime.now)
   end
 
   private
