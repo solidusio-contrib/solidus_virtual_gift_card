@@ -206,6 +206,22 @@ describe Spree::OrderContents do
           end
         end
       end
+
+      context "when no gift card details are supplied" do
+        subject { order_contents.remove(variant, quantity) }
+
+        before do
+          order_contents.add(variant, quantity, options)
+        end
+
+        it "removes the line item with the correct variant" do
+          expect { subject }.to change { Spree::LineItem.count }.by(-1)
+        end
+
+        it "removes the gift card" do
+          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
+        end
+      end
     end
 
     describe "#update_cart" do
