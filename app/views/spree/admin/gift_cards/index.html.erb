@@ -1,1 +1,40 @@
 <%= render partial: 'lookup_form' %>
+  <%= paginate @gift_cards %>
+<% if @gift_cards.any? %>
+  <table class="index">
+    <thead>
+      <tr>
+        <th class="align-center">Redemption Code</th>
+        <th class="align-center">Amount</th>
+        <th class="align-center">Purchased by</th>
+        <th class="align-center">Purchased at</th>
+        <th class="align-center">Recipient Email</th>
+        <th class="align-center">Date Sent</th>
+        <th class="align-center">Redeemed by</th>
+        <th class="align-center">Redeemed at</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @gift_cards.each do |gift_card| %>
+        <tr>
+          <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
+          <td class="align-center"><%= number_to_currency(gift_card.amount) %></td>
+          <td class="align-center"><%= link_to "#{gift_card.purchaser.email}", edit_admin_user_path(gift_card.purchaser) %></td>
+          <td class="align-center"><%= gift_card.formatted_created_at %></td>
+          <td class="align-center"><%= gift_card.recipient_email %></td>
+          <td class="align-center"><%= gift_card.formatted_sent_at || gift_card.formatted_send_email_at %></td>
+          <% if gift_card.redeemed? %>
+            <td class="align-center"><%= link_to "#{gift_card.redeemer.email}", edit_admin_user_path(gift_card.redeemer) %></td>
+            <td class="align-center"><%= gift_card.formatted_redeemed_at %></td>
+          <% else %>
+            <td class="align-center"></td>
+            <td class="align-center"></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= paginate @gift_cards %>
