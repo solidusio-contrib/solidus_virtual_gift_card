@@ -67,15 +67,23 @@
           <%= f.text_field :send_email_at, :class => 'datepicker datepicker-from giftcard-datepicker' %>
           <% end %>
         <% end %>
+
+        <% if @gift_card.deactivated_at %>
+          <div class="deactivated-at">
+            Deactivated at: <%= @gift_card.formatted_deactivated_at %>
+          </div>
+        <% end %>
       </div>
     </div>
 
     <%= render :partial => 'spree/admin/shared/edit_resource_links', locals: { collection_url: edit_admin_order_path(@order) } %>
   </fieldset>
+<% end %>
 
-  <div class="form-buttons filter-actions actions" data-hook="buttons">
-    <% if @order.completed? %>
-      <%= button_link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), :icon => 'email', :data => { :confirm => "Any changes that have not been updated will not send" } %>
-    <% end %>
+
+<% if @gift_card.can_deactivate? && can?(:deactivate, @gift_card) %>
+  <div class="form-buttons filter-actions actions gift-card-actions" data-hook="buttons">
+      <%= button_link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), :icon => 'email', :method => 'put', :data => { :confirm => "Any changes that have not been updated will not send" } %>
+      <%= button_link_to "Deactivate", deactivate_admin_order_gift_card_path(@order, @gift_card), :icon => 'ban', :method => 'put', :data => { :confirm => "Are you sure you want to deactivate the gift card?" } %>
   </div>
 <% end %>

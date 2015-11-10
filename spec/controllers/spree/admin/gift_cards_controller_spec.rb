@@ -56,6 +56,62 @@ describe Spree::Admin::GiftCardsController do
     end
   end
 
+  describe 'PUT deactivate' do
+    let(:user) { create :user }
+    let!(:gift_card) { create(:redeemable_virtual_gift_card, line_item: order.line_items.first) }
+    let(:order) { create(:shipped_order, line_items_count: 1) }
+    let!(:default_refund_reason) { Spree::RefundReason.find_or_create_by!(name: Spree::RefundReason::RETURN_PROCESSING_REASON, mutable: false) }
+
+    subject { spree_put :deactivate, id: gift_card.id, order_id: order.number  }
+
+    context "when successful" do
+      it "redirects to the admin order edit page" do
+        expect(subject).to redirect_to spree.edit_admin_order_path(order)
+      end
+
+      it "deactivates the gift card" do
+        subject
+        expect(gift_card.reload.deactivated_at).to be_present
+      end
+    end
+
+    context "when deactivating fails without raising an exception" do
+      before { expect_any_instance_of(Spree::VirtualGiftCard).to receive(:deactivate).and_return(false) }
+
+      it "does not deactivate the gift card" do
+        subject
+        expect(gift_card.reload.deactivated_at).to be_nil
+      end
+
+      it "redirects to gift card edit page" do
+        expect(subject).to redirect_to spree.edit_admin_order_gift_card_path(order, gift_card)
+      end
+
+      it "sets the flash message" do
+        subject
+        expect(flash[:error]).to eq Spree.t('admin.gift_cards.errors.unable_to_reimburse_gift_card')
+      end
+    end
+
+    context "when deactivating fails from reimbursement" do
+      before { expect_any_instance_of(Spree::VirtualGiftCard).to receive(:deactivate).and_raise(Spree::Reimbursement::IncompleteReimbursementError) }
+
+      it "does not deactivate the gift card" do
+        subject
+        expect(gift_card.reload.deactivated_at).to be_nil
+      end
+
+      it "redirects to gift card edit page" do
+        expect(subject).to redirect_to spree.edit_admin_order_gift_card_path(order, gift_card)
+      end
+
+      it "sets the flash message" do
+        subject
+        expect(flash[:error]).to eq Spree.t('admin.gift_cards.errors.unable_to_reimburse_gift_card')
+      end
+    end
+  end
+
   describe 'POST redeem' do
     let(:user) { create :user }
     let(:gift_card) { create(:redeemable_virtual_gift_card) }

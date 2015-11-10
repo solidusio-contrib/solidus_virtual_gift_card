@@ -15,7 +15,8 @@ Spree::Core::Engine.routes.draw do
     resources :orders, only: [] do
       resources :gift_cards, only: [:edit, :update] do
         member do
-          get :send_email
+          put :send_email
+          put :deactivate
         end
       end
     end
