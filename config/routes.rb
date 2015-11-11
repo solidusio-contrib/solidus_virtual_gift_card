@@ -8,7 +8,7 @@ Spree::Core::Engine.routes.draw do
         end
       end
       collection do
-        resources :gift_cards, only: [:index, :show]
+        resources :gift_cards, only: [:index]
       end
     end
 

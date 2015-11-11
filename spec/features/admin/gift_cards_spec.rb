@@ -41,4 +41,34 @@ describe 'Gift Cards', :type => :feature, :js => true do
       expect(gift_card.gift_message).to eq(new_gift_message)
     end
   end
+
+  describe "lookup a gift card" do
+    let(:gift_card) { create(:redeemable_virtual_gift_card,
+                             recipient_name: "Daeva",
+                             recipient_email: 'dog@example.com',
+                            )
+    }
+    let(:other_gift_card) { create(:redeemable_virtual_gift_card)}
+    let(:order) { gift_card.line_item.order }
+
+    it "can lookup gift card by recipient email" do
+      visit spree.admin_gift_cards_path
+
+      fill_in "q[recipient_email_cont]", with: gift_card.recipient_email
+      click_on "Lookup Gift Card"
+
+      expect(page).to have_content(gift_card.purchaser.email)
+      expect(page).to_not have_content(other_gift_card.purchaser.email)
+    end
+
+    it "can lookup gift card by order number" do
+      visit spree.admin_gift_cards_path
+
+      fill_in "q[line_item_order_number_cont]", with: order.number
+      click_on "Lookup Gift Card"
+
+      expect(page).to have_content(gift_card.purchaser.email)
+      expect(page).to_not have_content(other_gift_card.purchaser.email)
+    end
+  end
 end

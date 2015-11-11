@@ -12,6 +12,11 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
+  scope :purchased, -> { where(redeemable: true) }
+
+  ransacker :sent_at do
+    Arel.sql('date(sent_at)')
+  end
 
   def redeemed?
     redeemed_at.present?
@@ -65,7 +70,15 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   end
 
   def formatted_sent_at
-    sent_at.localtime.strftime("%F %I:%M%p")
+    sent_at.strftime("%-m/%-d/%y") if sent_at
+  end
+
+  def formatted_created_at
+    created_at.localtime.strftime("%F %I:%M%p")
+  end
+
+  def formatted_redeemed_at
+    redeemed_at.localtime.strftime("%F %I:%M%p") if redeemed_at
   end
 
   def store_credit_category

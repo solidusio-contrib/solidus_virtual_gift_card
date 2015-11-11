@@ -1,17 +1,18 @@
 class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
-  before_filter :load_gift_card_history, only: [:show]
   before_filter :load_user, only: [:lookup, :redeem]
   before_filter :load_gift_card_for_redemption, only: [:redeem]
   before_filter :load_gift_card_by_id, only: [:edit, :update, :send_email]
   before_filter :load_order, only: [:edit, :update]
 
   def index
-  end
-
-  def show
+    @search = Spree::VirtualGiftCard.purchased.search(params[:q])
+    @gift_cards = @search.result.page(params[:page]).per(params[:per_page])
   end
 
   def edit
+  end
+
+  def lookup
   end
 
   def update
@@ -22,9 +23,6 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
       flash[:error] = @gift_card.errors.full_messages.join(", ")
       redirect_to :back
     end
-  end
-
-  def lookup
   end
 
   def redeem
@@ -43,16 +41,6 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   end
 
   private
-
-  def load_gift_card_history
-    redemption_code = Spree::RedemptionCodeGenerator.format_redemption_code_for_lookup(params[:id])
-    @gift_cards = Spree::VirtualGiftCard.where(redemption_code: redemption_code)
-
-    if @gift_cards.empty?
-      flash[:error] = Spree.t('admin.gift_cards.errors.not_found')
-      redirect_to(admin_gift_cards_path)
-    end
-  end
 
   def load_gift_card_for_redemption
     redemption_code = Spree::RedemptionCodeGenerator.format_redemption_code_for_lookup(params[:gift_card][:redemption_code])
