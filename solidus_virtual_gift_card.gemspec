@@ -3,7 +3,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = "solidus_virtual_gift_card"
-  s.version     = "1.0.0"
+  s.version     = "1.0.1"
   s.summary     = "Virtual gift card for purchase, drops into the user's account as store credit"
   s.required_ruby_version = ">= 2.1"
 
