@@ -4,6 +4,7 @@ en:
     admin:
       gift_cards:
         editing_gift_card: "Editing Gift Card"
+        deactivated_gift_card: "Gift card deactivated"
         gift_card: "Gift Card"
         gift_card_details: "Gift Card Details"
         gift_card_originator: "Gift Card - Order #%{order_number}"
@@ -15,7 +16,9 @@ en:
         errors:
           not_found: "Gift card was not found"
           please_try_again: "Please try again"
+          unable_to_deactivate_gift_card: "Unable to deactivate gift card"
           unable_to_redeem_gift_card: "Unable to redeem gift card"
+          unable_to_reimburse_gift_card: "Unable to reimburse gift card"
     gift_card_mailer:
       gift_card_email:
         dear_customer: "Dear customer"

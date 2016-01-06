@@ -9,3 +9,7 @@
 .last-email-sent {
   margin-bottom: 10px;
 }
+
+.gift-card-actions form {
+  display: inline;
+}

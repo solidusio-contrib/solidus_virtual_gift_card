@@ -19,10 +19,97 @@ describe Spree::VirtualGiftCard do
     end
   end
 
+  describe "#can_deactivate?" do
+    subject { gift_card.can_deactivate? }
+
+    let!(:default_refund_reason) { Spree::RefundReason.find_or_create_by!(name: Spree::RefundReason::RETURN_PROCESSING_REASON, mutable: false) }
+    let(:gift_card) { create(:redeemable_virtual_gift_card, line_item: order.line_items.first) }
+
+    context "the order is not complete" do
+      let(:order) { create(:order_with_line_items, line_items_count: 1) }
+
+      it "can't deactivate" do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context "gift card is already deactivated" do
+      before { gift_card.deactivate }
+      let(:order) { create(:shipped_order, line_items_count: 1) }
+
+      it "can't deactivate" do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context "order is not paid" do
+      let(:order) { create(:order_with_line_items, line_items_count: 1) }
+
+      it "can't deactivate" do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context "order is paid and complete and gift card is active" do
+      let(:order) { create(:shipped_order, line_items_count: 1) }
+
+      it "can deactivate" do
+        expect(subject).to be_truthy
+      end
+    end
+  end
+
+  describe "#deactivate" do
+    let!(:gift_card) { create(:redeemable_virtual_gift_card, line_item: order.line_items.first) }
+    let(:order) { create(:shipped_order, line_items_count: 1) }
+    let!(:default_refund_reason) { Spree::RefundReason.find_or_create_by!(name: Spree::RefundReason::RETURN_PROCESSING_REASON, mutable: false) }
+    subject { gift_card.deactivate }
+
+    it "makes it not redeemable" do
+      subject
+      expect(gift_card.reload.redeemable?).to be_falsey
+    end
+
+    it "sets the deactivated_at" do
+      subject
+      expect(gift_card.reload.deactivated_at).to be_present
+    end
+
+    it "#deactivated? returns true" do
+      subject
+      expect(gift_card.reload.deactivated?).to be_truthy
+    end
+
+    it "cancels the inventory unit" do
+      subject
+      expect(gift_card.inventory_unit.unit_cancel).to be_present
+    end
+
+    it "creates a reimbursement" do
+      expect { subject }.to change { Spree::Reimbursement.count }.by(1)
+    end
+
+    it "returns true" do
+      expect(subject).to be_truthy
+    end
+  end
+
   describe '#make_redeemable!' do
     let(:user) { create(:user) }
     let(:gift_card) { create(:virtual_gift_card) }
-    subject { gift_card.make_redeemable!(purchaser: user) }
+    let(:order) { create(:shipped_order, line_items_count: 1) }
+    let(:inventory_unit) { order.inventory_units.first }
+    subject { gift_card.make_redeemable!(purchaser: user, inventory_unit: inventory_unit) }
+
+    it "sets the purchaser" do
+      subject
+      expect(gift_card.purchaser).to be user
+    end
+
+    it "sets the inventory unit" do
+      subject
+      expect(gift_card.inventory_unit).to be inventory_unit
+    end
 
     context 'no collision on redemption code' do
       it 'sets a redemption code' do
@@ -85,6 +172,19 @@ describe Spree::VirtualGiftCard do
     end
   end
 
+  describe '#deactivated?' do
+    let(:gift_card) { build(:virtual_gift_card) }
+
+    it 'is deactivated if there is a deactivated_at set' do
+      gift_card.deactivated_at = Time.now
+      expect(gift_card.deactivated?).to be true
+    end
+
+    it 'is not deactivated if there is no timestamp for deactivated_at' do
+      expect(gift_card.deactivated?).to be false
+    end
+  end
+
   describe '#redeem' do
     let(:gift_card) { create(:redeemable_virtual_gift_card) }
     let(:redeemer) { create(:user) }
@@ -108,6 +208,26 @@ describe Spree::VirtualGiftCard do
       end
     end
 
+    context 'it has been deactivated' do
+      before do
+        expect(gift_card).to receive(:cancel_and_reimburse_inventory_unit).and_return(true)
+        gift_card.deactivate
+      end
+
+      it 'should return false' do
+        expect(subject).to be false
+      end
+
+      context 'does nothing to the gift card' do
+        it 'should not create a store credit' do
+          expect(gift_card.store_credit).not_to be_present
+        end
+
+        it 'should not update the gift card' do
+          expect { subject }.to_not change{ gift_card }
+        end
+      end
+    end
 
     context 'it has already been redeemed' do
       before { gift_card.redeemed_at = Date.yesterday }

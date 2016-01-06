@@ -23,8 +23,9 @@ module Spree
 
       def finalize!
         super
-        gift_cards.each do |gift_card|
-          gift_card.make_redeemable!(purchaser: user)
+        inventory_units = self.inventory_units
+        gift_cards.each_with_index do |gift_card, index|
+          gift_card.make_redeemable!(purchaser: user, inventory_unit: inventory_units[index])
         end
       end
 

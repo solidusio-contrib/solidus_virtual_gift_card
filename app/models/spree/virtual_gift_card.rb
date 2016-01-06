@@ -5,6 +5,8 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   belongs_to :purchaser, class_name: 'Spree::User'
   belongs_to :redeemer, class_name: 'Spree::User'
   belongs_to :line_item, class_name: 'Spree::LineItem'
+  belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit'
+  has_one :order, through: :line_item
 
   validates :amount, numericality: { greater_than: 0 }
   validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil, redeemable: true) }
@@ -22,6 +24,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     redeemed_at.present?
   end
 
+  def deactivated?
+    deactivated_at.present?
+  end
+
   def redeem(redeemer)
     return false if redeemed? || !redeemable?
     create_store_credit!({
@@ -36,8 +42,17 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     self.update_attributes( redeemed_at: Time.now, redeemer: redeemer )
   end
 
-  def make_redeemable!(purchaser:)
-    update_attributes!(redeemable: true, purchaser: purchaser, redemption_code: (self.redemption_code || generate_unique_redemption_code))
+  def make_redeemable!(purchaser:, inventory_unit:)
+    update_attributes!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (self.redemption_code || generate_unique_redemption_code))
+  end
+
+  def deactivate
+    update_attributes(redeemable: false, deactivated_at: Time.now) &&
+      cancel_and_reimburse_inventory_unit
+  end
+
+  def can_deactivate?
+    order.completed? && order.paid? && !deactivated?
   end
 
   def memo
@@ -81,6 +96,10 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
     redeemed_at.localtime.strftime("%F %I:%M%p") if redeemed_at
   end
 
+  def formatted_deactivated_at
+    deactivated_at.localtime.strftime("%F %I:%M%p") if deactivated_at
+  end
+
   def store_credit_category
     Spree::StoreCreditCategory.where(name: Spree::StoreCreditCategory::GIFT_CARD_CATEGORY_NAME).first
   end
@@ -95,6 +114,12 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   end
 
   private
+
+  def cancel_and_reimburse_inventory_unit
+    cancellation = Spree::OrderCancellations.new(line_item.order)
+    cancellation.cancel_unit(inventory_unit)
+    !!cancellation.reimburse_units([inventory_unit])
+  end
 
   def generate_unique_redemption_code
     redemption_code = Spree::RedemptionCodeGenerator.generate_redemption_code

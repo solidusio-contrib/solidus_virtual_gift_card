@@ -1,8 +1,8 @@
 class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   before_filter :load_user, only: [:lookup, :redeem]
   before_filter :load_gift_card_for_redemption, only: [:redeem]
-  before_filter :load_gift_card_by_id, only: [:edit, :update, :send_email]
-  before_filter :load_order, only: [:edit, :update]
+  before_filter :load_gift_card_by_id, only: [:edit, :update, :send_email, :deactivate]
+  before_filter :load_order, only: [:edit, :update, :deactivate]
 
   def index
     @search = Spree::VirtualGiftCard.purchased.search(params[:q])
@@ -33,6 +33,19 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
       flash[:error] = Spree.t("admin.gift_cards.errors.unable_to_redeem_gift_card")
       render :lookup
     end
+  end
+
+  def deactivate
+    if @gift_card.deactivate
+      flash[:success] = Spree.t("admin.gift_cards.deactivated_gift_card")
+      redirect_to edit_admin_order_path(@order)
+    else
+      flash[:error] = @gift_card.errors.full_messages.join(", ").presence || Spree.t("admin.gift_cards.errors.unable_to_reimburse_gift_card")
+      redirect_to edit_admin_order_gift_card_path(@order, @gift_card)
+    end
+  rescue Spree::Reimbursement::IncompleteReimbursementError
+    flash[:error] = Spree.t("admin.gift_cards.errors.unable_to_reimburse_gift_card")
+    redirect_to edit_admin_order_gift_card_path(@order, @gift_card)
   end
 
   def send_email
