@@ -30,6 +30,9 @@ require 'cancan/matchers'
 
 require "spree_virtual_gift_card/factories"
 
+require "capybara/poltergeist"
+Capybara.javascript_driver = :poltergeist
+
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
