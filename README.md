@@ -7,7 +7,7 @@ A virtual gift card implementation for Solidus.
 * The virtual gift card codes can be used to add store credit to a user's
   account.
 
-[![Circle CI](https://circleci.com/gh/solidusio/solidus_virtual_gift_card/tree/master.svg?style=shield)](https://circleci.com/gh/solidusio/solidus_virtual_gift_card/tree/master)
+[![Build Status](https://travis-ci.org/solidusio/solidus_virtual_gift_card.svg?branch=master)](https://travis-ci.org/solidusio/solidus_virtual_gift_card)
 
 Installation
 ------------
