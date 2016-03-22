@@ -30,6 +30,9 @@ require 'cancan/matchers'
 
 require "spree_virtual_gift_card/factories"
 
+require "capybara/poltergeist"
+Capybara.javascript_driver = :poltergeist
+
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
@@ -73,8 +76,10 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
-  config.include VersionCake::TestHelpers, type: :controller
-  config.before(:each, type: :controller) do
-    set_request_version('', 1)
+  if defined?(VersionCake::TestHelpers)
+    config.include VersionCake::TestHelpers, type: :controller
+    config.before(:each, type: :controller) do
+      set_request_version('', 1)
+    end
   end
 end

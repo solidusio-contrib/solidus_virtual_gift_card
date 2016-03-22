@@ -1,0 +1,9 @@
+sudo: false
+cache: bundler
+language: ruby
+env:
+  matrix:
+    - SOLIDUS_BRANCH=master DB=mysql
+    - SOLIDUS_BRANCH=master DB=postgres
+rvm:
+  - 2.1.8
