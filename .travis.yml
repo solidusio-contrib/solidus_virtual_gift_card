@@ -5,6 +5,8 @@ before_install:
   - mkdir -p "$HOME/bin" && curl -o "$HOME/bin/phantomjs" https://s3.amazonaws.com/circle-downloads/phantomjs-2.1.1
   - export PATH="$HOME/bin:$PATH"
   - phantomjs --version
+  - echo $PATH
+  - $HOME/bin/phantomjs --version
 env:
   matrix:
     - SOLIDUS_BRANCH=v1.2   DB=mysql
