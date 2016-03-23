@@ -58,16 +58,17 @@ RSpec.configure do |config|
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
   config.include Spree::TestingSupport::UrlHelpers, type: :controller
 
-  # Ensure Suite is set to use transactions for speed.
   config.before :suite do
-    DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with :truncation
   end
 
-  # Before each spec check if it is a Javascript test and switch between using
-  # database transactions or not where necessary.
   config.before :each do |example|
-    DatabaseCleaner.strategy = :truncation
+    if RSpec.current_example.metadata[:js]
+      page.driver.browser.url_blacklist = ['http://fonts.googleapis.com']
+      DatabaseCleaner.strategy = :truncation
+    else
+      DatabaseCleaner.strategy = :transaction
+    end
     DatabaseCleaner.start
 
     Spree::Api::Config[:requires_authentication] = true
@@ -75,7 +76,7 @@ RSpec.configure do |config|
   end
 
   # After each spec clean the database.
-  config.after :each do
+  config.append_after :each do
     DatabaseCleaner.clean
   end
 
