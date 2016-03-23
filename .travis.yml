@@ -3,6 +3,7 @@ cache: bundler
 language: ruby
 before_install:
   - mkdir -p "$HOME/bin" && curl -o "$HOME/bin/phantomjs" https://s3.amazonaws.com/circle-downloads/phantomjs-2.1.1
+  - export PATH="$HOME/bin:$PATH"
   - phantomjs --version
 env:
   matrix:
