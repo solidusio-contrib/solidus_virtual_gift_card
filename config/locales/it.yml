@@ -1,0 +1,27 @@
+---
+it:
+  spree:
+    admin:
+      gift_cards:
+        editing_gift_card: "Editing Gift Card"
+        deactivated_gift_card: "Gift card deactivated"
+        gift_card: "Gift Card"
+        gift_card_details: "Gift Card Details"
+        gift_card_originator: "Gift Card - Order #%{order_number}"
+        gift_card_updated: "Gift card updated!"
+        redeem: "Redeem"
+        redeem_gift_card: "Redeem Gift Card"
+        redeemed_gift_card: "Redeemed Gift Card"
+        redemption_code: "Redemption Code"
+        errors:
+          not_found: "Gift card was not found"
+          please_try_again: "Please try again"
+          unable_to_deactivate_gift_card: "Unable to deactivate gift card"
+          unable_to_redeem_gift_card: "Unable to redeem gift card"
+          unable_to_reimburse_gift_card: "Unable to reimburse gift card"
+    gift_card_mailer:
+      gift_card_email:
+        dear_customer: "Dear customer"
+        your_gift_card_code: "Here is your gift card code"
+        gift_card_code: "Gift card code: %{code}"
+        subject: "Your gift card code"
