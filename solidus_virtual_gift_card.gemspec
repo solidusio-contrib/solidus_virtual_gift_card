@@ -18,6 +18,8 @@ Gem::Specification.new do |s|
   s.requirements << "none"
 
   s.add_dependency "solidus_core", "~> 1.2"
+  s.add_dependency "solidus_api", "~> 1.2"
+  s.add_dependency "solidus_backend", "~> 1.2"
 
   s.add_development_dependency "rspec-rails", "~> 3.2"
   s.add_development_dependency "simplecov"
