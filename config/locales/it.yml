@@ -1,0 +1,27 @@
+---
+it:
+  spree:
+    admin:
+      gift_cards:
+        editing_gift_card: "Modifica Gift Card"
+        deactivated_gift_card: "Gift Card disattivata"
+        gift_card: "Gift Card"
+        gift_card_details: "Dettagli Gift Card"
+        gift_card_originator: "Gift Card - Ordine #%{order_number}"
+        gift_card_updated: "Gift Card aggiornata!"
+        redeem: "Riscuoti"
+        redeem_gift_card: "Utilizza Gift Card"
+        redeemed_gift_card: "Utilizza la tua Gift Card"
+        redemption_code: "Codice Gift Card"
+        errors:
+          not_found: "La Gift Card non è stata trovata"
+          please_try_again: "Si prega di riprovare"
+          unable_to_deactivate_gift_card: "Impossibile disattivate la Gift Card"
+          unable_to_redeem_gift_card: "Impossibile utilizzare la Gift Card"
+          unable_to_reimburse_gift_card: "Impossibile rimborsare la Gift Card"
+    gift_card_mailer:
+      gift_card_email:
+        dear_customer: "Gentile CLiente"
+        your_gift_card_code: "ecco il codice della tua Gift Card"
+        gift_card_code: "Codice Gift Card: %{code}"
+        subject: "Il codice della tua Gift Card"
