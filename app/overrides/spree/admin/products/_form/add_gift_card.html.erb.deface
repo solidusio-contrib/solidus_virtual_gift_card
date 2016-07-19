@@ -1,0 +1,8 @@
+<!-- insert_bottom '[data-hook="admin_product_form_right"]' -->
+<div class="field">
+  <%= f.check_box(:gift_card) %> 
+  <%= f.label :gift_card, Spree.t("admin.gift_cards.gift_card") %>
+  <span class="info">
+    Turn this product into a gift card?
+  </span>
+</div>
