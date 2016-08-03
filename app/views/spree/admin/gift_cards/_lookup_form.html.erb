@@ -1,33 +1,41 @@
-<div class='gift-card-code-lookup'>
-  <%= search_form_for @search, url: admin_gift_cards_path(@search) do |f| %>
-    <div class="four columns">
-      <div class="field">
-        <%= label_tag nil, "Redemption Code" %>
-        <%= f.text_field :redemption_code_cont, :size => 27 %>
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:search) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <div class='gift-card-code-lookup'>
+    <%= search_form_for @search, url: admin_gift_cards_path(@search) do |f| %>
+      <div class="alpha four columns">
+        <div class="field">
+          <%= label_tag nil, "Redemption Code" %>
+          <%= f.text_field :redemption_code_cont, size: 27 %>
+        </div>
       </div>
-    </div>
-    <div class="four columns">
-      <div class="field">
-        <%= label_tag nil, "Recipient Email" %>
-        <%= f.text_field :recipient_email_cont, :size => 25 %>
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag nil, "Recipient Email" %>
+          <%= f.text_field :recipient_email_cont, size: 25 %>
+        </div>
       </div>
-    </div>
-    <div class="four columns">
-      <div class="field">
-        <%= label_tag nil, "Order Number" %>
-        <%= f.text_field :line_item_order_number_cont, :size => 25 %>
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag nil, "Order Number" %>
+          <%= f.text_field :line_item_order_number_cont, size: 25 %>
+        </div>
       </div>
-    </div>
-    <div class="three columns">
-      <div class="field">
-        <%= label_tag nil, "Send Date" %>
-        <%= f.text_field :sent_at_or_send_email_at_is, :class => 'datepicker', :size => 25 %>
+      <div class="omega four columns">
+        <div class="field">
+          <%= label_tag nil, "Send Date" %>
+          <%= f.text_field :sent_at_or_send_email_at_is, class: 'datepicker', size: 25 %>
+        </div>
       </div>
-    </div>
-    <div class="clearfix"></div>
-    <div class="actions filter-actions">
-      <%= button 'Lookup Gift Card', 'search', class: 'lookup-gift-card-button' %>
-    </div>
-  <% end %>
+
+      <div class="clearfix"></div>
+
+      <div class="actions filter-actions">
+        <%= button 'Lookup Gift Card', 'search' %>
+      </div>
+    <% end %>
   </div>
+<% end %>
 

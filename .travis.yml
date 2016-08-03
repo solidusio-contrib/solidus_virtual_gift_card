@@ -1,11 +1,8 @@
 sudo: false
-cache: bundler
 language: ruby
 env:
   matrix:
-    - SOLIDUS_BRANCH=v1.2   DB=mysql
-    - SOLIDUS_BRANCH=v1.3   DB=mysql
-    - SOLIDUS_BRANCH=v1.2   DB=postgres
-    - SOLIDUS_BRANCH=v1.3   DB=postgres
+    - SOLIDUS_BRANCH=v1.2 DB=mysql
+    - SOLIDUS_BRANCH=v1.2 DB=postgres
 rvm:
   - 2.1.8

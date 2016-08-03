@@ -8,10 +8,6 @@ module SolidusVirtualGiftCard
         append_file 'vendor/assets/javascripts/spree/backend/all.js', "//= require spree/backend/solidus_virtual_gift_card\n"
       end
 
-      def add_stylesheets
-        inject_into_file 'vendor/assets/stylesheets/spree/backend/all.css', " *= require spree/backend/solidus_virtual_gift_card\n", before: /\*\//, verbose: true
-      end
-
       def include_seed_data
         append_file "db/seeds.rb", <<-SEEDS
 \n
