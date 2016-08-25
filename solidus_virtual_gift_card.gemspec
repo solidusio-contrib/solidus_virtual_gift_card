@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.require_path = "lib"
   s.requirements << "none"
 
-  s.add_dependency "solidus", "~> 1.2.0"
+  s.add_dependency "solidus", [">= 1.2", "< 3"]
   s.add_dependency "deface"
 
   s.add_development_dependency "rspec-rails", "~> 3.2"
