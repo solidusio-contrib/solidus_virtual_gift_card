@@ -3,6 +3,7 @@ en:
   spree:
     admin:
       gift_cards:
+        convert_product_label: "Turn this product into a gift card?"
         deactivated_gift_card: "Gift card deactivated"
         editing_gift_card: "Editing Gift Card"
         gift_card: "Gift Card"
