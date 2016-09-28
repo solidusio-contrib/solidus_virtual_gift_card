@@ -1,4 +1,4 @@
-class Spree::VirtualGiftCard < ActiveRecord::Base
+class Spree::VirtualGiftCard < Spree::Base
   include ActionView::Helpers::NumberHelper
 
   belongs_to :store_credit, class_name: 'Spree::StoreCredit'
