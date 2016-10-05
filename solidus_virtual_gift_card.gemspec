@@ -7,10 +7,10 @@ Gem::Specification.new do |s|
   s.summary     = "Virtual gift card for purchase, drops into the user's account as store credit"
   s.required_ruby_version = ">= 2.1"
 
-  s.author    = "Bonobos"
-  s.email     = "engineering@bonobos.com"
-  s.homepage  = "http://www.bonobos.com"
-  s.license   = %q{BSD-3}
+  s.author    = "Solidus Team"
+  s.email     = "contact@solidus.io"
+  s.homepage  = "https://solidus.io"
+  s.license   = "BSD-3-Clause"
 
   s.files       = `git ls-files`.split("\n")
   s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
