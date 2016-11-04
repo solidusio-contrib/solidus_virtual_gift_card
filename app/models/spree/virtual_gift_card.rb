@@ -16,6 +16,9 @@ class Spree::VirtualGiftCard < Spree::Base
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
 
+  self.whitelisted_ransackable_associations = %w[line_item order]
+  self.whitelisted_ransackable_attributes = %w[redemption_code recipient_email sent_at send_email_at]
+
   ransacker :sent_at do
     Arel.sql('date(sent_at)')
   end
