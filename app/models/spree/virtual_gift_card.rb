@@ -1,4 +1,4 @@
-class Spree::VirtualGiftCard < ActiveRecord::Base
+class Spree::VirtualGiftCard < Spree::Base
   include ActionView::Helpers::NumberHelper
 
   belongs_to :store_credit, class_name: 'Spree::StoreCredit'
@@ -15,6 +15,9 @@ class Spree::VirtualGiftCard < ActiveRecord::Base
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
+
+  self.whitelisted_ransackable_associations = %w[line_item order]
+  self.whitelisted_ransackable_attributes = %w[redemption_code recipient_email sent_at send_email_at]
 
   ransacker :sent_at do
     Arel.sql('date(sent_at)')
