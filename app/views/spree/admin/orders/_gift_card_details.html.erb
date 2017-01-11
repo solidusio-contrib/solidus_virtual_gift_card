@@ -4,4 +4,4 @@
   <b>DEACTIVATED</b>
 <% end %>
 <% edit_text = gift_card.deactivated? ? "(Details)" : "(Edit Details)" %>
-<%= link_to edit_text, edit_admin_order_gift_card_path(@order, gift_card), class: 'edit-gift-card-details' %>
+<%= link_to edit_text, spree.edit_admin_order_gift_card_path(@order, gift_card), class: 'edit-gift-card-details' %>
