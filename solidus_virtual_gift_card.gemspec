@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.name        = "solidus_virtual_gift_card"
   s.version     = "1.2.0"
   s.summary     = "Virtual gift card for purchase, drops into the user's account as store credit"
-  s.required_ruby_version = ">= 2.1"
+  s.required_ruby_version = ">= 2.2.2"
 
   s.author    = "Solidus Team"
   s.email     = "contact@solidus.io"
