@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Gift Cards', type: :feature, js: true do
+describe "Gift Cards", type: :feature do
   stub_authorization!
 
   let(:admin_user) { create(:admin_user) }
@@ -15,12 +15,12 @@ describe 'Gift Cards', type: :feature, js: true do
     it "can mark a product as a gift card" do
       visit spree.admin_product_path(product)
 
-      find('#product_gift_card').click
+      find("#product_gift_card").click
 
-      click_on 'Update'
+      click_on "Update"
 
       expect(page).to have_content("successfully updated!")
-      expect(page).to have_field('product_gift_card', checked: true)
+      expect(page).to have_field("product_gift_card", checked: true)
     end
   end
 end
