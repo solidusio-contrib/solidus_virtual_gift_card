@@ -21,10 +21,13 @@ require 'rake'
 require 'database_cleaner'
 require 'ffaker'
 
-require 'spree/testing_support/factories'
-require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/authorization_helpers'
+require 'spree/testing_support/capybara_ext'
+require 'spree/testing_support/controller_requests'
+require 'spree/testing_support/factories'
 require 'spree/testing_support/url_helpers'
+require 'spree/api/testing_support/helpers'
+require 'spree/api/testing_support/setup'
 
 require 'cancan/matchers'
 
@@ -54,9 +57,11 @@ RSpec.configure do |config|
 
   config.example_status_persistence_file_path = "./spec/examples.txt"
 
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
-  config.include Spree::TestingSupport::UrlHelpers, type: :controller
+  config.include Spree::TestingSupport::UrlHelpers
+  config.include Spree::Api::TestingSupport::Helpers, type: :request
+  config.extend Spree::Api::TestingSupport::Setup, type: :request
 
   config.before :suite do
     DatabaseCleaner.clean_with :truncation
@@ -73,6 +78,14 @@ RSpec.configure do |config|
 
     Spree::Api::Config[:requires_authentication] = true
     Spree::Config.reset
+  end
+
+  config.after(:each, type: :feature) do |example|
+    missing_translations = page.body.scan(/translation missing: #{I18n.locale}\.(.*?)[\s<\"&]/)
+    if missing_translations.any?
+      puts "Found missing translations: #{missing_translations.inspect}"
+      puts "In spec: #{example.location}"
+    end
   end
 
   # After each spec clean the database.
