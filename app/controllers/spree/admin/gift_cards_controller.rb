@@ -1,8 +1,8 @@
 class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
-  before_filter :load_user, only: [:lookup, :redeem]
-  before_filter :load_gift_card_for_redemption, only: [:redeem]
-  before_filter :load_gift_card_by_id, only: [:edit, :update, :send_email, :deactivate]
-  before_filter :load_order, only: [:edit, :update, :deactivate]
+  before_action :load_user, only: [:lookup, :redeem]
+  before_action :load_gift_card_for_redemption, only: [:redeem]
+  before_action :load_gift_card_by_id, only: [:edit, :update, :send_email, :deactivate]
+  before_action :load_order, only: [:edit, :update, :deactivate]
 
   def index
     @search = Spree::VirtualGiftCard.purchased.search(params[:q])
