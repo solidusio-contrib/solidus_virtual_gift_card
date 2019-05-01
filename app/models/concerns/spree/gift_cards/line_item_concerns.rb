@@ -3,7 +3,7 @@ module Spree
     extend ActiveSupport::Concern
 
     included do
-      has_many :gift_cards, class_name: Spree::VirtualGiftCard, dependent: :destroy
+      has_many :gift_cards, class_name: 'Spree::VirtualGiftCard', dependent: :destroy
       delegate :gift_card?, :gift_card, to: :product
       self.whitelisted_ransackable_associations += %w[order]
       prepend(InstanceMethods)
