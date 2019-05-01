@@ -7,14 +7,14 @@ describe Spree::Api::GiftCardsController do
 
   describe "POST redeem" do
     let(:gift_card) { create(:redeemable_virtual_gift_card) }
-
-    let(:parameters) do
+    let(:params) do
       {
-        redemption_code: gift_card.redemption_code
+        redemption_code: gift_card.redemption_code,
+        format: :json
       }
     end
 
-    subject { spree_post :redeem, parameters, { format: :json } }
+    subject { post :redeem, params: params }
 
     context "the user is not logged in" do
 
@@ -38,9 +38,10 @@ describe Spree::Api::GiftCardsController do
       context "given an invalid gift card redemption code" do
         before { subject }
 
-        let(:parameters) do
+        let(:params) do
           {
-            redemption_code: 'INVALID_CODE'
+            redemption_code: 'INVALID_CODE',
+            format: :json
           }
         end
 
@@ -58,7 +59,7 @@ describe Spree::Api::GiftCardsController do
       end
 
       context "there is no redemption code in the request body" do
-        let(:parameters) { {} }
+        let(:params) { {} }
 
         it "returns a 404" do
           expect(subject.status).to eq 404
