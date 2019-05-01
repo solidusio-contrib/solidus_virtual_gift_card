@@ -1,5 +1,21 @@
----
 en:
+  activerecord:
+    attributes:
+      spree/virtual_gift_card:
+        amount: "Amount"
+        currency: "Currency"
+        redemption_code: "Redemption Code"
+        redeemed_at: "Redeemed At"
+        recipient_name: "Recipient Name"
+        recipient_email: "Recipient Email"
+        gift_message: "Gift Message"
+        purchaser_name: "Purchaser Name"
+        sent_email_at: "Send Email At"
+        sent_at: "Sent At"
+    models:
+      spree/virtual_gift_card:
+        one: "Gift Card"
+        other: "Gift Cards"
   spree:
     admin:
       gift_cards:
@@ -33,3 +49,6 @@ en:
         gift_card_code: "Gift card code: %{code}"
         subject: "Your gift card code"
     listing_gift_cards: "Listing Gift Cards"
+    hints:
+      spree/virtual_gift_card:
+        active: "When checked, the product is processed as a gift card.<br/> Default: Unchecked"
