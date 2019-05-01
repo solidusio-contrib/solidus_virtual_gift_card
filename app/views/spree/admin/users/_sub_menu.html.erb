@@ -1,6 +1,0 @@
-<ul class="admin-subnav">
-  <%= tab :users, match_path: /\/users$/ %>
-  <% if can?(:display, Spree::VirtualGiftCard) %>
-    <%= tab :gift_cards, match_path: "/users/gift_cards" %>
-  <% end %>
-</ul>

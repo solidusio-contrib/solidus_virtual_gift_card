@@ -1,8 +1,11 @@
 <!-- insert_bottom '[data-hook="admin_product_form_right"]' -->
-<div class="field">
-  <%= f.check_box(:gift_card) %>
-  <%= f.label :gift_card, Spree.t("admin.gift_cards.gift_card") %>
-  <span class="info">
-    <%= Spree.t("admin.gift_cards.convert_product_label") %>
-  </span>
+
+<div data-hook="admin_product_form_gift_cards">
+  <%= f.field_container :gift_card do %>
+    <label>
+      <%= f.check_box :gift_card %>
+      <%= f.label :gift_card %>
+    </label>
+    <%= admin_hint I18n.t(:"spree.admin.gift_cards.gift_card"), t(:active, scope: [:spree, :hints, "spree/virtual_gift_card"]) %>
+  <% end %>
 </div>
