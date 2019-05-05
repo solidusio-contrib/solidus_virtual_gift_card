@@ -1,4 +1,4 @@
-class AddLineItemToGiftCard < ActiveRecord::Migration
+class AddLineItemToGiftCard < ActiveRecord::Migration[4.2]
   def change
     add_column :spree_virtual_gift_cards, :line_item_id, :integer
 
