@@ -6,7 +6,7 @@ describe Spree::PermissionSets::VirtualGiftCardManagement do
 
   subject { ability }
 
-  context "when activated" do
+  context 'when activated' do
     before do
       described_class.new(ability).activate!
     end
@@ -14,7 +14,7 @@ describe Spree::PermissionSets::VirtualGiftCardManagement do
     it { should be_able_to(:manage, Spree::VirtualGiftCard) }
   end
 
-  context "when not activated" do
+  context 'when not activated' do
     it { should_not be_able_to(:manage, Spree::VirtualGiftCard) }
   end
 end

@@ -6,9 +6,9 @@ FactoryGirl.define do
   factory :virtual_gift_card, class: Spree::VirtualGiftCard do
     association :line_item, factory: :line_item
     amount 25.0
-    currency "USD"
-    recipient_name "Tom Riddle"
-    recipient_email "me@lordvoldemort.com"
+    currency 'USD'
+    recipient_name 'Tom Riddle'
+    recipient_email 'me@lordvoldemort.com'
 
     factory :redeemable_virtual_gift_card do
       association :purchaser, factory: :user
