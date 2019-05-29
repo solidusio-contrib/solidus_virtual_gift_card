@@ -1,4 +1,4 @@
-class BackfillInventoryUnitsOnGiftCard < ActiveRecord::Migration[4.2]
+class BackfillInventoryUnitsOnGiftCard < SolidusSupport::Migration[4.2]
   def up
     gift_card_products = Spree::Product.where(gift_card: true)
 
