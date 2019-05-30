@@ -42,7 +42,7 @@
           <%= gift_card.formatted_send_email_at || "Immediately" %>
         </td>
         <td class="actions">
-          <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => Spree.t('actions.edit') %>
+          <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => I18n.t('spree.actions.edit') %>
         </td>
       </tr>
     <% end %>
