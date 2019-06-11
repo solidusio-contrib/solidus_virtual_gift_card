@@ -13,7 +13,7 @@ FactoryBot.define do
     factory :redeemable_virtual_gift_card do
       association :purchaser, factory: :user
       inventory_unit do |gift_card|
-        gift_card.line_item.inventory_units.select{|iu| iu.gift_card.nil? }.first ||
+        gift_card.line_item.inventory_units.select { |iu| iu.gift_card.nil? }.first ||
           create(:inventory_unit, line_item: gift_card.line_item)
       end
 

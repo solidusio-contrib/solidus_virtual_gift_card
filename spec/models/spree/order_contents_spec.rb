@@ -61,7 +61,7 @@ describe Spree::OrderContents do
           context 'with invalid date' do
             let(:send_email_at) { '12/14/2020' }
             it 'errors' do
-             expect{ subject }.to raise_error Spree::GiftCards::OrderContentsConcerns::GiftCardDateFormatError
+              expect { subject }.to raise_error Spree::GiftCards::OrderContentsConcerns::GiftCardDateFormatError
             end
           end
         end
@@ -229,7 +229,7 @@ describe Spree::OrderContents do
 
       let(:update_params) do
         {
-          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {}}
+          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {} }
         }
       end
 

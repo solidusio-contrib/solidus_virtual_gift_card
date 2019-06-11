@@ -13,7 +13,7 @@ class Spree::VirtualGiftCard < Spree::Base
   validates_presence_of :purchaser_id, if: Proc.new { |gc| gc.redeemable? }
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
-  scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
+  scope :by_redemption_code, ->(redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
 
   self.whitelisted_ransackable_associations = %w[line_item order]

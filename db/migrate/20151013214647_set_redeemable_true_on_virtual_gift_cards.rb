@@ -6,6 +6,6 @@ class SetRedeemableTrueOnVirtualGiftCards < SolidusSupport::Migration[4.2]
   end
 
   def down
-    #noop
+    # noop
   end
 end

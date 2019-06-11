@@ -17,7 +17,6 @@ describe Spree::Api::GiftCardsController do
     subject { spree_post :redeem, parameters, { format: :json } }
 
     context 'the user is not logged in' do
-
       before { subject }
 
       it 'returns a 401' do

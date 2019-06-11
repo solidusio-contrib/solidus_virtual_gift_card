@@ -43,12 +43,12 @@ describe 'Gift Cards', :type => :feature, :js => true do
   end
 
   describe 'lookup a gift card' do
-    let(:gift_card) { create(:redeemable_virtual_gift_card,
-                             recipient_name: 'Daeva',
-                             recipient_email: 'dog@example.com',
-                            )
-    }
-    let(:other_gift_card) { create(:redeemable_virtual_gift_card)}
+    let(:gift_card) do
+      create(:redeemable_virtual_gift_card,
+             recipient_name: 'Daeva',
+             recipient_email: 'dog@example.com')
+    end
+    let(:other_gift_card) { create(:redeemable_virtual_gift_card) }
     let(:order) { gift_card.line_item.order }
 
     it 'can lookup gift card by recipient email' do

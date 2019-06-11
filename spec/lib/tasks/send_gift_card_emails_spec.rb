@@ -1,9 +1,8 @@
 require 'spec_helper'
 
 describe 'solidus_virtual_gift_card:send_current_emails' do
-
   let(:task) { Rake::Task['solidus_virtual_gift_card:send_current_emails'] }
-  let(:purchaser) {create(:user)}
+  let(:purchaser) { create(:user) }
 
   before do
     Rails.application.load_tasks

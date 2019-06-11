@@ -19,4 +19,3 @@ describe Spree::PermissionSets::VirtualGiftCardDisplay do
     it { should_not be_able_to(:display, Spree::VirtualGiftCard) }
   end
 end
-

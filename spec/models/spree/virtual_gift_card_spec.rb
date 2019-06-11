@@ -127,7 +127,6 @@ describe Spree::VirtualGiftCard do
       end
     end
 
-
     context 'there is a collision on redemption code' do
       context 'the existing giftcard has not been redeemed yet' do
         let!(:existing_giftcard) { create(:virtual_gift_card, redemption_code: 'ABC123-EFG456') }
@@ -203,7 +202,7 @@ describe Spree::VirtualGiftCard do
         end
 
         it 'should not update the gift card' do
-          expect { subject }.to_not change{ gift_card }
+          expect { subject }.to_not change { gift_card }
         end
       end
     end
@@ -224,7 +223,7 @@ describe Spree::VirtualGiftCard do
         end
 
         it 'should not update the gift card' do
-          expect { subject }.to_not change{ gift_card }
+          expect { subject }.to_not change { gift_card }
         end
       end
     end
@@ -242,7 +241,7 @@ describe Spree::VirtualGiftCard do
         end
 
         it 'should not update the gift card' do
-          expect { subject }.to_not change{ gift_card }
+          expect { subject }.to_not change { gift_card }
         end
       end
     end

@@ -11,7 +11,7 @@ module Spree
 
     module InstanceMethods
       def redemption_codes
-        gift_cards.map {|gc| {amount: gc.formatted_amount, redemption_code: gc.formatted_redemption_code}}
+        gift_cards.map { |gc| { amount: gc.formatted_amount, redemption_code: gc.formatted_redemption_code } }
       end
 
       def gift_card_details

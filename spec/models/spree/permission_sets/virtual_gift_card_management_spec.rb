@@ -18,4 +18,3 @@ describe Spree::PermissionSets::VirtualGiftCardManagement do
     it { should_not be_able_to(:manage, Spree::VirtualGiftCard) }
   end
 end
-
