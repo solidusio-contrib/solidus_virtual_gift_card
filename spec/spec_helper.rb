@@ -28,9 +28,9 @@ require 'spree/testing_support/url_helpers'
 
 require 'cancan/matchers'
 
-require "spree_virtual_gift_card/factories"
+require 'spree_virtual_gift_card/factories'
 
-require "capybara/poltergeist"
+require 'capybara/poltergeist'
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, timeout: 120)
 end
@@ -43,16 +43,16 @@ RSpec.configure do |config|
   config.mock_with :rspec
 
   config.color = true
-  config.order = "random"
+  config.order = 'random'
 
   config.expose_current_running_example_as :example
-  config.fail_fast = ENV["FAIL_FAST"] || false
+  config.fail_fast = ENV['FAIL_FAST'] || false
 
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
   config.use_transactional_fixtures = false
 
-  config.example_status_persistence_file_path = "./spec/examples.txt"
+  config.example_status_persistence_file_path = './spec/examples.txt'
 
   config.include FactoryGirl::Syntax::Methods
   config.include Spree::TestingSupport::ControllerRequests, type: :controller

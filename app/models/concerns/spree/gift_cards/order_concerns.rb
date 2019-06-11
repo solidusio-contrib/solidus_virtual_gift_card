@@ -13,10 +13,10 @@ module Spree
     module InstanceMethods
       def gift_card_match(line_item, options)
         return true unless line_item.gift_card?
-        return true unless options["gift_card_details"]
+        return true unless options['gift_card_details']
         line_item.gift_cards.any? do |gift_card|
-          gc_detail_set = gift_card.details.stringify_keys.except("send_email_at").to_set
-          options_set = options["gift_card_details"].except("send_email_at").to_set
+          gc_detail_set = gift_card.details.stringify_keys.except('send_email_at').to_set
+          options_set = options['gift_card_details'].except('send_email_at').to_set
           gc_detail_set.superset?(options_set)
         end
       end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::LineItem do
-  describe "#redemption_codes" do
+  describe '#redemption_codes' do
     let(:line_item) { create(:line_item, quantity: 2) }
     let!(:gift_card) { create(:virtual_gift_card, line_item: line_item) }
     let!(:gift_card_2) { create(:virtual_gift_card, line_item: line_item) }
@@ -28,7 +28,7 @@ describe Spree::LineItem do
     end
   end
 
-  describe "#gift_card_details" do
+  describe '#gift_card_details' do
     let(:line_item) { create(:line_item, quantity: 2) }
     let!(:gift_card) { create(:redeemable_virtual_gift_card, line_item: line_item) }
     let!(:gift_card_2) { create(:redeemable_virtual_gift_card, line_item: line_item) }

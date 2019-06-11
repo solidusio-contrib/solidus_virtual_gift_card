@@ -9,7 +9,7 @@ module SolidusVirtualGiftCard
       end
 
       def include_seed_data
-        append_file "db/seeds.rb", <<-SEEDS
+        append_file 'db/seeds.rb', <<-SEEDS
 \n
 SpreeVirtualGiftCard::Engine.load_seed if defined?(SpreeVirtualGiftCard::Engine)
         SEEDS
