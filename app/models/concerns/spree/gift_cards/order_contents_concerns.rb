@@ -58,7 +58,7 @@ module Spree
       end
 
       def update_gift_cards(line_item, new_quantity)
-        if line_item && line_item.gift_card?
+        if line_item&.gift_card?
           gift_card_count = line_item.gift_cards.count
           if new_quantity > gift_card_count
             create_gift_cards(line_item, new_quantity - gift_card_count)

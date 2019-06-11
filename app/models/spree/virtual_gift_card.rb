@@ -84,11 +84,11 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def formatted_send_email_at
-    send_email_at.strftime('%-m/%-d/%y') if send_email_at
+    send_email_at&.strftime('%-m/%-d/%y')
   end
 
   def formatted_sent_at
-    sent_at.strftime('%-m/%-d/%y') if sent_at
+    sent_at&.strftime('%-m/%-d/%y')
   end
 
   def formatted_created_at
@@ -96,11 +96,11 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def formatted_redeemed_at
-    redeemed_at.localtime.strftime('%F %I:%M%p') if redeemed_at
+    redeemed_at&.localtime&.strftime('%F %I:%M%p')
   end
 
   def formatted_deactivated_at
-    deactivated_at.localtime.strftime('%F %I:%M%p') if deactivated_at
+    deactivated_at&.localtime&.strftime('%F %I:%M%p')
   end
 
   def store_credit_category
