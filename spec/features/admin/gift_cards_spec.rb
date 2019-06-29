@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Gift Cards', :type => :feature, :js => true do
+describe 'Gift Cards', type: :feature, js: true do
   stub_authorization!
 
   let(:admin_user) { create(:admin_user) }
