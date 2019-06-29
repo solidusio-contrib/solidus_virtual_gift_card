@@ -46,7 +46,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def make_redeemable!(purchaser:, inventory_unit:)
-    update_attributes!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (self.redemption_code || generate_unique_redemption_code))
+    update_attributes!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (redemption_code || generate_unique_redemption_code))
   end
 
   def deactivate
@@ -59,7 +59,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def memo
-    "Gift Card ##{self.redemption_code}"
+    "Gift Card ##{redemption_code}"
   end
 
   def details
