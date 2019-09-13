@@ -1,13 +1,6 @@
-module Spree
-  module GiftCards::OrderContentsConcerns
-    extend ActiveSupport::Concern
-    class GiftCardDateFormatError < StandardError; end
-
-    included do
-      prepend(InstanceMethods)
-    end
-
-    module InstanceMethods
+module SolidusVirtualGiftCard
+  module Spree
+    module OrderContentsDecorator
       def add(variant, quantity = 1, options = {})
         line_item = super
         create_gift_cards(line_item, quantity, options['gift_card_details'] || {})
@@ -24,7 +17,7 @@ module Spree
         update_success = super(params)
 
         if update_success && params[:line_items_attributes]
-          line_item = Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
+          line_item = ::Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
           new_quantity = params[:line_items_attributes][:quantity].to_i
           update_gift_cards(line_item, new_quantity)
         end
@@ -37,7 +30,7 @@ module Spree
       def create_gift_cards(line_item, quantity_diff, gift_card_details = {})
         if line_item.gift_card?
           quantity_diff.to_i.times do
-            Spree::VirtualGiftCard.create!(
+            ::Spree::VirtualGiftCard.create!(
               amount: line_item.price,
               currency: line_item.currency,
               line_item: line_item,
@@ -75,10 +68,11 @@ module Spree
         begin
           Date.parse(date)
         rescue ArgumentError
-          raise GiftCardDateFormatError
+          raise ::Spree::GiftCards::GiftCardDateFormatError
         end
       end
+
+      ::Spree::OrderContents.prepend self
     end
   end
 end
-

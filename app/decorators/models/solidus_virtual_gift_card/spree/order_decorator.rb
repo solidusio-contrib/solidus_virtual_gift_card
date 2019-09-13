@@ -1,16 +1,14 @@
-module Spree
-  module GiftCards::OrderConcerns
-    extend ActiveSupport::Concern
+module SolidusVirtualGiftCard
+  module Spree
+    module OrderDecorator
+      def self.prepended(base)
+        base.class_eval do
+          state_machine.after_transition to: :complete, do: :send_gift_card_emails
 
-    included do
-      Spree::Order.state_machine.after_transition to: :complete, do: :send_gift_card_emails
+          has_many :gift_cards, through: :line_items
+        end
+      end
 
-      has_many :gift_cards, through: :line_items
-
-      prepend(InstanceMethods)
-    end
-
-    module InstanceMethods
       def gift_card_match(line_item, options)
         return true unless line_item.gift_card?
         return true unless options['gift_card_details']
@@ -36,6 +34,8 @@ module Spree
           end
         end
       end
+
+      ::Spree::Order.prepend self
     end
   end
 end
