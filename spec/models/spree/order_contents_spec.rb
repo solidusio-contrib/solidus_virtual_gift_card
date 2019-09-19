@@ -31,7 +31,7 @@ describe Spree::OrderContents do
     end
 
     context 'with a gift card product' do
-      before { variant.product.update_attributes(gift_card: true) }
+      before { variant.product.update(gift_card: true) }
 
       it 'creates a line item' do
         expect { subject }.to change { Spree::LineItem.count }.by(1)
@@ -136,7 +136,7 @@ describe Spree::OrderContents do
 
     context 'with a gift card product' do
       before do
-        variant.product.update_attributes(gift_card: true)
+        variant.product.update(gift_card: true)
       end
 
       context 'with a single gift card' do
@@ -235,7 +235,7 @@ describe Spree::OrderContents do
 
       context 'for a gift card line item' do
         before do
-          variant.product.update_attributes(gift_card: true)
+          variant.product.update(gift_card: true)
           @line_item = order_contents.add(variant, 2, options)
         end
 

@@ -42,15 +42,15 @@ class Spree::VirtualGiftCard < Spree::Base
       action_originator: self,
       category: store_credit_category,
     })
-    self.update_attributes( redeemed_at: Time.now, redeemer: redeemer )
+    self.update( redeemed_at: Time.now, redeemer: redeemer )
   end
 
   def make_redeemable!(purchaser:, inventory_unit:)
-    update_attributes!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (self.redemption_code || generate_unique_redemption_code))
+    update!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (self.redemption_code || generate_unique_redemption_code))
   end
 
   def deactivate
-    update_attributes(redeemable: false, deactivated_at: Time.now) &&
+    update(redeemable: false, deactivated_at: Time.now) &&
       cancel_and_reimburse_inventory_unit
   end
 
@@ -113,7 +113,7 @@ class Spree::VirtualGiftCard < Spree::Base
 
   def send_email
     Spree::GiftCardMailer.gift_card_email(self).deliver_later
-    update_attributes!(sent_at: DateTime.now)
+    update!(sent_at: DateTime.now)
   end
 
   private

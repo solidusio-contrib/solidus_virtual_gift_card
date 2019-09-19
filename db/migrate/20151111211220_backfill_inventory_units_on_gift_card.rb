@@ -11,7 +11,7 @@ class BackfillInventoryUnitsOnGiftCard < SolidusSupport::Migration[4.2]
 
           line_item.gift_cards.each_with_index do |gift_card, i|
             inventory_unit = inventory_units[i]
-            gift_card.update_attributes!(inventory_unit: inventory_unit)
+            gift_card.update!(inventory_unit: inventory_unit)
             say "Updating gift card #{gift_card.id} to have inventory unit #{inventory_unit.id}"
           end
         else
