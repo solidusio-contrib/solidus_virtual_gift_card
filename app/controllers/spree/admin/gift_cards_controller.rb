@@ -5,7 +5,7 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   before_action :load_order, only: [:edit, :update, :deactivate]
 
   def index
-    @search = Spree::VirtualGiftCard.purchased.search(params[:q])
+    @search = Spree::VirtualGiftCard.purchased.ransack(params[:q])
     @gift_cards = @search.result.page(params[:page]).per(params[:per_page])
   end
 
