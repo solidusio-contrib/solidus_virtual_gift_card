@@ -1,7 +1,7 @@
 <div class="row">
   <div class="alpha twelve columns">
     <%= f.field_container :redemption_code do %>
-    <%= f.label :redemption_code, Spree.t('admin.gift_cards.redemption_code') %> <span class="required">*</span><br />
+    <%= f.label :redemption_code, I18n.t('spree.admin.gift_cards.redemption_code') %> <span class="required">*</span><br />
     <%= f.text_field :redemption_code %>
     <% end %>
   </div>

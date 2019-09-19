@@ -17,7 +17,7 @@ class Spree::Api::GiftCardsController < Spree::Api::BaseController
 
   def redeem_fail_response
    {
-      error_message: "#{Spree.t('admin.gift_cards.errors.not_found')}. #{Spree.t('admin.gift_cards.errors.please_try_again')}"
+      error_message: "#{I18n.t('spree.admin.gift_cards.errors.not_found')}. #{I18n.t('spree.admin.gift_cards.errors.please_try_again')}"
    }
  end
 end

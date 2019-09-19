@@ -22,7 +22,7 @@
     <div class="row">
       <div class="alpha twelve columns">
         <%= f.field_container :recipient_name do %>
-        <%= f.label :recipient_name, Spree.t('admin.gift_cards.recipient_name') %> <br />
+        <%= f.label :recipient_name, I18n.t('spree.admin.gift_cards.recipient_name') %> <br />
         <%= f.text_field :recipient_name, class: 'fullwidth' %>
         <% end %>
       </div>
@@ -31,7 +31,7 @@
     <div class="row">
       <div class="alpha twelve columns">
         <%= f.field_container :recipient_email do %>
-        <%= f.label :recipient_email, Spree.t('admin.gift_cards.recipient_email') %> <br />
+        <%= f.label :recipient_email, I18n.t('spree.admin.gift_cards.recipient_email') %> <br />
         <%= f.text_field :recipient_email, class: 'fullwidth' %>
         <% end %>
       </div>
@@ -40,7 +40,7 @@
     <div class="row">
       <div class="alpha twelve columns">
         <%= f.field_container :purchaser_name do %>
-        <%= f.label :purchaser_name, Spree.t('admin.gift_cards.purchaser_name') %> <br />
+        <%= f.label :purchaser_name, I18n.t('spree.admin.gift_cards.purchaser_name') %> <br />
         <%= f.text_field :purchaser_name, class: 'fullwidth' %>
         <% end %>
       </div>
@@ -49,7 +49,7 @@
     <div class="row">
       <div class="alpha twelve columns">
         <%= f.field_container :gift_message do %>
-        <%= f.label :gift_message, Spree.t('admin.gift_cards.gift_message') %> <br />
+        <%= f.label :gift_message, I18n.t('spree.admin.gift_cards.gift_message') %> <br />
         <%= f.text_area :gift_message, class: 'fullwidth', maxlength: '140' %>
         <% end %>
       </div>
@@ -63,7 +63,7 @@
           </div>
         <% else %>
           <%= f.field_container :send_email_at do %>
-          <%= f.label :send_email_at, Spree.t('admin.gift_cards.send_email_at') %> <br />
+          <%= f.label :send_email_at, I18n.t('spree.admin.gift_cards.send_email_at') %> <br />
           <%= f.text_field :send_email_at, :class => 'datepicker datepicker-from giftcard-datepicker' %>
           <% end %>
         <% end %>
