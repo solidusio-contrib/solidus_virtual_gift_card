@@ -57,7 +57,7 @@ describe Spree::Admin::GiftCardsController do
 
       it 'sets the flash message' do
         subject
-        expect(flash[:error]).to eq Spree.t('admin.gift_cards.errors.unable_to_reimburse_gift_card')
+        expect(flash[:error]).to eq I18n.t('spree.admin.gift_cards.errors.unable_to_reimburse_gift_card')
       end
     end
 
@@ -75,7 +75,7 @@ describe Spree::Admin::GiftCardsController do
 
       it 'sets the flash message' do
         subject
-        expect(flash[:error]).to eq Spree.t('admin.gift_cards.errors.unable_to_reimburse_gift_card')
+        expect(flash[:error]).to eq I18n.t('spree.admin.gift_cards.errors.unable_to_reimburse_gift_card')
       end
     end
   end
