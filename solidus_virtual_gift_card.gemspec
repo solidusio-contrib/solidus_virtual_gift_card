@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'sass-rails'
   s.add_development_dependency 'coffee-rails'
   s.add_development_dependency 'factory_bot'
-  s.add_development_dependency 'capybara', '~> 2.18'
+  s.add_development_dependency 'capybara', '~> 3.29'
   s.add_development_dependency 'poltergeist'
   s.add_development_dependency 'solidus_support'
   s.add_development_dependency 'database_cleaner'
