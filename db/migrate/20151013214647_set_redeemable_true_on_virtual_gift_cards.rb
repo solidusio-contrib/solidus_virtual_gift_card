@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SetRedeemableTrueOnVirtualGiftCards < SolidusSupport::Migration[4.2]
   def up
     Spree::VirtualGiftCard.find_each do |gift_card|
@@ -6,6 +8,6 @@ class SetRedeemableTrueOnVirtualGiftCards < SolidusSupport::Migration[4.2]
   end
 
   def down
-    #noop
+    # noop
   end
 end

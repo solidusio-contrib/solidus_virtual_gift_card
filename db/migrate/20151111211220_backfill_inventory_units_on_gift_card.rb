@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BackfillInventoryUnitsOnGiftCard < SolidusSupport::Migration[4.2]
   def up
     gift_card_products = Spree::Product.where(gift_card: true)
@@ -6,7 +8,7 @@ class BackfillInventoryUnitsOnGiftCard < SolidusSupport::Migration[4.2]
       line_items = product.line_items
 
       line_items.find_each do |line_item|
-        if line_item.order.completed? && !line_item.gift_cards.all? {|gc| gc.inventory_unit.present? }
+        if line_item.order.completed? && !line_item.gift_cards.all? { |gc| gc.inventory_unit.present? }
           inventory_units = line_item.inventory_units
 
           line_item.gift_cards.each_with_index do |gift_card, i|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Spree::LineItem do
@@ -39,7 +41,7 @@ describe Spree::LineItem do
     end
 
     it 'contains the correct keys and values' do
-      gift_card_details = subject.detect{|x| x[:redemption_code] == gift_card.formatted_redemption_code }
+      gift_card_details = subject.detect{ |x| x[:redemption_code] == gift_card.formatted_redemption_code }
       expect(gift_card_details[:amount]).to eq gift_card.formatted_amount
       expect(gift_card_details[:redemption_code]).to eq gift_card.formatted_redemption_code
       expect(gift_card_details[:recipient_email]).to eq gift_card.recipient_email

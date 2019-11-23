@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Spree::GiftCardMailer < Spree::BaseMailer
   def gift_card_email(gift_card)
     @gift_card = gift_card.respond_to?(:id) ? gift_card : Spree::VirtualGiftCard.find(gift_card)

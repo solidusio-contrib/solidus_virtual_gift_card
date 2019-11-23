@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   before_action :load_user, only: [:lookup, :redeem]
   before_action :load_gift_card_for_redemption, only: [:redeem]
@@ -9,11 +11,9 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
     @gift_cards = @search.result.page(params[:page]).per(params[:per_page])
   end
 
-  def edit
-  end
+  def edit; end
 
-  def lookup
-  end
+  def lookup; end
 
   def update
     if @gift_card.update(gift_card_params)

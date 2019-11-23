@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.config.to_prepare do
   Spree::Admin::StoreCreditEventsHelper.originator_links[Spree::VirtualGiftCard.to_s] = {
     new_tab: true,

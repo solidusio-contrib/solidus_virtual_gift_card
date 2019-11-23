@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Spree::RedemptionCodeGenerator do
   describe '#generate_redemption_code' do
-    subject { Spree::RedemptionCodeGenerator.generate_redemption_code }
+    subject { described_class.generate_redemption_code }
 
     it 'generates a 16 character alpha-numeric code' do
       code = subject
@@ -11,7 +13,7 @@ describe Spree::RedemptionCodeGenerator do
   end
 
   describe '#format_redemption_code_for_lookup' do
-    subject { Spree::RedemptionCodeGenerator.format_redemption_code_for_lookup(redemption_code) }
+    subject { described_class.format_redemption_code_for_lookup(redemption_code) }
 
     context 'redemption code has no dashes' do
       let(:redemption_code) { '1234ABCD1234ABCD' }

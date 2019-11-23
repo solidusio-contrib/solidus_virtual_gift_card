@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module SolidusVirtualGiftCard
   module Generators
     class InstallGenerator < Rails::Generators::Base
-
       class_option :auto_run_migrations, type: :boolean, default: false
 
       def add_javascripts
@@ -9,9 +10,9 @@ module SolidusVirtualGiftCard
       end
 
       def include_seed_data
-        append_file 'db/seeds.rb', <<-SEEDS
-\n
-SpreeVirtualGiftCard::Engine.load_seed if defined?(SpreeVirtualGiftCard::Engine)
+        append_file 'db/seeds.rb', <<~SEEDS
+          \n
+          SpreeVirtualGiftCard::Engine.load_seed if defined?(SpreeVirtualGiftCard::Engine)
         SEEDS
       end
 
@@ -20,7 +21,7 @@ SpreeVirtualGiftCard::Engine.load_seed if defined?(SpreeVirtualGiftCard::Engine)
       end
 
       def run_migrations
-        run_migrations = options[:auto_run_migrations] || ['', 'y', 'Y'].include?(ask 'Would you like to run the migrations now? [Y/n]')
+        run_migrations = options[:auto_run_migrations] || ['', 'y', 'Y'].include?(ask('Would you like to run the migrations now? [Y/n]'))
         if run_migrations
           run 'bundle exec rake db:migrate'
         else

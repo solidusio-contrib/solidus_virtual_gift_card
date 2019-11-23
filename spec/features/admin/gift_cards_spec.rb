@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe "Gift Cards", type: :feature do
@@ -7,9 +9,9 @@ describe "Gift Cards", type: :feature do
   let(:product) { gift_card.line_item.product }
   let!(:order) do
     create(:order_ready_to_ship,
-      number: "R100",
-      state: "complete",
-      line_items: [gift_card.line_item])
+           number: "R100",
+           state: "complete",
+           line_items: [gift_card.line_item])
   end
   let(:admin_user) { create(:admin_user) }
 
@@ -47,8 +49,8 @@ describe "Gift Cards", type: :feature do
   describe "lookup a gift card" do
     let(:gift_card) {
       create(:redeemable_virtual_gift_card,
-        recipient_name: "Daeva",
-        recipient_email: "dog@example.com")
+             recipient_name: "Daeva",
+             recipient_email: "dog@example.com")
     }
     let(:other_gift_card) { create(:redeemable_virtual_gift_card) }
     let(:order) { gift_card.line_item.order }
@@ -60,7 +62,7 @@ describe "Gift Cards", type: :feature do
       click_on "Lookup Gift Card"
 
       expect(page).to have_content(gift_card.purchaser.email)
-      expect(page).to_not have_content(other_gift_card.purchaser.email)
+      expect(page).not_to have_content(other_gift_card.purchaser.email)
     end
 
     it "can lookup gift card by order number" do
@@ -70,7 +72,7 @@ describe "Gift Cards", type: :feature do
       click_on "Lookup Gift Card"
 
       expect(page).to have_content(gift_card.purchaser.email)
-      expect(page).to_not have_content(other_gift_card.purchaser.email)
+      expect(page).not_to have_content(other_gift_card.purchaser.email)
     end
   end
 end
