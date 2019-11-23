@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Spree::Api::GiftCardsController do
@@ -6,6 +8,8 @@ describe Spree::Api::GiftCardsController do
   let!(:gc_category) { create(:store_credit_gift_card_category) }
 
   describe 'POST redeem' do
+    subject { post :redeem, params: parameters.merge(format: :json) }
+
     let(:gift_card) { create(:redeemable_virtual_gift_card) }
 
     let(:parameters) do
@@ -14,10 +18,7 @@ describe Spree::Api::GiftCardsController do
       }
     end
 
-    subject { post :redeem, params: parameters.merge(format: :json) }
-
     context 'the user is not logged in' do
-
       before { subject }
 
       it 'returns a 401' do

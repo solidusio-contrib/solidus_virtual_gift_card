@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 require:
   - solidus_extension_dev_tools/rubocop
 

@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY

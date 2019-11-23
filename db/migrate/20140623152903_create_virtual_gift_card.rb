@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateVirtualGiftCard < SolidusSupport::Migration[4.2]
   def change
     create_table :spree_virtual_gift_cards do |t|

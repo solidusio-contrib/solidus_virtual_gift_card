@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Spree::RedemptionCodeGenerator
   def self.generate_redemption_code
     chars = [('A'..'Z'), ('0'..'9')].map(&:to_a).flatten

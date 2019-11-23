@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Spree::OrderContents do
   let(:order) { create(:order) }
   let(:variant) { create(:variant) }
-  let(:order_contents) { Spree::OrderContents.new(order) }
+  let(:order_contents) { described_class.new(order) }
 
   let(:recipient_name) { 'Ron Weasly' }
   let(:recipient_email) { 'ron@weasly.com' }
@@ -48,9 +50,10 @@ describe Spree::OrderContents do
           expect(gift_card.send_email_at).to eq(send_email_at.to_date)
         end
 
-        context '#format_date' do
+        describe '#format_date' do
           context 'without send_email_at' do
             let(:send_email_at) { nil }
+
             it 'sets to current date' do
               subject
               gift_card = Spree::VirtualGiftCard.last
@@ -60,8 +63,9 @@ describe Spree::OrderContents do
 
           context 'with invalid date' do
             let(:send_email_at) { '12/14/2020' }
+
             it 'errors' do
-             expect{ subject }.to raise_error Spree::GiftCards::GiftCardDateFormatError
+              expect{ subject }.to raise_error Spree::GiftCards::GiftCardDateFormatError
             end
           end
         end
@@ -108,7 +112,7 @@ describe Spree::OrderContents do
           it 'creates a new line item with a gift card' do
             expect(order.line_items.count).to be(1)
             new_line_item = subject
-            expect(@line_item.id).to_not eq new_line_item.id
+            expect(@line_item.id).not_to eq new_line_item.id
             expect(order.reload.line_items.count).to be(2)
             expect(new_line_item.gift_cards.count).to be(1)
           end
@@ -118,7 +122,7 @@ describe Spree::OrderContents do
 
     context 'with a non gift card product' do
       it 'does not create a gift card' do
-        expect { subject }.to_not change { Spree::VirtualGiftCard.count }
+        expect { subject }.not_to change { Spree::VirtualGiftCard.count }
       end
     end
   end
@@ -191,7 +195,7 @@ describe Spree::OrderContents do
             expect(order.line_items.count).to be(2)
             subject
             expect(order.reload.line_items.count).to be(1)
-            expect(order.line_items).to_not include(@line_item)
+            expect(order.line_items).not_to include(@line_item)
           end
         end
 
@@ -202,7 +206,7 @@ describe Spree::OrderContents do
             expect(order.line_items.count).to be(2)
             subject
             expect(order.reload.line_items.count).to be(1)
-            expect(order.line_items).to_not include(@line_item2)
+            expect(order.line_items).not_to include(@line_item2)
           end
         end
       end
@@ -229,7 +233,7 @@ describe Spree::OrderContents do
 
       let(:update_params) do
         {
-          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {}}
+          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {} }
         }
       end
 

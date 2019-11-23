@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Spree::Admin::GiftCardsController do
@@ -15,8 +17,9 @@ describe Spree::Admin::GiftCardsController do
   end
 
   describe 'GET lookup' do
-    let(:user) { create :user }
     subject { get :lookup, params: { user_id: user.id } }
+
+    let(:user) { create :user }
 
     it 'returns a 200 status code' do
       subject
@@ -25,12 +28,12 @@ describe Spree::Admin::GiftCardsController do
   end
 
   describe 'PUT deactivate' do
+    subject { put :deactivate, params: { id: gift_card.id, order_id: order.number } }
+
     let(:user) { create :user }
     let!(:gift_card) { create(:redeemable_virtual_gift_card, line_item: order.line_items.first) }
     let(:order) { create(:shipped_order, line_items_count: 1) }
     let!(:default_refund_reason) { Spree::RefundReason.find_or_create_by!(name: Spree::RefundReason::RETURN_PROCESSING_REASON, mutable: false) }
-
-    subject { put :deactivate, params: { id: gift_card.id, order_id: order.number  } }
 
     context 'when successful' do
       it 'redirects to the admin order edit page' do
@@ -81,11 +84,11 @@ describe Spree::Admin::GiftCardsController do
   end
 
   describe 'POST redeem' do
+    subject { post :redeem, params: { user_id: user.id, gift_card: { redemption_code: redemption_code } } }
+
     let(:user) { create :user }
     let(:gift_card) { create(:redeemable_virtual_gift_card) }
     let(:redemption_code) { gift_card.redemption_code }
-
-    subject { post :redeem, params: { user_id: user.id, gift_card: { redemption_code: redemption_code } } }
 
     context 'with a gift card that has not yet been redeemed' do
       it 'redirects to store credit index' do
@@ -114,7 +117,7 @@ describe Spree::Admin::GiftCardsController do
     end
 
     context 'with a gift card that has already been redeemed' do
-      before(:each) { gift_card.update_attribute(:redeemed_at, Date.yesterday) }
+      before { gift_card.update_attribute(:redeemed_at, Date.yesterday) }
 
       it 'renders the lookup page' do
         subject
