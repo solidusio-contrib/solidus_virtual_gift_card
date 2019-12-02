@@ -1,10 +1,12 @@
-<% content_for :page_title do %>
-  <%= link_to "#{I18n.t('spree.editing_user')} #{@user.email}", edit_admin_user_url(@user) %>
-<% end %>
+<% admin_breadcrumb(link_to plural_resource_name(Spree::LegacyUser), spree.admin_users_path) %>
+<% admin_breadcrumb(link_to @user.email, edit_admin_user_url(@user)) %>
+<% admin_breadcrumb(t('spree.admin.gift_cards.redeem_gift_card')) %>
 
-<%= render :partial => 'spree/admin/users/sidebar', :locals => { :current => :gift_cards } %>
+
+<%= render 'spree/admin/users/sidebar' %>
+<%= render 'spree/admin/users/tabs', current: :gift_cards %>
+
 <% content_for :page_actions do %>
-  <li><%= link_to_with_icon 'arrow-left', Spree.t("admin.store_credits.back_to_user_list"), admin_users_path, class: 'button' %></li>
 <% end %>
 
 <%= form_for :gift_card, url: redeem_admin_user_gift_cards_path do |f| %>
