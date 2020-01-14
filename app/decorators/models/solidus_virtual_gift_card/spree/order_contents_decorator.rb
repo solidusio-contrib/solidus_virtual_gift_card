@@ -1,16 +1,11 @@
-module Spree
-  module GiftCards::OrderContentsConcerns
-    extend ActiveSupport::Concern
-    class GiftCardDateFormatError < StandardError; end
+# frozen_string_literal: true
 
-    included do
-      prepend(InstanceMethods)
-    end
-
-    module InstanceMethods
+module SolidusVirtualGiftCard
+  module Spree
+    module OrderContentsDecorator
       def add(variant, quantity = 1, options = {})
         line_item = super
-        create_gift_cards(line_item, quantity, options["gift_card_details"] || {})
+        create_gift_cards(line_item, quantity, options['gift_card_details'] || {})
         line_item
       end
 
@@ -24,7 +19,7 @@ module Spree
         update_success = super(params)
 
         if update_success && params[:line_items_attributes]
-          line_item = Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
+          line_item = ::Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
           new_quantity = params[:line_items_attributes][:quantity].to_i
           update_gift_cards(line_item, new_quantity)
         end
@@ -37,15 +32,15 @@ module Spree
       def create_gift_cards(line_item, quantity_diff, gift_card_details = {})
         if line_item.gift_card?
           quantity_diff.to_i.times do
-            Spree::VirtualGiftCard.create!(
+            ::Spree::VirtualGiftCard.create!(
               amount: line_item.price,
               currency: line_item.currency,
               line_item: line_item,
-              recipient_name: gift_card_details["recipient_name"],
-              recipient_email: gift_card_details["recipient_email"],
-              purchaser_name: gift_card_details["purchaser_name"],
-              gift_message: gift_card_details["gift_message"],
-              send_email_at: format_date(gift_card_details["send_email_at"])
+              recipient_name: gift_card_details['recipient_name'],
+              recipient_email: gift_card_details['recipient_email'],
+              purchaser_name: gift_card_details['purchaser_name'],
+              gift_message: gift_card_details['gift_message'],
+              send_email_at: format_date(gift_card_details['send_email_at'])
             )
           end
         end
@@ -58,7 +53,7 @@ module Spree
       end
 
       def update_gift_cards(line_item, new_quantity)
-        if line_item && line_item.gift_card?
+        if line_item&.gift_card?
           gift_card_count = line_item.gift_cards.count
           if new_quantity > gift_card_count
             create_gift_cards(line_item, new_quantity - gift_card_count)
@@ -75,10 +70,11 @@ module Spree
         begin
           Date.parse(date)
         rescue ArgumentError
-          raise GiftCardDateFormatError
+          raise ::Spree::GiftCards::GiftCardDateFormatError
         end
       end
+
+      ::Spree::OrderContents.prepend self
     end
   end
 end
-

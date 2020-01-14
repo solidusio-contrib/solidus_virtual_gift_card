@@ -1,22 +1,23 @@
-module Spree
-  module GiftCards::OrderConcerns
-    extend ActiveSupport::Concern
+# frozen_string_literal: true
 
-    included do
-      Spree::Order.state_machine.after_transition to: :complete, do: :send_gift_card_emails
+module SolidusVirtualGiftCard
+  module Spree
+    module OrderDecorator
+      def self.prepended(base)
+        base.class_eval do
+          state_machine.after_transition to: :complete, do: :send_gift_card_emails
 
-      has_many :gift_cards, through: :line_items
+          has_many :gift_cards, through: :line_items
+        end
+      end
 
-      prepend(InstanceMethods)
-    end
-
-    module InstanceMethods
       def gift_card_match(line_item, options)
         return true unless line_item.gift_card?
-        return true unless options["gift_card_details"]
+        return true unless options['gift_card_details']
+
         line_item.gift_cards.any? do |gift_card|
-          gc_detail_set = gift_card.details.stringify_keys.except("send_email_at").to_set
-          options_set = options["gift_card_details"].except("send_email_at").to_set
+          gc_detail_set = gift_card.details.stringify_keys.except('send_email_at').to_set
+          options_set = options['gift_card_details'].except('send_email_at').to_set
           gc_detail_set.superset?(options_set)
         end
       end
@@ -36,6 +37,8 @@ module Spree
           end
         end
       end
+
+      ::Spree::Order.prepend self
     end
   end
 end

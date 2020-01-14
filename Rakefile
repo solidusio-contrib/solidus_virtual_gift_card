@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler'
 Bundler::GemHelper.install_tasks
 
@@ -7,9 +9,9 @@ require 'spree/testing_support/extension_rake'
 RSpec::Core::RakeTask.new
 
 task :default do
-  if Dir["spec/dummy"].empty?
+  if Dir['spec/dummy'].empty?
     Rake::Task[:test_app].invoke
-    Dir.chdir("../../")
+    Dir.chdir('../../')
   end
   Rake::Task[:spec].invoke
 end

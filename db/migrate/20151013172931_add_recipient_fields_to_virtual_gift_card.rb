@@ -1,4 +1,6 @@
-class AddRecipientFieldsToVirtualGiftCard < ActiveRecord::Migration
+# frozen_string_literal: true
+
+class AddRecipientFieldsToVirtualGiftCard < SolidusSupport::Migration[4.2]
   def change
     add_column :spree_virtual_gift_cards, :recipient_name, :string
     add_column :spree_virtual_gift_cards, :recipient_email, :string

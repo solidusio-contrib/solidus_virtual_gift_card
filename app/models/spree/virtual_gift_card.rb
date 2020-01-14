@@ -1,19 +1,21 @@
+# frozen_string_literal: true
+
 class Spree::VirtualGiftCard < Spree::Base
   include ActionView::Helpers::NumberHelper
 
-  belongs_to :store_credit, class_name: 'Spree::StoreCredit'
-  belongs_to :purchaser, class_name: 'Spree::User'
-  belongs_to :redeemer, class_name: 'Spree::User'
-  belongs_to :line_item, class_name: 'Spree::LineItem'
-  belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit'
+  belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
+  belongs_to :purchaser, class_name: 'Spree::User', optional: true
+  belongs_to :redeemer, class_name: 'Spree::User', optional: true
+  belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
+  belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
   has_one :order, through: :line_item
 
   validates :amount, numericality: { greater_than: 0 }
-  validates_uniqueness_of :redemption_code, conditions: -> { where(redeemed_at: nil, redeemable: true) }
-  validates_presence_of :purchaser_id, if: Proc.new { |gc| gc.redeemable? }
+  validates :redemption_code, uniqueness: { conditions: -> { where(redeemed_at: nil, redeemable: true) } }
+  validates :purchaser_id, presence: { if: proc { |gc| gc.redeemable? } }
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
-  scope :by_redemption_code, -> (redemption_code) { where(redemption_code: redemption_code) }
+  scope :by_redemption_code, ->(redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
 
   self.whitelisted_ransackable_associations = %w[line_item order]
@@ -33,7 +35,8 @@ class Spree::VirtualGiftCard < Spree::Base
 
   def redeem(redeemer)
     return false if redeemed? || !redeemable?
-    create_store_credit!({
+
+    create_store_credit!(
       amount: amount,
       currency: currency,
       memo: memo,
@@ -41,16 +44,16 @@ class Spree::VirtualGiftCard < Spree::Base
       created_by: redeemer,
       action_originator: self,
       category: store_credit_category,
-    })
-    self.update_attributes( redeemed_at: Time.now, redeemer: redeemer )
+    )
+    update( redeemed_at: Time.zone.now, redeemer: redeemer )
   end
 
   def make_redeemable!(purchaser:, inventory_unit:)
-    update_attributes!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (self.redemption_code || generate_unique_redemption_code))
+    update!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (redemption_code || generate_unique_redemption_code))
   end
 
   def deactivate
-    update_attributes(redeemable: false, deactivated_at: Time.now) &&
+    update(redeemable: false, deactivated_at: Time.zone.now) &&
       cancel_and_reimburse_inventory_unit
   end
 
@@ -59,7 +62,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def memo
-    "Gift Card ##{self.redemption_code}"
+    "Gift Card ##{redemption_code}"
   end
 
   def details
@@ -76,7 +79,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def formatted_redemption_code
-    redemption_code.present? ? redemption_code.scan(/.{4}/).join('-') : ""
+    redemption_code.present? ? redemption_code.scan(/.{4}/).join('-') : ''
   end
 
   def formatted_amount
@@ -84,23 +87,23 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def formatted_send_email_at
-    send_email_at.strftime("%-m/%-d/%y") if send_email_at
+    send_email_at&.strftime('%-m/%-d/%y')
   end
 
   def formatted_sent_at
-    sent_at.strftime("%-m/%-d/%y") if sent_at
+    sent_at&.strftime('%-m/%-d/%y')
   end
 
   def formatted_created_at
-    created_at.localtime.strftime("%F %I:%M%p")
+    created_at.localtime.strftime('%F %I:%M%p')
   end
 
   def formatted_redeemed_at
-    redeemed_at.localtime.strftime("%F %I:%M%p") if redeemed_at
+    redeemed_at&.localtime&.strftime('%F %I:%M%p')
   end
 
   def formatted_deactivated_at
-    deactivated_at.localtime.strftime("%F %I:%M%p") if deactivated_at
+    deactivated_at&.localtime&.strftime('%F %I:%M%p')
   end
 
   def store_credit_category
@@ -113,7 +116,7 @@ class Spree::VirtualGiftCard < Spree::Base
 
   def send_email
     Spree::GiftCardMailer.gift_card_email(self).deliver_later
-    update_attributes!(sent_at: DateTime.now)
+    update!(sent_at: DateTime.now)
   end
 
   private

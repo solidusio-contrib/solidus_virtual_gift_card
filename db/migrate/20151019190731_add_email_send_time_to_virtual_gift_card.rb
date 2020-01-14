@@ -1,4 +1,6 @@
-class AddEmailSendTimeToVirtualGiftCard < ActiveRecord::Migration
+# frozen_string_literal: true
+
+class AddEmailSendTimeToVirtualGiftCard < SolidusSupport::Migration[4.2]
   def change
     add_column :spree_virtual_gift_cards, :send_email_at, :date
     add_column :spree_virtual_gift_cards, :sent_at, :datetime

@@ -1,6 +1,6 @@
 <fieldset class="no-border-bottom">
   <legend align="center" data-hook="gift-card">
-    <%= Spree.t(:gift_cards_details) %>
+    <%= I18n.t('spree.gift_cards_details') %>
   </legend>
 </fieldset>
 
@@ -15,13 +15,13 @@
   </colgroup>
 
   <thead>
-    <th><%= Spree.t(:recipient_email) %></th>
-    <th><%= Spree.t(:recipient_name) %></th>
-    <th><%= Spree.t(:purchaser_name) %></th>
-    <th><%= Spree.t(:gift_message) %></th>
-    <th><%= Spree.t(:send_email_at) %></th>
+    <th><%= I18n.t('spree.recipient_email') %></th>
+    <th><%= I18n.t('spree.recipient_name') %></th>
+    <th><%= I18n.t('spree.purchaser_name') %></th>
+    <th><%= I18n.t('spree.gift_message') %></th>
+    <th><%= I18n.t('spree.send_email_at') %></th>
   </thead>
-  
+
 
   <tbody>
     <% @order.line_items.flat_map(&:gift_cards).each do |gift_card| %>
@@ -42,7 +42,7 @@
           <%= gift_card.formatted_send_email_at || "Immediately" %>
         </td>
         <td class="actions">
-          <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => Spree.t('actions.edit') %>
+          <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => I18n.t('spree.actions.edit') %>
         </td>
       </tr>
     <% end %>

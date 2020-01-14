@@ -1,18 +1,30 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
 
 branch = ENV.fetch('SOLIDUS_BRANCH', 'master')
-gem "solidus", github: "solidusio/solidus", branch: branch
-gem "solidus_auth_devise"
+gem 'solidus', github: 'solidusio/solidus', branch: branch
+gem 'solidus_auth_devise'
 
-if branch == 'master' || branch >= "v2.0"
-  gem "rails-controller-testing", group: :test
+# Needed to help Bundler figure out how to resolve dependencies,
+# otherwise it takes forever to resolve them
+if branch == 'master' || Gem::Version.new(branch[1..-1]) >= Gem::Version.new('2.10.0')
+  gem 'rails', '~> 6.0'
+else
+  gem 'rails', '~> 5.2'
 end
 
-gem 'pg'
-gem 'mysql2'
+case ENV['DB']
+when 'postgresql'
+  gem 'pg'
+when 'mysql'
+  gem 'mysql2'
+else
+  gem 'sqlite3'
+end
 
-group :development, :test do
-  gem "pry-rails"
+group :test do
+  gem 'rails-controller-testing'
 end
 
 gemspec
