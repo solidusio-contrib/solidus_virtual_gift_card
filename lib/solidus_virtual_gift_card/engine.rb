@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-module SpreeVirtualGiftCard
-  class Engine < Rails::Engine
-    require 'solidus_core'
+require 'spree/core'
 
-    isolate_namespace Spree
+module SolidusVirtualGiftCard
+  class Engine < Rails::Engine
+    include SolidusSupport::EngineExtensions::Decorators
+
+    isolate_namespace ::Spree
     engine_name 'solidus_virtual_gift_card'
 
     config.generators do |g|
