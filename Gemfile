@@ -27,4 +27,6 @@ group :test do
   gem 'rails-controller-testing'
 end
 
+gem 'solidus_dev_support', github: 'solidusio-contrib/solidus_dev_support'
+
 gemspec
