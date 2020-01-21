@@ -6,13 +6,16 @@ module SolidusVirtualGiftCard
       class_option :auto_run_migrations, type: :boolean, default: false
 
       def add_javascripts
-        append_file 'vendor/assets/javascripts/spree/backend/all.js', "//= require spree/backend/solidus_virtual_gift_card\n"
+        append_file(
+          'vendor/assets/javascripts/spree/backend/all.js',
+          "//= require spree/backend/solidus_virtual_gift_card\n"
+        )
       end
 
       def include_seed_data
         append_file 'db/seeds.rb', <<~SEEDS
           \n
-          SpreeVirtualGiftCard::Engine.load_seed if defined?(SpreeVirtualGiftCard::Engine)
+          SolidusVirtualGiftCard::Engine.load_seed if defined?(SolidusVirtualGiftCard::Engine)
         SEEDS
       end
 
@@ -21,7 +24,9 @@ module SolidusVirtualGiftCard
       end
 
       def run_migrations
-        run_migrations = options[:auto_run_migrations] || ['', 'y', 'Y'].include?(ask('Would you like to run the migrations now? [Y/n]'))
+        run_migrations = options[:auto_run_migrations] || ['', 'y', 'Y'].include?(
+          ask('Would you like to run the migrations now? [Y/n]')
+        )
         if run_migrations
           run 'bundle exec rake db:migrate'
         else

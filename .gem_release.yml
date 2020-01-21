@@ -1,0 +1,5 @@
+bump:
+  recurse: false
+  file: 'lib/solidus_virtual_gift_card/version.rb'
+  message: Bump SolidusVirtualGiftCard to %{version}
+  tag: true
