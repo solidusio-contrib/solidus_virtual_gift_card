@@ -49,5 +49,5 @@ When testing your application's integration with this extension you may use its
 factories. Simply add this require statement to your spec_helper:
 
 ```ruby
-require "spree_virtual_gift_card/factories"
+require "solidus_virtual_gift_card/factories"
 ```
