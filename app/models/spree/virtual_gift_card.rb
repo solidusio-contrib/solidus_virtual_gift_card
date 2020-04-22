@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Spree::VirtualGiftCard < Spree::Base
-  include ActionView::Helpers::NumberHelper
+  include ActiveSupport::NumberHelper
 
   belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
   belongs_to :purchaser, class_name: 'Spree::User', optional: true
