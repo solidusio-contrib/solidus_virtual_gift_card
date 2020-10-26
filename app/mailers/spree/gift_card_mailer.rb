@@ -7,7 +7,7 @@ class Spree::GiftCardMailer < Spree::BaseMailer
 
     store = @order.store
     send_to_address = @gift_card.recipient_email.presence || @order.email
-    subject = "#{store} #{I18n.t('spree.gift_card_mailer.gift_card_email.subject')}"
+    subject = "#{store.name} #{I18n.t('spree.gift_card_mailer.gift_card_email.subject')}"
 
     mail(to: send_to_address, from: from_address(store), subject: subject)
   end
