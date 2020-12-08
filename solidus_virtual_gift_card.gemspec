@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.author   = 'Solidus Team'
   s.email    = 'contact@solidus.io'
-  s.homepage = 'https://solidus.io'
+  s.homepage = 'https://github.com/solidusio-contrib/solidus_virtual_gift_card'
   s.license  = 'BSD-3-Clause'
 
   s.files = Dir.chdir(File.expand_path(__dir__)) do
