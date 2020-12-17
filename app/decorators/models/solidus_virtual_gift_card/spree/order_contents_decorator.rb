@@ -18,10 +18,9 @@ module SolidusVirtualGiftCard
       def update_cart(params)
         update_success = super(params)
 
-        if update_success && params[:line_items_attributes]
-          line_item = ::Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
-          new_quantity = params[:line_items_attributes][:quantity].to_i
-          update_gift_cards(line_item, new_quantity)
+        if update_success && params
+          card_line_items = order.line_items.select { |li| li.gift_card? }
+          card_line_items.each { |line_item| update_gift_cards(line_item) }
         end
 
         update_success
@@ -52,14 +51,13 @@ module SolidusVirtualGiftCard
         end
       end
 
-      def update_gift_cards(line_item, new_quantity)
-        if line_item&.gift_card?
-          gift_card_count = line_item.gift_cards.count
-          if new_quantity > gift_card_count
-            create_gift_cards(line_item, new_quantity - gift_card_count)
-          elsif new_quantity < line_item.gift_cards.count
-            remove_gift_cards(line_item, gift_card_count - new_quantity)
-          end
+      def update_gift_cards(line_item)
+        new_quantity = line_item.quantity
+        gift_card_count = line_item.gift_cards.count
+        if new_quantity > gift_card_count
+          create_gift_cards(line_item, new_quantity - gift_card_count)
+        elsif new_quantity < line_item.gift_cards.count
+          remove_gift_cards(line_item, gift_card_count - new_quantity)
         end
       end
 

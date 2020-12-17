@@ -233,7 +233,9 @@ describe Spree::OrderContents do
 
       let(:update_params) do
         {
-          line_items_attributes: { id: @line_item.id, quantity: quantity, options: {} }
+          line_items_attributes: {
+            '0' => { id: @line_item.id, quantity: quantity, options: {} }
+          }
         }
       end
 
