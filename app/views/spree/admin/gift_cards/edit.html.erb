@@ -1,14 +1,14 @@
 <script async='true'>GiftCards.setAdminDatepicker()</script>
 
 <% content_for :page_title do %>
-  <%= Spree.t("admin.gift_cards.editing_gift_card") %>
+  <%= I18n.t("spree.admin.gift_cards.editing_gift_card") %>
 <% end %>
 
 <%= render :partial => 'spree/admin/shared/order_tabs', :locals => { :current => '' } %>
 
 <%= form_for @gift_card, url: admin_order_gift_card_path(@order, @gift_card) do |f| %>
   <fieldset>
-    <legend align="center"><%= Spree.t("admin.gift_cards.gift_card_details") %></legend>
+    <legend align="center"><%= I18n.t("spree.admin.gift_cards.gift_card_details") %></legend>
     <div class="row">
       <label>Amount:</label>
       <%= @gift_card.formatted_amount %>

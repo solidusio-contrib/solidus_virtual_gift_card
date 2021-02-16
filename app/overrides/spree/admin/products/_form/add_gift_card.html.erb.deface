@@ -1,8 +1,8 @@
 <!-- insert_bottom '[data-hook="admin_product_form_right"]' -->
 <div class="field">
   <%= f.check_box(:gift_card) %>
-  <%= f.label :gift_card, Spree.t("admin.gift_cards.gift_card") %>
+  <%= f.label :gift_card, I18n.t("spree.admin.gift_cards.gift_card") %>
   <span class="info">
-    <%= Spree.t("admin.gift_cards.convert_product_label") %>
+    <%= I18n.t("spree.admin.gift_cards.convert_product_label") %>
   </span>
 </div>
