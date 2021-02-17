@@ -83,7 +83,7 @@
 
 <% if @gift_card.can_deactivate? && can?(:deactivate, @gift_card) %>
   <div class="form-buttons filter-actions actions gift-card-actions" data-hook="buttons">
-      <%= button_link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), :icon => 'email', :method => 'put', :data => { :confirm => "Any changes that have not been updated will not send" } %>
-      <%= button_link_to "Deactivate", deactivate_admin_order_gift_card_path(@order, @gift_card), :icon => 'ban', :method => 'put', :data => { :confirm => "Are you sure you want to deactivate the gift card?" } %>
+    <%= link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), method: :put, data: { confirm: "Any changes that have not been updated will not send" }, class: 'button'  %>
+    <%= link_to "Deactivate", deactivate_admin_order_gift_card_path(@order, @gift_card), method: :put, data: { confirm: "Are you sure you want to deactivate the gift card?" }, class: 'button'  %>
   </div>
 <% end %>
