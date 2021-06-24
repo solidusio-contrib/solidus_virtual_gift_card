@@ -1,14 +1,14 @@
 <script async='true'>GiftCards.setAdminDatepicker()</script>
 
 <% content_for :page_title do %>
-  <%= Spree.t("admin.gift_cards.editing_gift_card") %>
+  <%= I18n.t("spree.admin.gift_cards.editing_gift_card") %>
 <% end %>
 
 <%= render :partial => 'spree/admin/shared/order_tabs', :locals => { :current => '' } %>
 
 <%= form_for @gift_card, url: admin_order_gift_card_path(@order, @gift_card) do |f| %>
   <fieldset>
-    <legend align="center"><%= Spree.t("admin.gift_cards.gift_card_details") %></legend>
+    <legend align="center"><%= I18n.t("spree.admin.gift_cards.gift_card_details") %></legend>
     <div class="row">
       <label>Amount:</label>
       <%= @gift_card.formatted_amount %>
@@ -83,7 +83,7 @@
 
 <% if @gift_card.can_deactivate? && can?(:deactivate, @gift_card) %>
   <div class="form-buttons filter-actions actions gift-card-actions" data-hook="buttons">
-      <%= button_link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), :icon => 'email', :method => 'put', :data => { :confirm => "Any changes that have not been updated will not send" } %>
-      <%= button_link_to "Deactivate", deactivate_admin_order_gift_card_path(@order, @gift_card), :icon => 'ban', :method => 'put', :data => { :confirm => "Are you sure you want to deactivate the gift card?" } %>
+    <%= link_to "Send email now", send_email_admin_order_gift_card_path(@order, @gift_card), method: :put, data: { confirm: "Any changes that have not been updated will not send" }, class: 'button'  %>
+    <%= link_to "Deactivate", deactivate_admin_order_gift_card_path(@order, @gift_card), method: :put, data: { confirm: "Are you sure you want to deactivate the gift card?" }, class: 'button'  %>
   </div>
 <% end %>

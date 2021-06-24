@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.author   = 'Solidus Team'
   s.email    = 'contact@solidus.io'
-  s.homepage = 'https://solidus.io'
+  s.homepage = 'https://github.com/solidusio-contrib/solidus_virtual_gift_card'
   s.license  = 'BSD-3-Clause'
 
   s.files = Dir.chdir(File.expand_path(__dir__)) do
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   end
 
   s.add_dependency 'deface'
-  s.add_dependency 'solidus_core', ['>= 2.0.0', '< 3']
+  s.add_dependency 'solidus_core', ['>= 2.0.0', '< 4']
   s.add_dependency 'solidus_support', '~> 0.5'
 
   s.add_development_dependency 'solidus_dev_support'

@@ -124,7 +124,7 @@ class Spree::VirtualGiftCard < Spree::Base
   def cancel_and_reimburse_inventory_unit
     cancellation = Spree::OrderCancellations.new(line_item.order)
     cancellation.cancel_unit(inventory_unit)
-    !!cancellation.reimburse_units([inventory_unit])
+    !!cancellation.reimburse_units([inventory_unit], created_by: purchaser)
   end
 
   def generate_unique_redemption_code

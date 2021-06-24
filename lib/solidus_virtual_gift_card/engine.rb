@@ -4,7 +4,7 @@ require 'spree/core'
 
 module SolidusVirtualGiftCard
   class Engine < Rails::Engine
-    include SolidusSupport::EngineExtensions::Decorators
+    include SolidusSupport::EngineExtensions
 
     isolate_namespace ::Spree
     engine_name 'solidus_virtual_gift_card'
