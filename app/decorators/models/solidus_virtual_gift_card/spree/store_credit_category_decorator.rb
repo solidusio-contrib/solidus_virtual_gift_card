@@ -3,7 +3,7 @@
 module SolidusVirtualGiftCard
   module Spree
     module StoreCreditCategoryDecorator
-      GIFT_CARD_CATEGORY_NAME = 'Gift Card'
+      GIFT_CARD_CATEGORY_NAME ||= 'Gift Card'
 
       def self.prepended(base)
         base.non_expiring_credit_types |= [GIFT_CARD_CATEGORY_NAME]
