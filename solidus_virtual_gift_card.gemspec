@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.summary     = "Virtual gift card for purchase, drops into the user's account as store credit"
   s.description = s.summary
 
-  s.required_ruby_version = '~> 2.4'
+  s.required_ruby_version = '>= 2.4.0'
 
   s.author   = 'Solidus Team'
   s.email    = 'contact@solidus.io'
@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   end
 
   s.add_dependency 'deface'
+  s.add_dependency 'coffee-rails'
   s.add_dependency 'solidus_core', ['>= 2.0.0', '< 4']
   s.add_dependency 'solidus_support', '~> 0.5'
 
