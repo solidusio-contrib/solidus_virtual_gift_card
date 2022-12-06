@@ -36,16 +36,19 @@ class Spree::VirtualGiftCard < Spree::Base
   def redeem(redeemer)
     return false if redeemed? || !redeemable?
 
-    create_store_credit!(
-      amount: amount,
-      currency: currency,
-      memo: memo,
-      user: redeemer,
-      created_by: redeemer,
-      action_originator: self,
-      category: store_credit_category,
-    )
-    update( redeemed_at: Time.zone.now, redeemer: redeemer )
+    ActiveRecord::Base.transaction do
+      create_store_credit!(
+        amount: amount,
+        currency: currency,
+        memo: memo,
+        user: redeemer,
+        created_by: redeemer,
+        action_originator: self,
+        category: store_credit_category,
+      )
+
+      update( redeemed_at: Time.zone.now, redeemer: redeemer )
+    end
   end
 
   def make_redeemable!(purchaser:, inventory_unit:)
