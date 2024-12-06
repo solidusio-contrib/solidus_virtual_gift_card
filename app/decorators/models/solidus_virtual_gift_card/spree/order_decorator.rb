@@ -22,7 +22,7 @@ module SolidusVirtualGiftCard
         end
       end
 
-      def finalize!
+      def complete!
         super
         inventory_units = self.inventory_units
         gift_cards.each_with_index do |gift_card, index|
