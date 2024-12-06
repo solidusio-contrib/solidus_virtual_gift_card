@@ -4,8 +4,8 @@ class Spree::VirtualGiftCard < Spree::Base
   include ActiveSupport::NumberHelper
 
   belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
-  belongs_to :purchaser, class_name: 'Spree::User', optional: true
-  belongs_to :redeemer, class_name: 'Spree::User', optional: true
+  belongs_to :purchaser, class_name: Spree::UserClassHandle.new, optional: true
+  belongs_to :redeemer, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
   belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
   has_one :order, through: :line_item
