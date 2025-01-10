@@ -29,7 +29,9 @@ describe "Gift Cards", type: :feature do
     it "can edit recipient information and send email date" do
       visit spree.edit_admin_order_path(order)
 
-      click_link("Edit Details")
+      within('fieldset[data-hook="gift-card"]') do
+        click_link("Edit")
+      end
 
       fill_in "virtual_gift_card_recipient_name", with: new_recipient_name
       fill_in "virtual_gift_card_recipient_email", with: new_recipient_email

@@ -1,50 +1,51 @@
-<fieldset class="no-border-bottom">
-  <legend align="center" data-hook="gift-card">
+<fieldset class="no-border-bottom" data-hook="gift-card">
+  <legend align="center">
     <%= I18n.t('spree.admin.tab.gift_cards') %>
   </legend>
+
+  <table>
+    <colgroup>
+      <col style="width: 15%;" />
+      <col style="width: 15%;" />
+      <col style="width: 15%;" />
+      <col style="width: 30%;" />
+      <col style="width: 10%;" />
+      <col style="width: 15%;" />
+    </colgroup>
+
+    <thead>
+      <th><%= I18n.t('spree.admin.gift_cards.recipient_email') %></th>
+      <th><%= I18n.t('spree.admin.gift_cards.recipient_name') %></th>
+      <th><%= I18n.t('spree.admin.gift_cards.purchaser_name') %></th>
+      <th><%= I18n.t('spree.admin.gift_cards.gift_message') %></th>
+      <th><%= I18n.t('spree.admin.gift_cards.send_email_at') %></th>
+    </thead>
+
+
+    <tbody>
+      <% @order.line_items.flat_map(&:gift_cards).each do |gift_card| %>
+        <tr>
+          <td>
+            <%= gift_card.recipient_email || "n/a" %>
+          </td>
+          <td>
+            <%= gift_card.recipient_name || "n/a" %>
+          </td>
+          <td>
+            <%= gift_card.purchaser_name || "n/a" %>
+          </td>
+          <td>
+            <%= gift_card.gift_message || "n/a" %>
+          </td>
+          <td>
+            <%= gift_card.formatted_send_email_at || "Immediately" %>
+          </td>
+          <td class="actions">
+            <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => I18n.t('spree.actions.edit') %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </fieldset>
 
-<table>
-  <colgroup>
-    <col style="width: 15%;" />
-    <col style="width: 15%;" />
-    <col style="width: 15%;" />
-    <col style="width: 30%;" />
-    <col style="width: 10%;" />
-    <col style="width: 15%;" />
-  </colgroup>
-
-  <thead>
-    <th><%= I18n.t('spree.admin.gift_cards.recipient_email') %></th>
-    <th><%= I18n.t('spree.admin.gift_cards.recipient_name') %></th>
-    <th><%= I18n.t('spree.admin.gift_cards.purchaser_name') %></th>
-    <th><%= I18n.t('spree.admin.gift_cards.gift_message') %></th>
-    <th><%= I18n.t('spree.admin.gift_cards.send_email_at') %></th>
-  </thead>
-
-
-  <tbody>
-    <% @order.line_items.flat_map(&:gift_cards).each do |gift_card| %>
-      <tr>
-        <td>
-          <%= gift_card.recipient_email || "n/a" %>
-        </td>
-        <td>
-          <%= gift_card.recipient_name || "n/a" %>
-        </td>
-        <td>
-          <%= gift_card.purchaser_name || "n/a" %>
-        </td>
-        <td>
-          <%= gift_card.gift_message || "n/a" %>
-        </td>
-        <td>
-          <%= gift_card.formatted_send_email_at || "Immediately" %>
-        </td>
-        <td class="actions">
-          <%= link_to '', edit_admin_order_gift_card_path(@order, gift_card), :class => 'fa fa-edit no-text with-tip', :title => I18n.t('spree.actions.edit') %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
