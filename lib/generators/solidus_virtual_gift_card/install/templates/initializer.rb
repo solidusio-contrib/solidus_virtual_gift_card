@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 SolidusVirtualGiftCard.configure do |config|
-  # TODO: Remember to change this with the actual preferences you have implemented!
-  # config.sample_preference = 'sample_value'
+  # Enable or disable sending gift card email notifications
+  # Set to `true` to allow emails to be sent, or `false` to disable them
+  config.send_gift_card_emails = true
 end
