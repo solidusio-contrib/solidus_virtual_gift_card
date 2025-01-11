@@ -29,19 +29,19 @@ describe Spree::OrderContents do
     subject { order_contents.add(variant, quantity, options) }
 
     it 'creates a line item' do
-      expect { subject }.to change { Spree::LineItem.count }.by(1)
+      expect { subject }.to change(Spree::LineItem, :count).by(1)
     end
 
     context 'with a gift card product' do
       before { variant.product.update(gift_card: true) }
 
       it 'creates a line item' do
-        expect { subject }.to change { Spree::LineItem.count }.by(1)
+        expect { subject }.to change(Spree::LineItem, :count).by(1)
       end
 
       context 'with a single gift card' do
         it 'creates a gift card' do
-          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(1)
+          expect { subject }.to change(Spree::VirtualGiftCard, :count).by(1)
           gift_card = Spree::VirtualGiftCard.last
           expect(gift_card.recipient_name).to eq(recipient_name)
           expect(gift_card.recipient_email).to eq(recipient_email)
@@ -75,7 +75,7 @@ describe Spree::OrderContents do
         let(:quantity) { 2 }
 
         it 'creates two gift cards' do
-          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
+          expect { subject }.to change(Spree::VirtualGiftCard, :count).by(2)
         end
       end
 
@@ -122,7 +122,7 @@ describe Spree::OrderContents do
 
     context 'with a non gift card product' do
       it 'does not create a gift card' do
-        expect { subject }.not_to change { Spree::VirtualGiftCard.count }
+        expect { subject }.not_to change(Spree::VirtualGiftCard, :count)
       end
     end
   end
@@ -134,7 +134,7 @@ describe Spree::OrderContents do
       before { order_contents.add(variant, quantity, options) }
 
       it 'deletes a line item' do
-        expect { subject }.to change { Spree::LineItem.count }.by(-1)
+        expect { subject }.to change(Spree::LineItem, :count).by(-1)
       end
     end
 
@@ -149,11 +149,11 @@ describe Spree::OrderContents do
         end
 
         it 'deletes a line item' do
-          expect { subject }.to change { Spree::LineItem.count }.by(-1)
+          expect { subject }.to change(Spree::LineItem, :count).by(-1)
         end
 
         it 'deletes a gift card' do
-          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
+          expect { subject }.to change(Spree::VirtualGiftCard, :count).by(-1)
         end
       end
 
@@ -165,7 +165,7 @@ describe Spree::OrderContents do
         end
 
         it 'deletes two gift cards' do
-          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-2)
+          expect { subject }.to change(Spree::VirtualGiftCard, :count).by(-2)
         end
       end
 
@@ -219,11 +219,11 @@ describe Spree::OrderContents do
         end
 
         it 'removes the line item with the correct variant' do
-          expect { subject }.to change { Spree::LineItem.count }.by(-1)
+          expect { subject }.to change(Spree::LineItem, :count).by(-1)
         end
 
         it 'removes the gift card' do
-          expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
+          expect { subject }.to change(Spree::VirtualGiftCard, :count).by(-1)
         end
       end
     end
@@ -247,7 +247,7 @@ describe Spree::OrderContents do
           let(:quantity) { '4' }
 
           it 'creates new gift cards' do
-            expect { subject }.to change { Spree::VirtualGiftCard.count }.by(2)
+            expect { subject }.to change(Spree::VirtualGiftCard, :count).by(2)
           end
         end
 
@@ -256,7 +256,7 @@ describe Spree::OrderContents do
             let(:quantity) { '1' }
 
             it 'destroys gift cards' do
-              expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-1)
+              expect { subject }.to change(Spree::VirtualGiftCard, :count).by(-1)
             end
           end
 
@@ -264,7 +264,7 @@ describe Spree::OrderContents do
             let(:quantity) { '0' }
 
             it 'destroys gift cards' do
-              expect { subject }.to change { Spree::VirtualGiftCard.count }.by(-2)
+              expect { subject }.to change(Spree::VirtualGiftCard, :count).by(-2)
             end
           end
         end

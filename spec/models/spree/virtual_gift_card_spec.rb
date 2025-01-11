@@ -90,7 +90,7 @@ describe Spree::VirtualGiftCard do
     end
 
     it 'creates a reimbursement' do
-      expect { subject }.to change { Spree::Reimbursement.count }.by(1)
+      expect { subject }.to change(Spree::Reimbursement, :count).by(1)
     end
 
     it 'returns true' do
@@ -304,7 +304,7 @@ describe Spree::VirtualGiftCard do
       end
 
       it 'sets the admin as the store credit event originator' do
-        expect { subject }.to change { Spree::StoreCreditEvent.count }.by(1)
+        expect { subject }.to change(Spree::StoreCreditEvent, :count).by(1)
         expect(Spree::StoreCreditEvent.last.originator).to eq gift_card
       end
     end
