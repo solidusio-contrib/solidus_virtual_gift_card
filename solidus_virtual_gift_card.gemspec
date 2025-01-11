@@ -30,8 +30,8 @@ Gem::Specification.new do |s|
     s.metadata["source_code_uri"] = s.homepage if s.homepage
   end
 
-  s.add_dependency 'deface'
   s.add_dependency 'coffee-rails'
+  s.add_dependency 'deface'
   s.add_dependency 'solidus_core', ['>= 2.0.0', '< 5']
   s.add_dependency 'solidus_support', '~> 0.5'
 

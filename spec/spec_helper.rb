@@ -13,7 +13,7 @@ require 'solidus_dev_support/rspec/feature_helper'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
+Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].sort.each { |f| require f }
 
 # require 'solidus_virtual_gift_card/testing_support/factories'
 SolidusDevSupport::TestingSupport::Factories.load_for(SolidusVirtualGiftCard::Engine)
