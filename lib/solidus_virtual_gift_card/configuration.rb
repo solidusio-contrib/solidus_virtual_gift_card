@@ -2,9 +2,11 @@
 
 module SolidusVirtualGiftCard
   class Configuration
-    # Define here the settings for this extension, e.g.:
-    #
-    # attr_accessor :my_setting
+    attr_accessor :send_gift_card_emails
+
+    def initialize(send_gift_card_emails: true)
+      @send_gift_card_emails = send_gift_card_emails
+    end
   end
 
   class << self
@@ -12,10 +14,8 @@ module SolidusVirtualGiftCard
       @configuration ||= Configuration.new
     end
 
-    alias config configuration
-
     def configure
-      yield configuration
+      yield(configuration)
     end
   end
 end
