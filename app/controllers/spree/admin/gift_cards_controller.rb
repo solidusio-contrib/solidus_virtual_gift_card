@@ -50,7 +50,7 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
 
   def send_email
     @gift_card.send_email
-    redirect_to :back
+    redirect_back(fallback_location: admin_orders_path)
   end
 
   private
@@ -74,7 +74,7 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   end
 
   def load_user
-    @user = Spree::User.find(params[:user_id])
+    @user = Spree.user_class.find(params[:user_id])
   end
 
   def gift_card_params

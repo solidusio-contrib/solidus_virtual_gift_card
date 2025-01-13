@@ -22,7 +22,7 @@ module SolidusVirtualGiftCard
         end
       end
 
-      def finalize!
+      def finalize
         super
         inventory_units = self.inventory_units
         gift_cards.each_with_index do |gift_card, index|
@@ -31,6 +31,8 @@ module SolidusVirtualGiftCard
       end
 
       def send_gift_card_emails
+        return unless SolidusVirtualGiftCard.configuration.send_gift_card_emails
+
         gift_cards.each do |gift_card|
           if gift_card.send_email_at.nil? || gift_card.send_email_at <= DateTime.now
             gift_card.send_email

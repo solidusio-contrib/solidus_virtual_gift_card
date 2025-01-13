@@ -18,6 +18,7 @@ en:
         redeem_gift_card: "Redeem Gift Card"
         redeemed_gift_card: "Redeemed Gift Card"
         redemption_code: "Redemption Code"
+        send_email_at: "Send Email At"
         errors:
           not_found: "Gift card was not found"
           please_try_again: "Please try again"

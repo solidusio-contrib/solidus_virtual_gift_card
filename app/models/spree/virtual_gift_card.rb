@@ -4,8 +4,8 @@ class Spree::VirtualGiftCard < Spree::Base
   include ActiveSupport::NumberHelper
 
   belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
-  belongs_to :purchaser, class_name: 'Spree::User', optional: true
-  belongs_to :redeemer, class_name: 'Spree::User', optional: true
+  belongs_to :purchaser, class_name: Spree::UserClassHandle.new, optional: true
+  belongs_to :redeemer, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
   belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
   has_one :order, through: :line_item
@@ -18,8 +18,13 @@ class Spree::VirtualGiftCard < Spree::Base
   scope :by_redemption_code, ->(redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
 
-  self.whitelisted_ransackable_associations = %w[line_item order]
-  self.whitelisted_ransackable_attributes = %w[redemption_code recipient_email sent_at send_email_at]
+  def self.ransackable_associations(_auth_object = nil)
+    %w[line_item order]
+  end
+
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[redemption_code recipient_email sent_at send_email_at]
+  end
 
   ransacker :sent_at do
     Arel.sql('date(sent_at)')
@@ -49,7 +54,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def make_redeemable!(purchaser:, inventory_unit:)
-    update!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: (redemption_code || generate_unique_redemption_code))
+    update!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: redemption_code || generate_unique_redemption_code)
   end
 
   def deactivate
