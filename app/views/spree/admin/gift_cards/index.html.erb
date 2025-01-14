@@ -18,6 +18,7 @@
         <th class="align-center">Date Sent</th>
         <th class="align-center">Redeemed by</th>
         <th class="align-center">Redeemed at</th>
+        <th class="align-center"></th>
       </tr>
     </thead>
 
@@ -37,6 +38,9 @@
             <td class="align-center"></td>
             <td class="align-center"></td>
           <% end %>
+          <td class="actions" data-hook="admin_gift_card_index_row_actions">
+            <%= link_to_edit gift_card, url: edit_admin_gift_card_path(gift_card), no_text: true, class: 'edit' if can?(:edit, gift_card) %>
+          </td>
         </tr>
       <% end %>
     </tbody>

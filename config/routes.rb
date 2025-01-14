@@ -2,7 +2,7 @@
 
 Spree::Core::Engine.routes.draw do
   namespace :admin do
-    resources :gift_cards, only: [:index]
+    resources :gift_cards, only: [:index, :edit, :update]
 
     resources :users, only: [] do
       resources :gift_cards, only: [] do

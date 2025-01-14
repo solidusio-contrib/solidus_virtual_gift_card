@@ -25,6 +25,49 @@ en:
           unable_to_deactivate_gift_card: "Unable to deactivate gift card"
           unable_to_redeem_gift_card: "Unable to redeem gift card"
           unable_to_reimburse_gift_card: "Unable to reimburse gift card"
+        add: Add Gift Card
+        amount_authorized: Authorized
+        amount_credited: Credited
+        amount_used: Used
+        back_to_edit: Back to edit
+        back_to_store_credit_list: Gift card list
+        change_amount: Change amount
+        created_at: Issued On
+        created_by: Created By
+        credit_type: Type
+        current_balance: 'Current balance:'
+        edit: Editing gift card
+        edit_amount: Editing gift card amount
+        errors:
+          amount_authorized_exceeds_total_credit: " exceeds the available credit"
+          amount_used_cannot_be_greater: cannot be greater than the credited amount
+          amount_used_not_zero: is greater than zero. Can not delete gift card
+          cannot_be_modified: cannot be modified
+          cannot_change_used_store_credit: Gift Card that has been claimed cannot be changed
+          store_credit_reason_required: A reason for the change must be selected
+          update_reason_required: A reason for the change must be selected
+        history: Gift Card history
+        invalidate_store_credit: Invalidating gift card
+        invalidated: Invalidated
+        issued_on: Issued On
+        memo: Memo
+        new: New Gift card
+        no_store_credit_selected: No gift card was selected
+        payment_originator: 'Payment - Order #%{order_number}'
+        reason_for_updating: Reason for updating
+        refund_originator: 'Refund - Order #%{order_number}'
+        resource_name: Gift Card
+        select_amount_store_credit_reason: Select a reason for updating the amount
+        select_amount_update_reason: Select a reason for updating the amount
+        select_reason: Select a reason for this gift card
+        total_unused: Total unused
+        type_html_header: Credit Type
+        unable_to_create: Unable to create gift card
+        unable_to_delete: Unable to delete gift card
+        unable_to_invalidate: Unable to invalidate gift card
+        unable_to_update: Unable to update gift card
+        user_originator: User - %{email}
+        view: View gift card
       tab:
         gift_cards: "Gift Cards"
     gift_card_mailer:
@@ -34,3 +77,19 @@ en:
         gift_card_code: "Gift card code: %{code}"
         subject: "Your gift card code"
     listing_gift_cards: "Listing Gift Cards"
+    virtual_gift_card:
+      actions:
+        invalidate: Invalidate
+      credit_allocation_memo: This is a credit from gift card ID %{id}
+      currency_mismatch: Gift card currency does not match order currency
+      display_action:
+        adjustment: Adjustment
+        admin:
+          authorize: Authorized
+          eligible: Eligibility Verified
+          void: Voided
+        allocation: Added
+        capture: Used
+        credit: Credit
+        invalidate: Invalidated
+        void: Credit

@@ -6,6 +6,8 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   before_action :load_gift_card_by_id, only: [:edit, :update, :send_email, :deactivate]
   before_action :load_order, only: [:edit, :update, :deactivate]
 
+  helper Spree::Admin::VirtualGiftCardEventsHelper
+
   def index
     @search = Spree::VirtualGiftCard.purchased.ransack(params[:q])
     @gift_cards = @search.result.page(params[:page]).per(params[:per_page])
@@ -18,7 +20,8 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController
   def update
     if @gift_card.update(gift_card_params)
       flash[:success] = I18n.t('spree.admin.gift_cards.gift_card_updated')
-      redirect_to edit_admin_order_path(@order)
+      redirect_path = @order.present? ? edit_admin_order_path(@order) : edit_admin_gift_card_path(@gift_card)
+      redirect_to redirect_path
     else
       flash[:error] = @gift_card.errors.full_messages.join(', ')
       redirect_to :back

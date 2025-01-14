@@ -3,12 +3,24 @@
 class Spree::VirtualGiftCard < Spree::Base
   include ActiveSupport::NumberHelper
 
+  VOID_ACTION       = 'void'
+  CREDIT_ACTION     = 'credit'
+  CAPTURE_ACTION    = 'capture'
+  ELIGIBLE_ACTION   = 'eligible'
+  AUTHORIZE_ACTION  = 'authorize'
+  ALLOCATION_ACTION = 'allocation'
+  ADJUSTMENT_ACTION = 'adjustment'
+  INVALIDATE_ACTION = 'invalidate'
+
+  attr_accessor :action, :action_amount, :action_originator, :action_authorization_code
+
   belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
   belongs_to :purchaser, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :redeemer, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
   belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
   has_one :order, through: :line_item
+  has_many :events, class_name: 'Spree::VirtualGiftCardEvent', dependent: :destroy
 
   validates :amount, numericality: { greater_than: 0 }
   validates :redemption_code, uniqueness: { conditions: -> { where(redeemed_at: nil, redeemable: true) } }
@@ -17,6 +29,8 @@ class Spree::VirtualGiftCard < Spree::Base
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, ->(redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
+
+  after_save :store_event
 
   def self.ransackable_associations(_auth_object = nil)
     %w[line_item order]
@@ -124,7 +138,42 @@ class Spree::VirtualGiftCard < Spree::Base
     update!(sent_at: DateTime.now)
   end
 
+  def generate_authorization_code
+    [
+      id,
+      'GC',
+      Time.current.utc.strftime('%Y%m%d%H%M%S%6N'),
+      SecureRandom.uuid
+    ].join('-')
+  end
+
+  def amount_remaining
+    return 0.0.to_d if deactivated?
+    amount - amount_used - amount_authorized
+  end
+
+  def deactivated?
+    !!deactivated_at
+  end
+
   private
+
+  def store_event
+    return unless saved_change_to_amount? || saved_change_to_amount_used? || saved_change_to_amount_authorized? || [ELIGIBLE_ACTION, INVALIDATE_ACTION].include?(action)
+
+    event = if action
+      events.build(action:)
+    else
+      events.where(action: ALLOCATION_ACTION).first_or_initialize
+    end
+
+    event.update!({
+      amount: action_amount || amount,
+      authorization_code: action_authorization_code || event.authorization_code || generate_authorization_code,
+      amount_remaining:,
+      originator: action_originator
+    })
+  end
 
   def cancel_and_reimburse_inventory_unit
     cancellation = Spree::OrderCancellations.new(line_item.order)
