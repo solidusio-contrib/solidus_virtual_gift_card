@@ -156,6 +156,67 @@ class Spree::VirtualGiftCard < Spree::Base
     !!deactivated_at
   end
 
+  def authorize(amount, order_currency, options = {})
+    authorization_code = options[:action_authorization_code]
+    if authorization_code
+      if events.find_by(action: AUTHORIZE_ACTION, authorization_code:)
+        # Don't authorize again on capture
+        return true
+      end
+    else
+      authorization_code = generate_authorization_code
+    end
+
+    if validate_authorization(amount, order_currency)
+      update!({
+        action: AUTHORIZE_ACTION,
+        action_amount: amount,
+        action_originator: options[:action_originator],
+        action_authorization_code: authorization_code,
+
+        amount_authorized: amount_authorized + amount
+      })
+      authorization_code
+    else
+      false
+    end
+  end
+
+  def validate_authorization(amount, order_currency)
+    if amount_remaining.to_d < amount.to_d
+      errors.add(:base, I18n.t('spree.virtual_gift_card.insufficient_funds'))
+    elsif currency != order_currency
+      errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+    end
+    errors.blank?
+  end
+
+  def capture(amount, authorization_code, order_currency, options = {})
+    return false unless authorize(amount, order_currency, action_authorization_code: authorization_code)
+    auth_event = events.find_by!(action: AUTHORIZE_ACTION, authorization_code:)
+
+    if amount <= auth_event.amount
+      if currency != order_currency
+        errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+        false
+      else
+        update!({
+          action: CAPTURE_ACTION,
+          action_amount: amount,
+          action_originator: options[:action_originator],
+          action_authorization_code: authorization_code,
+
+          amount_used: amount_used + amount,
+          amount_authorized: amount_authorized - auth_event.amount
+        })
+        authorization_code
+      end
+    else
+      errors.add(:base, I18n.t('spree.virtual_gift_card.insufficient_authorized_amount'))
+      false
+    end
+  end
+
   private
 
   def store_event

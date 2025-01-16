@@ -22,6 +22,17 @@ module SolidusVirtualGiftCard
       end
     end
 
+    initializer "virtual_gift_card.add_static_preference", after: "spree.register.payment_methods" do |app|
+      app.config.spree.payment_methods << 'Spree::PaymentMethod::GiftCard'
+      app.config.to_prepare do
+        ::Spree::Config.static_model_preferences.add(
+          ::Spree::PaymentMethod::GiftCard,
+          'gift_card_payment_method',
+          {}
+        )
+      end
+    end
+
     config.to_prepare &method(:activate).to_proc
   end
 end

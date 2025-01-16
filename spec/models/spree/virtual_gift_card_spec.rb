@@ -335,4 +335,184 @@ describe Spree::VirtualGiftCard do
       expect { subject }.to change(gift_card, :sent_at)
     end
   end
+
+  describe "#authorize" do
+    let(:virtual_gift_card) { create(:virtual_gift_card, amount: 4) }
+
+    context "amount is valid" do
+      let(:virtual_gift_card) { create(:virtual_gift_card, amount: authorization_amount + added_authorization_amount, amount_authorized: authorization_amount) }
+
+      let(:authorization_amount)       { 1.0 }
+      let(:added_authorization_amount) { 3.0 }
+      let(:originator) { nil }
+
+      context "amount has not been authorized yet" do
+        before { virtual_gift_card.update(amount_authorized: authorization_amount) }
+
+        it "returns true" do
+          expect(virtual_gift_card.authorize(virtual_gift_card.amount - authorization_amount, virtual_gift_card.currency)).to be_truthy
+        end
+
+        it "adds the new amount to authorized amount" do
+          virtual_gift_card.authorize(added_authorization_amount, virtual_gift_card.currency)
+          expect(virtual_gift_card.reload.amount_authorized).to eq(authorization_amount + added_authorization_amount)
+        end
+
+        context "originator is present" do
+          let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
+
+          subject { virtual_gift_card.authorize(added_authorization_amount, virtual_gift_card.currency, action_originator: originator) }
+
+          it "records the originator" do
+            expect { subject }.to change { Spree::VirtualGiftCardEvent.count }.by(1)
+            expect(Spree::VirtualGiftCardEvent.last.originator).to eq originator
+          end
+        end
+      end
+
+      context "authorization has already happened" do
+        let!(:auth_event) { create(:virtual_gift_card_auth_event, virtual_gift_card:) }
+
+        before { virtual_gift_card.update(amount_authorized: virtual_gift_card.amount) }
+
+        it "returns true" do
+          expect(virtual_gift_card.authorize(virtual_gift_card.amount, virtual_gift_card.currency, action_authorization_code: auth_event.authorization_code)).to be true
+        end
+      end
+    end
+
+    context "amount is invalid" do
+      it "returns false" do
+        expect(virtual_gift_card.authorize(virtual_gift_card.amount * 2, virtual_gift_card.currency)).to be false
+      end
+    end
+  end
+
+  describe "#validate_authorization" do
+    let(:virtual_gift_card) { create(:virtual_gift_card) }
+
+    context "insufficient funds" do
+      subject { virtual_gift_card.validate_authorization(virtual_gift_card.amount * 2, virtual_gift_card.currency) }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error to the model" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Gift Card amount remaining is not sufficient")
+      end
+    end
+
+    context "currency mismatch" do
+      subject { virtual_gift_card.validate_authorization(virtual_gift_card.amount, "EUR") }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error to the model" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Gift Card currency does not match order currency")
+      end
+    end
+
+    context "valid authorization" do
+      subject { virtual_gift_card.validate_authorization(virtual_gift_card.amount, virtual_gift_card.currency) }
+
+      it "returns true" do
+        expect(subject).to be true
+      end
+    end
+
+    context 'troublesome floats' do
+      if Gem::Requirement.new("~> 3.0.0") === Gem::Version.new(BigDecimal::VERSION)
+        # BigDecimal 2.0.0> 8.21.to_d # => 0.821e1 (all good!)
+        # BigDecimal 3.0.0> 8.21.to_d # => 0.8210000000000001e1 (`8.21.to_d < 8.21` is `true`!!!)
+        # BigDecimal 3.1.4> 8.21.to_d # => 0.821e1 (all good!)
+        before { pending "https://github.com/rails/rails/issues/42098; https://github.com/ruby/bigdecimal/issues/192" }
+      end
+
+      let(:store_credit_attrs) { { amount: 8.21 } }
+
+      subject { virtual_gift_card.validate_authorization(store_credit_attrs[:amount], virtual_gift_card.currency) }
+
+      it { is_expected.to be_truthy }
+    end
+  end
+
+  describe "#capture" do
+    let(:virtual_gift_card) { create(:virtual_gift_card, amount: authorized_amount * 2, amount_authorized: authorized_amount) }
+    let(:authorized_amount) { 10.00 }
+    let(:auth_code)         { "23-GC-20140602164814476128" }
+
+    before do
+      @original_authed_amount = virtual_gift_card.amount_authorized
+      @auth_code = virtual_gift_card.authorize(authorized_amount, virtual_gift_card.currency)
+    end
+
+    context "insufficient funds" do
+      subject { virtual_gift_card.capture(authorized_amount * 2, @auth_code, virtual_gift_card.currency) }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error to the model" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Unable to capture more than authorized amount")
+      end
+
+      it "does not update the virtual gift card model" do
+        expect { subject }.to_not change { virtual_gift_card }
+      end
+    end
+
+    context "currency mismatch" do
+      subject { virtual_gift_card.capture(authorized_amount, @auth_code, "EUR") }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error to the model" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Gift Card currency does not match order currency")
+      end
+
+      it "does not update the virtual gift card model" do
+        expect { subject }.to_not change { virtual_gift_card }
+      end
+    end
+
+    context "valid capture" do
+      let(:remaining_authorized_amount) { 1 }
+      let(:originator) { nil }
+
+      subject { virtual_gift_card.capture(authorized_amount - remaining_authorized_amount, @auth_code, virtual_gift_card.currency, action_originator: originator) }
+
+      it "returns true" do
+        expect(subject).to be_truthy
+      end
+
+      it "updates the authorized amount to the difference between the virtual gift card total authed amount and the authorized amount for this event" do
+        subject
+        expect(virtual_gift_card.reload.amount_authorized).to eq(@original_authed_amount)
+      end
+
+      it "updates the used amount to the current used amount plus the captured amount" do
+        subject
+        expect(virtual_gift_card.reload.amount_used).to eq authorized_amount - remaining_authorized_amount
+      end
+
+      context "originator is present" do
+        let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
+
+        it "records the originator" do
+          expect { subject }.to change { Spree::VirtualGiftCardEvent.count }.by(1)
+          expect(Spree::VirtualGiftCardEvent.last.originator).to eq originator
+        end
+      end
+    end
+  end
 end

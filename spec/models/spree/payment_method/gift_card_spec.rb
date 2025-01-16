@@ -1,0 +1,157 @@
+require 'spec_helper'
+
+RSpec.describe Spree::PaymentMethod::GiftCard do
+  let(:order)           { create(:order) }
+  let(:payment)         { create(:payment, order:) }
+  let(:gateway_options) { payment.gateway_options }
+
+  context "#authorize" do
+    subject do
+      Spree::PaymentMethod::GiftCard.new.authorize(auth_amount, virtual_gift_card, gateway_options)
+    end
+
+    let(:auth_amount) { virtual_gift_card.amount_remaining * 100 }
+    let(:virtual_gift_card) { create(:virtual_gift_card) }
+    let(:gateway_options) { super().merge(originator:) }
+    let(:originator) { nil }
+
+    context 'without an invalid virtual gift card' do
+      let(:virtual_gift_card) { nil }
+      let(:auth_amount) { 10 }
+
+      it "declines an unknown store gift card" do
+        expect(subject.success?).to be false
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+      end
+    end
+
+    context 'with insuffient funds' do
+      let(:auth_amount) { (virtual_gift_card.amount_remaining * 100) + 1 }
+
+      it "declines a gift card" do
+        expect(subject.success?).to be false
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.insufficient_funds')
+      end
+    end
+
+    context 'when the currency does not match the order currency' do
+      let(:virtual_gift_card) { create(:virtual_gift_card, currency: 'AUD') }
+
+      it "declines the credit" do
+        expect(subject.success?).to be false
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.currency_mismatch')
+      end
+    end
+
+    context 'with a valid request' do
+      it "authorizes a valid gift card" do
+        expect(subject.success?).to be true
+        expect(subject.authorization).not_to be_nil
+      end
+
+      context 'with an originator' do
+        let(:originator) { double('originator') }
+
+        it 'passes the originator' do
+          expect_any_instance_of(Spree::VirtualGiftCard).to receive(:authorize)
+            .with(anything, anything, action_originator: originator)
+          subject
+        end
+      end
+    end
+  end
+
+  context "#capture" do
+    subject do
+      Spree::PaymentMethod::GiftCard.new.capture(capture_amount, auth_code, gateway_options)
+    end
+
+    let(:capture_amount) { 10_00 }
+    let(:auth_code) { auth_event.authorization_code }
+    let(:gateway_options) { super().merge(originator:) }
+
+    let(:authorized_amount) { capture_amount / 100.0 }
+    let(:auth_event) { create(:virtual_gift_card_auth_event, virtual_gift_card:, amount: authorized_amount) }
+    let(:virtual_gift_card) { create(:virtual_gift_card, amount_authorized: authorized_amount) }
+    let(:originator) { nil }
+
+    context 'with an invalid auth code' do
+      let(:auth_code) { -1 }
+
+      it "declines an unknown virtual gift card" do
+        expect(subject.success?).to be false
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+      end
+    end
+
+    context 'when unable to authorize the amount' do
+      let(:authorized_amount) { (capture_amount - 1) / 100 }
+
+      before do
+        allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(authorize: true)
+      end
+
+      it "declines a store credit" do
+        expect(subject.success?).to be false
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.insufficient_authorized_amount')
+      end
+    end
+
+    context 'when the currency does not match the order currency' do
+      let(:virtual_gift_card) { create(:virtual_gift_card, currency: 'AUD', amount_authorized: authorized_amount) }
+
+      it "declines the credit" do
+        expect(subject.success?).to be false
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.currency_mismatch')
+      end
+    end
+
+    context 'with a valid request' do
+      it "captures the gift card" do
+        expect(subject.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::CAPTURE_ACTION)
+        expect(subject.success?).to be true
+      end
+
+      context 'with an originator' do
+        let(:originator) { double('originator') }
+
+        it 'passes the originator' do
+          expect_any_instance_of(Spree::VirtualGiftCard).to receive(:capture)
+            .with(anything, anything, anything, action_originator: originator)
+          subject
+        end
+      end
+    end
+  end
+
+  context "#purchase" do
+    it "declines a purchase if it can't find a pending credit for the correct amount" do
+      amount = 100.0
+      virtual_gift_card = create(:virtual_gift_card)
+      auth_code = virtual_gift_card.generate_authorization_code
+      virtual_gift_card.events.create!(action: Spree::VirtualGiftCard::ELIGIBLE_ACTION,
+                                               amount:,
+                                               authorization_code: auth_code)
+      virtual_gift_card.events.create!(action: Spree::VirtualGiftCard::CAPTURE_ACTION,
+                                               amount:,
+                                               authorization_code: auth_code)
+
+      resp = subject.purchase(amount * 100.0, virtual_gift_card, gateway_options)
+      expect(resp.success?).to be false
+      expect(resp.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+    end
+
+    it "captures a purchase if it can find a pending credit for the correct amount" do
+      amount = 100.0
+      virtual_gift_card = create(:virtual_gift_card, amount: 150)
+      auth_code = virtual_gift_card.generate_authorization_code
+      virtual_gift_card.events.create!(action: Spree::VirtualGiftCard::ELIGIBLE_ACTION,
+                                               amount:,
+                                               authorization_code: auth_code)
+
+      resp = subject.purchase(amount * 100.0, virtual_gift_card, gateway_options)
+      expect(resp.success?).to be true
+      expect(resp.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::CAPTURE_ACTION)
+    end
+  end
+end
