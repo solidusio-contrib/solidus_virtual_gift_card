@@ -71,6 +71,30 @@ describe Spree::Order do
   end
 
   context "gift card" do
+    shared_examples "check total gift card from payments" do
+      context "with valid payments" do
+        let(:order) { payment.order }
+        let!(:payment) { create(:gift_card_payment) }
+        let!(:second_payment) { create(:gift_card_payment, order:) }
+
+        subject { order }
+
+        it "returns the sum of the payment amounts" do
+          expect(subject.total_applicable_gift_card).to eq(payment.amount + second_payment.amount)
+        end
+      end
+
+      context "without valid payments" do
+        let(:order) { create(:order) }
+
+        subject { order }
+
+        it "returns 0" do
+          expect(subject.total_applicable_gift_card).to be_zero
+        end
+      end
+    end
+
     describe "#add_gift_card_payments" do
       let(:order_total) { 500.00 }
 
@@ -170,18 +194,18 @@ describe Spree::Order do
         end
 
         context "there is a completed gift card payment" do
-          let!(:cc_payment) { create(:payment, order:, state: "completed", amount: 100) }
-
           it "successfully creates the gift card payments" do
+            create(:payment, order:, state: "completed", amount: 100)
+
             expect { subject }.to change { order.payments.count }.from(1).to(2)
             expect(order.errors).to be_empty
           end
         end
 
         context "there is a credit card payment" do
-          let!(:cc_payment) { create(:payment, order:, state: "checkout", amount: 100) }
-
           before do
+            create(:payment, order:, state: "checkout", amount: 100)
+
             subject
           end
 
@@ -236,5 +260,86 @@ describe Spree::Order do
       end
     end
 
+    describe "#covered_by_gift_card" do
+      let(:gift_card_codes) { [] }
+      let(:order) { create(:order_with_line_items, gift_card_codes: gift_card_codes) }
+
+      subject do
+        order.covered_by_gift_card
+      end
+
+      context "order doesn't have any associated gift card codes" do
+        it { is_expected.to eq(false) }
+      end
+
+      context "order has gift card codes" do
+        let(:gift_card_codes) { [virtual_gift_card.redemption_code] }
+
+        context "user has enough gift card amount to pay for the order" do
+          let!(:virtual_gift_card) { create(:redeemable_virtual_gift_card, amount: 1000) }
+
+          it { is_expected.to eq(true) }
+        end
+
+        context "user does not have enough gift card amount to pay for the order" do
+          let!(:virtual_gift_card) { create(:redeemable_virtual_gift_card, amount: 1) }
+
+          it { is_expected.to eq(false) }
+        end
+      end
+    end
+
+    describe "#total_applicable_gift_card" do
+      context "order is in the confirm state" do
+        before { order.update(state: 'confirm') }
+
+        include_examples "check total gift card from payments"
+      end
+
+      context "order is completed" do
+        before { order.update(state: 'complete') }
+
+        include_examples "check total gift card from payments"
+      end
+
+      context "order is in any state other than confirm or complete" do
+        context "the order has gift cards" do
+          let(:virtual_gift_card) { create(:redeemable_virtual_gift_card) }
+          let(:order) { create(:order, gift_card_codes: [virtual_gift_card.redemption_code]) }
+
+          subject { order }
+
+          context "the gift card amount is more than the order total" do
+            let(:order_total) { virtual_gift_card.amount - 1 }
+
+            before { order.update(total: order_total) }
+
+            it "returns the order total" do
+              expect(subject.total_applicable_gift_card).to eq order_total
+            end
+          end
+
+          context "the gift card is less than the order total" do
+            let(:order_total) { virtual_gift_card.amount * 10 }
+
+            before { order.update(total: order_total) }
+
+            it "returns the gift card amount" do
+              expect(subject.total_applicable_gift_card).to eq virtual_gift_card.amount
+            end
+          end
+        end
+
+        context "the order doesn't have gift card codes associated" do
+          let(:order) { create(:order) }
+
+          subject { order }
+
+          it "returns 0" do
+            expect(subject.total_applicable_gift_card).to be_zero
+          end
+        end
+      end
+    end
   end
 end

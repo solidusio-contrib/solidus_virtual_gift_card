@@ -52,6 +52,14 @@ module Spree
       true
     end
 
+    def partial_name
+      "gift_card"
+    end
+
+    def can_capture?(payment)
+      ['checkout', 'pending'].include?(payment.state)
+    end
+
     private
 
     def handle_action_call(store_credit, action, action_name, auth_code = nil)

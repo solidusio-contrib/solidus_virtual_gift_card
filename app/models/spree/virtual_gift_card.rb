@@ -191,6 +191,16 @@ class Spree::VirtualGiftCard < Spree::Base
     errors.blank?
   end
 
+  def actions
+    %w(capture void credit)
+  end
+
+  # @param payment [Spree::Payment] the payment we want to know if can be captured
+  # @return [Boolean] true when the payment is in the pending or checkout states
+  def can_capture?(payment)
+    payment.pending? || payment.checkout?
+  end
+
   def capture(amount, authorization_code, order_currency, options = {})
     return false unless authorize(amount, order_currency, action_authorization_code: authorization_code)
     auth_event = events.find_by!(action: AUTHORIZE_ACTION, authorization_code:)

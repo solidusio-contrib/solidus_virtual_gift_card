@@ -9,6 +9,7 @@ module SolidusVirtualGiftCard
           state_machine.before_transition to: :confirm, do: :add_gift_card_payments
 
           has_many :gift_cards, through: :line_items
+          has_many :valid_gift_card_payments, -> { gift_cards.valid }, inverse_of: :order, class_name: 'Spree::Payment', foreign_key: :order_id
 
           serialize :gift_card_codes, type: Array, coder: YAML
         end
@@ -92,6 +93,25 @@ module SolidusVirtualGiftCard
                                  .sort_by do |virtual_gift_card|
                                    gift_card_codes.index(virtual_gift_card.redemption_code)
                                  end
+      end
+
+      def covered_by_gift_card?
+        return false if matching_gift_cards.empty?
+
+        matching_gift_cards.sum(&:amount_remaining) >= total
+      end
+      alias_method :covered_by_gift_card, :covered_by_gift_card?
+
+      def order_total_after_gift_card
+        total - total_applicable_gift_card
+      end
+
+      def total_applicable_gift_card
+        if can_complete? || complete?
+          valid_gift_card_payments.to_a.sum(&:amount)
+        else
+          [total, matching_gift_cards.sum(&:amount_remaining) || 0.0].min
+        end
       end
 
       ::Spree::Order.prepend self

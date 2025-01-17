@@ -58,4 +58,9 @@ FactoryBot.define do
     available_to_users { false }
     auto_capture { true }
   end
+
+  factory :gift_card_payment, class: 'Spree::Payment', parent: :payment do
+    association(:payment_method, factory: :gift_card_payment_method)
+    association(:source, factory: :redeemable_virtual_gift_card)
+  end
 end
