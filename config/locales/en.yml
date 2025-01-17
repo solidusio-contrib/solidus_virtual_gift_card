@@ -106,3 +106,5 @@ en:
       unable_to_find_for_action: 'Could not find gift card for auth code: %{auth_code} for action: %{action}'
       unable_to_void: 'Unable to void code: %{auth_code}'
       user_has_no_gift cards: User does not have any available gift cards
+      errors:
+        unable_to_fund: Unable to pay for order using gift card

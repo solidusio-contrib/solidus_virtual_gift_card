@@ -49,4 +49,13 @@ FactoryBot.define do
       action              { Spree::VirtualGiftCard::INVALIDATE_ACTION }
     end
   end
+
+  factory :gift_card_payment_method, class: 'Spree::PaymentMethod::GiftCard' do
+    name          { "Gift Card" }
+    description   { "Gift Card" }
+    active        { true }
+    available_to_admin { false }
+    available_to_users { false }
+    auto_capture { true }
+  end
 end

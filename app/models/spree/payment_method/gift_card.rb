@@ -48,6 +48,10 @@ module Spree
       handle_action(action, :capture, auth_code)
     end
 
+    def gift_card?
+      true
+    end
+
     private
 
     def handle_action_call(store_credit, action, action_name, auth_code = nil)

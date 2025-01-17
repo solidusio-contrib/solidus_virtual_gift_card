@@ -6,8 +6,11 @@ module SolidusVirtualGiftCard
       def self.prepended(base)
         base.class_eval do
           state_machine.after_transition to: :complete, do: :send_gift_card_emails
+          state_machine.before_transition to: :confirm, do: :add_gift_card_payments
 
           has_many :gift_cards, through: :line_items
+
+          serialize :gift_card_codes, type: Array, coder: YAML
         end
       end
 
@@ -38,6 +41,57 @@ module SolidusVirtualGiftCard
             gift_card.send_email
           end
         end
+      end
+
+      def add_gift_card_payments
+        return if payments.gift_cards.checkout.empty? && matching_gift_cards.sum(&:amount_remaining).zero?
+
+        payments.gift_cards.checkout.each(&:invalidate!)
+
+        # this can happen when multiple payments are present, auto_capture is
+        # turned off, and one of the payments fails when the user tries to
+        # complete the order, which sends the order back to the 'payment' state.
+        authorized_total = payments.pending.sum(:amount)
+
+        remaining_total = outstanding_balance - authorized_total
+
+        if matching_gift_cards.any?
+          payment_method = ::Spree::PaymentMethod::GiftCard.first
+
+          matching_gift_cards.each do |credit|
+            break if remaining_total.zero?
+            next if credit.amount_remaining.zero?
+
+            amount_to_take = [credit.amount_remaining, remaining_total].min
+            payments.create!(source: credit,
+                             payment_method:,
+                             amount: amount_to_take,
+                             state: 'checkout',
+                             response_code: credit.generate_authorization_code)
+            remaining_total -= amount_to_take
+          end
+        end
+
+        other_payments = payments.checkout.not_gift_cards
+        if remaining_total.zero?
+          other_payments.each(&:invalidate!)
+        elsif other_payments.size == 1
+          other_payments.first.update!(amount: remaining_total)
+        end
+
+        payments.reset
+
+        if payments.where(state: %w(checkout pending completed)).sum(:amount) != total
+          errors.add(:base, I18n.t('spree.virtual_gift_card.errors.unable_to_fund')) && (return false)
+        end
+      end
+
+      def matching_gift_cards
+        @matching_gift_cards = ::Spree::VirtualGiftCard
+                                 .where(currency:, redemption_code: gift_card_codes)
+                                 .sort_by do |virtual_gift_card|
+                                   gift_card_codes.index(virtual_gift_card.redemption_code)
+                                 end
       end
 
       ::Spree::Order.prepend self
