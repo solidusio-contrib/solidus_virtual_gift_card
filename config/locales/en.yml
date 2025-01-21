@@ -3,6 +3,10 @@ en:
   spree:
     admin:
       gift_cards:
+        codes: Gift Card Codes
+        applicable_total: Gift Cards Amount
+        add_code: Add Gift Card Code
+        remove_code: Remove
         convert_product_label: "Turn this product into a gift card?"
         deactivated_gift_card: "Gift card deactivated"
         editing_gift_card: "Editing Gift Card"
@@ -78,6 +82,7 @@ en:
         subject: "Your gift card code"
     listing_gift_cards: "Listing Gift Cards"
     virtual_gift_card:
+      code: Code
       actions:
         invalidate: Invalidate
       credit_allocation_memo: This is a credit from gift card ID %{id}

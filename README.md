@@ -26,6 +26,12 @@ bundle install
 bundle exec rails g solidus_virtual_gift_card:install
 ```
 
+Use Gift Card during Checkout
+-----------------------------
+
+1) Visit /admin/payment_methods and add Gift Card payment method. It shouldn't be available for User and Admin.
+2)
+
 Authorization
 -------------
 

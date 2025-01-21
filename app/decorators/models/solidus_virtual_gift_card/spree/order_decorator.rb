@@ -89,7 +89,7 @@ module SolidusVirtualGiftCard
 
       def matching_gift_cards
         @matching_gift_cards = ::Spree::VirtualGiftCard
-                               .where(currency:, redemption_code: gift_card_codes)
+                               .where(currency:, redemption_code: format_redemption_codes_for_lookup)
                                .sort_by do |virtual_gift_card|
                                  gift_card_codes.index(virtual_gift_card.redemption_code)
                                end

@@ -12,6 +12,7 @@
       <tr>
         <th class="align-center">Redemption Code</th>
         <th class="align-center">Amount</th>
+        <th class="align-center">Remaining Amount</th>
         <th class="align-center">Purchased by</th>
         <th class="align-center">Purchased at</th>
         <th class="align-center">Recipient Email</th>
@@ -27,6 +28,7 @@
         <tr>
           <td class="align-center"><%= gift_card.formatted_redemption_code %></td>
           <td class="align-center"><%= number_to_currency(gift_card.amount) %></td>
+          <td class="align-center"><%= number_to_currency(gift_card.amount_remaining) %></td>
           <td class="align-center"><%= link_to "#{gift_card.purchaser.email}", edit_admin_user_path(gift_card.purchaser) %></td>
           <td class="align-center"><%= gift_card.formatted_created_at %></td>
           <td class="align-center"><%= gift_card.recipient_email %></td>
