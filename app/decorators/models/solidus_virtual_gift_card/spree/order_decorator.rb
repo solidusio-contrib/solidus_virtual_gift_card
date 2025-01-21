@@ -89,10 +89,16 @@ module SolidusVirtualGiftCard
 
       def matching_gift_cards
         @matching_gift_cards = ::Spree::VirtualGiftCard
-                                 .where(currency:, redemption_code: gift_card_codes)
-                                 .sort_by do |virtual_gift_card|
-                                   gift_card_codes.index(virtual_gift_card.redemption_code)
-                                 end
+                               .where(currency:, redemption_code: gift_card_codes)
+                               .sort_by do |virtual_gift_card|
+                                 gift_card_codes.index(virtual_gift_card.redemption_code)
+                               end
+      end
+
+      def format_redemption_codes_for_lookup
+        gift_card_codes.map do |code|
+          ::Spree::RedemptionCodeGenerator.format_redemption_code_for_lookup(code)
+        end
       end
 
       def covered_by_gift_card?
@@ -112,6 +118,10 @@ module SolidusVirtualGiftCard
         else
           [total, matching_gift_cards.sum(&:amount_remaining) || 0.0].min
         end
+      end
+
+      def display_total_applicable_gift_card
+        ::Spree::Money.new(-total_applicable_gift_card, { currency: })
       end
 
       ::Spree::Order.prepend self
