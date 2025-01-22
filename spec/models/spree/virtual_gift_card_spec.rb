@@ -425,7 +425,7 @@ describe Spree::VirtualGiftCard do
     end
 
     context 'troublesome floats' do
-      if Gem::Requirement.new("~> 3.0.0") === Gem::Version.new(BigDecimal::VERSION)
+      if Gem::Requirement.new("~> 3.0.0") === Gem::Version.new(BigDecimal::VERSION) # rubocop:disable Style/CaseEquality
         # BigDecimal 2.0.0> 8.21.to_d # => 0.821e1 (all good!)
         # BigDecimal 3.0.0> 8.21.to_d # => 0.8210000000000001e1 (`8.21.to_d < 8.21` is `true`!!!)
         # BigDecimal 3.1.4> 8.21.to_d # => 0.821e1 (all good!)
@@ -443,15 +443,15 @@ describe Spree::VirtualGiftCard do
   describe "#capture" do
     let(:virtual_gift_card) { create(:virtual_gift_card, amount: authorized_amount * 2, amount_authorized: authorized_amount) }
     let(:authorized_amount) { 10.00 }
-    let(:auth_code)         { "23-GC-20140602164814476128" }
+    let(:auth_code) { "23-GC-20140602164814476128" }
+    let(:authorized_code) { virtual_gift_card.authorize(authorized_amount, virtual_gift_card.currency) }
 
     before do
       @original_authed_amount = virtual_gift_card.amount_authorized
-      @auth_code = virtual_gift_card.authorize(authorized_amount, virtual_gift_card.currency)
     end
 
     context "insufficient funds" do
-      subject { virtual_gift_card.capture(authorized_amount * 2, @auth_code, virtual_gift_card.currency) }
+      subject { virtual_gift_card.capture(authorized_amount * 2, authorized_code, virtual_gift_card.currency) }
 
       it "returns false" do
         expect(subject).to be false
@@ -468,7 +468,7 @@ describe Spree::VirtualGiftCard do
     end
 
     context "currency mismatch" do
-      subject { virtual_gift_card.capture(authorized_amount, @auth_code, "EUR") }
+      subject { virtual_gift_card.capture(authorized_amount, authorized_code, "EUR") }
 
       it "returns false" do
         expect(subject).to be false
@@ -485,7 +485,11 @@ describe Spree::VirtualGiftCard do
     end
 
     context "valid capture" do
-      subject { virtual_gift_card.capture(authorized_amount - remaining_authorized_amount, @auth_code, virtual_gift_card.currency, action_originator: originator) }
+      subject { virtual_gift_card.capture(authorized_amount - remaining_authorized_amount, @auth_code, virtual_gift_card.currency, action_originator: originator) } # rubocop:disable RSpec/InstanceVariable
+
+      before do
+        @auth_code = virtual_gift_card.authorize(authorized_amount, virtual_gift_card.currency)
+      end
 
       let(:remaining_authorized_amount) { 1 }
       let(:originator) { nil }
@@ -496,7 +500,7 @@ describe Spree::VirtualGiftCard do
 
       it "updates the authorized amount to the difference between the virtual gift card total authed amount and the authorized amount for this event" do
         subject
-        expect(virtual_gift_card.reload.amount_authorized).to eq(@original_authed_amount)
+        expect(virtual_gift_card.reload.amount_authorized).to eq(@original_authed_amount) # rubocop:disable RSpec/InstanceVariable
       end
 
       it "updates the used amount to the current used amount plus the captured amount" do

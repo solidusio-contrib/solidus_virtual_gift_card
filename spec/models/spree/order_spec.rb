@@ -275,13 +275,13 @@ describe Spree::Order do
         let(:gift_card_codes) { [virtual_gift_card.redemption_code] }
 
         context "user has enough gift card amount to pay for the order" do
-          let!(:virtual_gift_card) { create(:redeemable_virtual_gift_card, amount: 1000) }
+          let(:virtual_gift_card) { create(:redeemable_virtual_gift_card, amount: 1000) }
 
           it { is_expected.to eq(true) }
         end
 
         context "user does not have enough gift card amount to pay for the order" do
-          let!(:virtual_gift_card) { create(:redeemable_virtual_gift_card, amount: 1) }
+          let(:virtual_gift_card) { create(:redeemable_virtual_gift_card, amount: 1) }
 
           it { is_expected.to eq(false) }
         end
