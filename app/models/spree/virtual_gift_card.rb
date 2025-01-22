@@ -153,10 +153,6 @@ class Spree::VirtualGiftCard < Spree::Base
     amount - amount_used - amount_authorized
   end
 
-  def deactivated?
-    !!deactivated_at
-  end
-
   def authorize(amount, order_currency, options = {})
     authorization_code = options[:action_authorization_code]
     if authorization_code
