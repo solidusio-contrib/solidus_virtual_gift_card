@@ -363,7 +363,7 @@ describe Spree::VirtualGiftCard do
           let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
 
           it "records the originator" do
-            expect { subject }.to change { Spree::VirtualGiftCardEvent.count }.by(1)
+            expect { subject }.to change(Spree::VirtualGiftCardEvent, :count).by(1)
             expect(Spree::VirtualGiftCardEvent.last.originator).to eq originator
           end
         end
@@ -508,7 +508,7 @@ describe Spree::VirtualGiftCard do
         let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
 
         it "records the originator" do
-          expect { subject }.to change { Spree::VirtualGiftCardEvent.count }.by(1)
+          expect { subject }.to change(Spree::VirtualGiftCardEvent, :count).by(1)
           expect(Spree::VirtualGiftCardEvent.last.originator).to eq originator
         end
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Spree
-  class PaymentMethod::GiftCard < Spree::PaymentMethod
+  class PaymentMethod::GiftCard < Spree::PaymentMethod # rubocop:disable Style/ClassAndModuleChildren
     def payment_source_class
       ::Spree::VirtualGiftCard
     end

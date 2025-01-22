@@ -7,7 +7,7 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
 
   describe "#authorize" do
     subject do
-      Spree::PaymentMethod::GiftCard.new.authorize(auth_amount, virtual_gift_card, gateway_options)
+      described_class.new.authorize(auth_amount, virtual_gift_card, gateway_options)
     end
 
     let(:auth_amount) { virtual_gift_card.amount_remaining * 100 }
@@ -63,7 +63,7 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
 
   describe "#capture" do
     subject do
-      Spree::PaymentMethod::GiftCard.new.capture(capture_amount, auth_code, gateway_options)
+      described_class.new.capture(capture_amount, auth_code, gateway_options)
     end
 
     let(:capture_amount) { 10_00 }
