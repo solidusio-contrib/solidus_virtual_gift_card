@@ -227,17 +227,19 @@ RSpec.describe Spree::VirtualGiftCardEvent do
       end
     end
 
-    # Add it back when gift card payment is implemented
-    # context "there is an associated payment with the event" do
-    #   let(:authorization_code) { "1-GC-TEST" }
-    #   let(:order)              { create(:order) }
-    #   let!(:payment)           { create(:virtual_gift_card_payment, order:, response_code: authorization_code) }
+    context "with an associated payment with the event" do
+      subject(:auth_event) { create(:virtual_gift_card_auth_event, action: Spree::VirtualGiftCard::CAPTURE_ACTION, authorization_code:) }
 
-    #   subject { create(:virtual_gift_card_auth_event, action: Spree::VirtualGiftCard::CAPTURE_ACTION, authorization_code:) }
+      let(:authorization_code) { "1-GC-TEST" }
+      let(:order)              { create(:order) }
 
-    #   it "returns the order associated with the payment" do
-    #     expect(subject.order).to eq order
-    #   end
-    # end
+      before do
+        create(:gift_card_payment, order:, response_code: authorization_code)
+      end
+
+      it "returns the order associated with the payment" do
+        expect(auth_event.order).to eq order
+      end
+    end
   end
 end
