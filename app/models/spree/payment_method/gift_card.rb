@@ -12,7 +12,7 @@ module Spree
       else
         action = ->(virtual_gift_card) {
           virtual_gift_card.authorize(
-            amount_in_cents / 100.0.to_d,
+            amount_in_cents / BigDecimal('100.0'),
             gateway_options[:currency],
             action_originator: gateway_options[:originator]
           )
@@ -22,10 +22,10 @@ module Spree
     end
 
     def purchase(amount_in_cents, virtual_gift_card, gateway_options = {})
-      eligible_events = virtual_gift_card.events.where(amount: amount_in_cents / 100.0.to_d, action: Spree::VirtualGiftCard::ELIGIBLE_ACTION)
+      eligible_events = virtual_gift_card.events.where(amount: amount_in_cents / BigDecimal('100.0'), action: Spree::VirtualGiftCard::ELIGIBLE_ACTION)
       event = eligible_events.find do |eligible_event|
         virtual_gift_card.events.where(authorization_code: eligible_event.authorization_code)
-                                        .where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION).empty?
+                         .where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION).empty?
       end
 
       if event.blank?
@@ -38,7 +38,7 @@ module Spree
     def capture(amount_in_cents, auth_code, gateway_options = {})
       action = ->(virtual_gift_card) {
         virtual_gift_card.capture(
-          amount_in_cents / 100.0.to_d,
+          amount_in_cents / BigDecimal('100.0'),
           auth_code,
           gateway_options[:currency],
           action_originator: gateway_options[:originator]
@@ -67,8 +67,8 @@ module Spree
         if response = action.call(store_credit)
           # note that we only need to return the auth code on an 'auth', but it's innocuous to always return
           ActiveMerchant::Billing::Response.new(true,
-                                                I18n.t('spree.virtual_gift_card.successful_action', action: action_name),
-                                                {}, { authorization: auth_code || response })
+            I18n.t('spree.virtual_gift_card.successful_action', action: action_name),
+            {}, { authorization: auth_code || response })
         else
           ActiveMerchant::Billing::Response.new(false, store_credit.errors.full_messages.join, {}, {})
         end

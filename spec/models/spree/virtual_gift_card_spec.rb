@@ -359,9 +359,8 @@ describe Spree::VirtualGiftCard do
         end
 
         context "originator is present" do
-          let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
-
           subject { virtual_gift_card.authorize(added_authorization_amount, virtual_gift_card.currency, action_originator: originator) }
+          let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
 
           it "records the originator" do
             expect { subject }.to change { Spree::VirtualGiftCardEvent.count }.by(1)
@@ -433,9 +432,9 @@ describe Spree::VirtualGiftCard do
         before { pending "https://github.com/rails/rails/issues/42098; https://github.com/ruby/bigdecimal/issues/192" }
       end
 
-      let(:store_credit_attrs) { { amount: 8.21 } }
-
       subject { virtual_gift_card.validate_authorization(store_credit_attrs[:amount], virtual_gift_card.currency) }
+
+      let(:store_credit_attrs) { { amount: 8.21 } }
 
       it { is_expected.to be_truthy }
     end
@@ -464,7 +463,7 @@ describe Spree::VirtualGiftCard do
       end
 
       it "does not update the virtual gift card model" do
-        expect { subject }.to_not change { virtual_gift_card }
+        expect { subject }.not_to change { virtual_gift_card }
       end
     end
 
@@ -481,15 +480,15 @@ describe Spree::VirtualGiftCard do
       end
 
       it "does not update the virtual gift card model" do
-        expect { subject }.to_not change { virtual_gift_card }
+        expect { subject }.not_to change { virtual_gift_card }
       end
     end
 
     context "valid capture" do
+      subject { virtual_gift_card.capture(authorized_amount - remaining_authorized_amount, @auth_code, virtual_gift_card.currency, action_originator: originator) }
+
       let(:remaining_authorized_amount) { 1 }
       let(:originator) { nil }
-
-      subject { virtual_gift_card.capture(authorized_amount - remaining_authorized_amount, @auth_code, virtual_gift_card.currency, action_originator: originator) }
 
       it "returns true" do
         expect(subject).to be_truthy

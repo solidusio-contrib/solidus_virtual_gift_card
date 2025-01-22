@@ -73,11 +73,11 @@ describe Spree::Order do
   context "gift card" do
     shared_examples "check total gift card from payments" do
       context "with valid payments" do
+        subject { order }
+
         let(:order) { payment.order }
         let!(:payment) { create(:gift_card_payment) }
         let!(:second_payment) { create(:gift_card_payment, order:) }
-
-        subject { order }
 
         it "returns the sum of the payment amounts" do
           expect(subject.total_applicable_gift_card).to eq(payment.amount + second_payment.amount)
@@ -85,9 +85,9 @@ describe Spree::Order do
       end
 
       context "without valid payments" do
-        let(:order) { create(:order) }
-
         subject { order }
+
+        let(:order) { create(:order) }
 
         it "returns 0" do
           expect(subject.total_applicable_gift_card).to be_zero
@@ -96,6 +96,8 @@ describe Spree::Order do
     end
 
     describe "#add_gift_card_payments" do
+      subject { order.add_gift_card_payments }
+
       let(:order_total) { 500.00 }
 
       before do
@@ -103,12 +105,9 @@ describe Spree::Order do
         order.update(gift_card_codes: gift_card_codes)
       end
 
-      subject { order.add_gift_card_payments }
-
       context "no gift card codes provided" do
         let(:gift_card_codes) { [] }
         let(:order) { create(:order, total: order_total) }
-
 
         context "there is a credit card payment" do
           # let!(:cc_payment) { create(:payment, order:, amount: order_total) }
@@ -261,12 +260,12 @@ describe Spree::Order do
     end
 
     describe "#covered_by_gift_card" do
-      let(:gift_card_codes) { [] }
-      let(:order) { create(:order_with_line_items, gift_card_codes: gift_card_codes) }
-
       subject do
         order.covered_by_gift_card
       end
+
+      let(:gift_card_codes) { [] }
+      let(:order) { create(:order_with_line_items, gift_card_codes: gift_card_codes) }
 
       context "order doesn't have any associated gift card codes" do
         it { is_expected.to eq(false) }
@@ -304,10 +303,10 @@ describe Spree::Order do
 
       context "order is in any state other than confirm or complete" do
         context "the order has gift cards" do
+          subject { order }
+
           let(:virtual_gift_card) { create(:redeemable_virtual_gift_card) }
           let(:order) { create(:order, gift_card_codes: [virtual_gift_card.redemption_code]) }
-
-          subject { order }
 
           context "the gift card amount is more than the order total" do
             let(:order_total) { virtual_gift_card.amount - 1 }
@@ -331,9 +330,9 @@ describe Spree::Order do
         end
 
         context "the order doesn't have gift card codes associated" do
-          let(:order) { create(:order) }
-
           subject { order }
+
+          let(:order) { create(:order) }
 
           it "returns 0" do
             expect(subject.total_applicable_gift_card).to be_zero

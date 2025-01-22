@@ -40,6 +40,7 @@ class Spree::VirtualGiftCardEvent < ApplicationRecord
 
   def display_action
     return if NON_EXPOSED_ACTIONS.include?(action)
+
     I18n.t("spree.virtual_gift_card.display_action.#{action}")
   end
 

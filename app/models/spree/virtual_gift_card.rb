@@ -148,7 +148,8 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def amount_remaining
-    return 0.0.to_d if deactivated?
+    return BigDecimal('0.0') if deactivated?
+
     amount - amount_used - amount_authorized
   end
 
@@ -203,6 +204,7 @@ class Spree::VirtualGiftCard < Spree::Base
 
   def capture(amount, authorization_code, order_currency, options = {})
     return false unless authorize(amount, order_currency, action_authorization_code: authorization_code)
+
     auth_event = events.find_by!(action: AUTHORIZE_ACTION, authorization_code:)
 
     if amount <= auth_event.amount
@@ -233,10 +235,10 @@ class Spree::VirtualGiftCard < Spree::Base
     return unless saved_change_to_amount? || saved_change_to_amount_used? || saved_change_to_amount_authorized? || [ELIGIBLE_ACTION, INVALIDATE_ACTION].include?(action)
 
     event = if action
-      events.build(action:)
-    else
-      events.where(action: ALLOCATION_ACTION).first_or_initialize
-    end
+              events.build(action:)
+            else
+              events.where(action: ALLOCATION_ACTION).first_or_initialize
+            end
 
     event.update!({
       amount: action_amount || amount,

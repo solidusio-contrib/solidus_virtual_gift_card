@@ -65,10 +65,10 @@ module SolidusVirtualGiftCard
 
             amount_to_take = [credit.amount_remaining, remaining_total].min
             payments.create!(source: credit,
-                             payment_method:,
-                             amount: amount_to_take,
-                             state: 'checkout',
-                             response_code: credit.generate_authorization_code)
+              payment_method:,
+              amount: amount_to_take,
+              state: 'checkout',
+              response_code: credit.generate_authorization_code)
             remaining_total -= amount_to_take
           end
         end
@@ -82,9 +82,9 @@ module SolidusVirtualGiftCard
 
         payments.reset
 
-        if payments.where(state: %w(checkout pending completed)).sum(:amount) != total
-          errors.add(:base, I18n.t('spree.virtual_gift_card.errors.unable_to_fund')) && (return false)
-        end
+        return unless payments.where(state: %w(checkout pending completed)).sum(:amount) != total
+
+        errors.add(:base, I18n.t('spree.virtual_gift_card.errors.unable_to_fund')) && (return false)
       end
 
       def matching_gift_cards

@@ -107,9 +107,9 @@ RSpec.describe Spree::VirtualGiftCardEvent do
   end
 
   describe "#display_amount" do
-    let(:event_amount) { 120.0 }
-
     subject { create(:virtual_gift_card_auth_event, amount: event_amount) }
+
+    let(:event_amount) { 120.0 }
 
     it "returns a Spree::Money instance" do
       expect(subject.display_amount).to be_instance_of(Spree::Money)
@@ -121,9 +121,9 @@ RSpec.describe Spree::VirtualGiftCardEvent do
   end
 
   describe "#display_user_total_amount" do
-    let(:user_total_amount) { 300.0 }
-
     subject { create(:virtual_gift_card_auth_event, user_total_amount:) }
+
+    let(:user_total_amount) { 300.0 }
 
     it "returns a Spree::Money instance" do
       expect(subject.display_user_total_amount).to be_instance_of(Spree::Money)
@@ -135,9 +135,9 @@ RSpec.describe Spree::VirtualGiftCardEvent do
   end
 
   describe "#display_remaining_amount" do
-    let(:amount_remaining) { 300.0 }
-
     subject { create(:virtual_gift_card_auth_event, amount_remaining:) }
+
+    let(:amount_remaining) { 300.0 }
 
     it "returns a Spree::Money instance" do
       expect(subject.display_remaining_amount).to be_instance_of(Spree::Money)
@@ -149,9 +149,9 @@ RSpec.describe Spree::VirtualGiftCardEvent do
   end
 
   describe "#display_event_date" do
-    let(:date) { Time.zone.parse("2014-06-01") }
-
     subject { create(:virtual_gift_card_auth_event, created_at: date) }
+
+    let(:date) { Time.zone.parse("2014-06-01") }
 
     it "returns the date the event was created with the format month/date/year" do
       expect(subject.display_event_date).to eq "June 01, 2014"

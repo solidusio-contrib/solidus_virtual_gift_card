@@ -16,7 +16,6 @@ module SolidusVirtualGiftCard
 
       def copy_gift_card_views
         template 'app/views/checkout/payment/_gift_card.html.erb', 'views/checkout/payment/_gift_card.html.erb'
-
       end
 
       def add_javascripts

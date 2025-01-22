@@ -13,11 +13,11 @@ module SolidusVirtualGiftCard
       end
 
       def invalidate_old_payments
-        if !store_credit? && !gift_card? && !['invalid', 'failed'].include?(state)
-          order.payments.select { |payment|
-            payment.state == 'checkout' && (!payment.store_credit? && !payment.gift_card? ) && payment.id != id
-          }.each(&:invalidate!)
-        end
+        return unless !store_credit? && !gift_card? && !['invalid', 'failed'].include?(state)
+
+        order.payments.select { |payment|
+          payment.state == 'checkout' && (!payment.store_credit? && !payment.gift_card? ) && payment.id != id
+        }.each(&:invalidate!)
       end
 
       ::Spree::Payment.prepend self

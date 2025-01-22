@@ -5,7 +5,7 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
   let(:payment)         { create(:payment, order:) }
   let(:gateway_options) { payment.gateway_options }
 
-  context "#authorize" do
+  describe "#authorize" do
     subject do
       Spree::PaymentMethod::GiftCard.new.authorize(auth_amount, virtual_gift_card, gateway_options)
     end
@@ -61,7 +61,7 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
     end
   end
 
-  context "#capture" do
+  describe "#capture" do
     subject do
       Spree::PaymentMethod::GiftCard.new.capture(capture_amount, auth_code, gateway_options)
     end
@@ -124,17 +124,17 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
     end
   end
 
-  context "#purchase" do
+  describe "#purchase" do
     it "declines a purchase if it can't find a pending credit for the correct amount" do
       amount = 100.0
       virtual_gift_card = create(:virtual_gift_card)
       auth_code = virtual_gift_card.generate_authorization_code
       virtual_gift_card.events.create!(action: Spree::VirtualGiftCard::ELIGIBLE_ACTION,
-                                               amount:,
-                                               authorization_code: auth_code)
+        amount:,
+        authorization_code: auth_code)
       virtual_gift_card.events.create!(action: Spree::VirtualGiftCard::CAPTURE_ACTION,
-                                               amount:,
-                                               authorization_code: auth_code)
+        amount:,
+        authorization_code: auth_code)
 
       resp = subject.purchase(amount * 100.0, virtual_gift_card, gateway_options)
       expect(resp.success?).to be false
@@ -146,8 +146,8 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
       virtual_gift_card = create(:virtual_gift_card, amount: 150)
       auth_code = virtual_gift_card.generate_authorization_code
       virtual_gift_card.events.create!(action: Spree::VirtualGiftCard::ELIGIBLE_ACTION,
-                                               amount:,
-                                               authorization_code: auth_code)
+        amount:,
+        authorization_code: auth_code)
 
       resp = subject.purchase(amount * 100.0, virtual_gift_card, gateway_options)
       expect(resp.success?).to be true
