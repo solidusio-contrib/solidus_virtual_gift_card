@@ -15,6 +15,10 @@ module SolidusVirtualGiftCard
         end
       end
 
+      def gift_card_codes
+        super || []
+      end
+
       def gift_card_match(line_item, options)
         return true unless line_item.gift_card?
         return true unless options['gift_card_details']
