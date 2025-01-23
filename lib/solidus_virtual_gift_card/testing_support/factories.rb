@@ -26,4 +26,41 @@ FactoryBot.define do
       end
     end
   end
+
+  factory :virtual_gift_card_event, class: 'Spree::VirtualGiftCardEvent' do
+    virtual_gift_card
+    amount             { 100.00 }
+    authorization_code { "#{virtual_gift_card.id}-GC-20140602164814476128" }
+    action               { Spree::VirtualGiftCard::AUTHORIZE_ACTION }
+
+    factory :virtual_gift_card_auth_event, class: 'Spree::VirtualGiftCardEvent' do
+      action             { Spree::VirtualGiftCard::AUTHORIZE_ACTION }
+    end
+
+    factory :virtual_gift_card_capture_event do
+      action             { Spree::VirtualGiftCard::CAPTURE_ACTION }
+    end
+
+    factory :virtual_gift_card_adjustment_event do
+      action              { Spree::VirtualGiftCard::ADJUSTMENT_ACTION }
+    end
+
+    factory :virtual_gift_card_invalidate_event do
+      action              { Spree::VirtualGiftCard::INVALIDATE_ACTION }
+    end
+  end
+
+  factory :gift_card_payment_method, class: 'Spree::PaymentMethod::GiftCard' do
+    name          { "Gift Card" }
+    description   { "Gift Card" }
+    active        { true }
+    available_to_admin { false }
+    available_to_users { false }
+    auto_capture { true }
+  end
+
+  factory :gift_card_payment, class: 'Spree::Payment', parent: :payment do
+    association(:payment_method, factory: :gift_card_payment_method)
+    association(:source, factory: :redeemable_virtual_gift_card)
+  end
 end

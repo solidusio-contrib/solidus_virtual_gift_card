@@ -1,0 +1,63 @@
+<div data-hook="new_gift_card_code">
+  <%= text_field_tag "gift_card_code", "", placeholder: t('spree.virtual_gift_card.code') %>
+  <%= button_tag t('spree.admin.gift_cards.add_code'), id: "add_gift_card_code", class: 'btn btn-primary' %>
+</div>
+
+<% if @order.gift_card_codes.present? %>
+  <dt data-hook='admin_order_gift_card_codes'><%= t('spree.admin.gift_cards.codes') %>:</dt>
+  <div data-hook="gift_card_codes">
+    <% @order.gift_card_codes.each do |code| %>
+      <dd id='gift-card-codes'>
+        <%= code %>
+        <%= button_tag t('spree.admin.gift_cards.remove_code'), data: { code: code }, class: 'btn btn-primary remove-code' %>
+      </dd>
+    <% end %>
+  </div>
+<% end %>
+
+<script>
+Spree.ready(function() {
+  $('[data-hook=gift_card_codes] .remove-code').click(function() {
+    var code = $(this).data('code');
+
+    Spree.ajax({
+      type: 'DELETE',
+      url: Spree.pathFor('api/orders/' + window.order_number + '/gift_card_codes/' + code),
+      data: {
+        token: Spree.api_key
+      },
+      success: function() {
+        window.location.reload();
+      },
+      error: function(msg) {
+        show_flash('error', msg.responseJSON["error"]);
+      }
+    });
+  });
+
+  $('[data-hook=new_gift_card_code] #add_gift_card_code').click(function() {
+    if ($("#gift_card_code").val().length === 0) {
+      return;
+    }
+
+    Spree.ajax({
+      type: 'POST',
+      url: Spree.pathFor('api/orders/' + window.order_number + '/gift_card_codes'),
+      data: {
+        gift_card_code: $("#gift_card_code").val(),
+        token: Spree.api_key
+      },
+      success: function() {
+        window.location.reload();
+      },
+      error: function(msg) {
+        if (msg.responseJSON["error"]) {
+          show_flash('error', msg.responseJSON["error"]);
+        } else {
+          show_flash('error', "There was a problem adding this gift card code.");
+        }
+      }
+    });
+  });
+});
+</script>

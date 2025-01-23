@@ -22,5 +22,19 @@ module SolidusVirtualGiftCard
       insert_bottom: '.item-name',
       partial: 'spree/admin/orders/shipments_gift_card_details',
     )
+
+    Deface::Override.new(
+      virtual_path: 'spree/admin/adjustments/index',
+      name: 'admin_gift_card_codes',
+      insert_before: 'erb[silent]:contains("if @order.can_add_coupon? && can?(:update, @order)")',
+      partial: 'spree/admin/adjustments/add_gift_card_code'
+    )
+
+    Deface::Override.new(
+      virtual_path: 'spree/admin/shared/_order_summary',
+      name: 'admin_order_summary_gift_card_codes',
+      insert_before: 'dt[data-hook=\'admin_order_tab_total_title\']',
+      partial: 'spree/admin/shared/order_summary/gift_card_codes'
+    )
   end
 end

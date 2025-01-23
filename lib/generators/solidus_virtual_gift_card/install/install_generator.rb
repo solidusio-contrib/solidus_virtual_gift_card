@@ -14,6 +14,10 @@ module SolidusVirtualGiftCard
         template 'initializer.rb', 'config/initializers/solidus_virtual_gift_card.rb'
       end
 
+      def copy_gift_card_views
+        template 'app/views/checkout/payment/_gift_card.html.erb', 'views/checkout/payment/_gift_card.html.erb'
+      end
+
       def add_javascripts
         append_file 'vendor/assets/javascripts/spree/frontend/all.js', "//= require spree/frontend/solidus_virtual_gift_card\n"
         append_file 'vendor/assets/javascripts/spree/backend/all.js', "//= require spree/backend/solidus_virtual_gift_card\n"

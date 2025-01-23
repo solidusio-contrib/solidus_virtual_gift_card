@@ -3,12 +3,24 @@
 class Spree::VirtualGiftCard < Spree::Base
   include ActiveSupport::NumberHelper
 
+  VOID_ACTION       = 'void'
+  CREDIT_ACTION     = 'credit'
+  CAPTURE_ACTION    = 'capture'
+  ELIGIBLE_ACTION   = 'eligible'
+  AUTHORIZE_ACTION  = 'authorize'
+  ALLOCATION_ACTION = 'allocation'
+  ADJUSTMENT_ACTION = 'adjustment'
+  INVALIDATE_ACTION = 'invalidate'
+
+  attr_accessor :action, :action_amount, :action_originator, :action_authorization_code
+
   belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
   belongs_to :purchaser, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :redeemer, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
   belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
   has_one :order, through: :line_item
+  has_many :events, class_name: 'Spree::VirtualGiftCardEvent', dependent: :destroy
 
   validates :amount, numericality: { greater_than: 0 }
   validates :redemption_code, uniqueness: { conditions: -> { where(redeemed_at: nil, redeemable: true) } }
@@ -17,6 +29,8 @@ class Spree::VirtualGiftCard < Spree::Base
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, ->(redemption_code) { where(redemption_code: redemption_code) }
   scope :purchased, -> { where(redeemable: true) }
+
+  after_save :store_event
 
   def self.ransackable_associations(_auth_object = nil)
     %w[line_item order]
@@ -124,7 +138,111 @@ class Spree::VirtualGiftCard < Spree::Base
     update!(sent_at: DateTime.now)
   end
 
+  def generate_authorization_code
+    [
+      id,
+      'GC',
+      Time.current.utc.strftime('%Y%m%d%H%M%S%6N'),
+      SecureRandom.uuid
+    ].join('-')
+  end
+
+  def amount_remaining
+    return BigDecimal('0.0') if deactivated?
+
+    amount - amount_used - amount_authorized
+  end
+
+  def authorize(amount, order_currency, options = {})
+    authorization_code = options[:action_authorization_code]
+    if authorization_code
+      if events.find_by(action: AUTHORIZE_ACTION, authorization_code:)
+        # Don't authorize again on capture
+        return true
+      end
+    else
+      authorization_code = generate_authorization_code
+    end
+
+    if validate_authorization(amount, order_currency)
+      update!({
+        action: AUTHORIZE_ACTION,
+        action_amount: amount,
+        action_originator: options[:action_originator],
+        action_authorization_code: authorization_code,
+
+        amount_authorized: amount_authorized + amount
+      })
+      authorization_code
+    else
+      false
+    end
+  end
+
+  def validate_authorization(amount, order_currency)
+    if amount_remaining.to_d < amount.to_d
+      errors.add(:base, I18n.t('spree.virtual_gift_card.insufficient_funds'))
+    elsif currency != order_currency
+      errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+    end
+    errors.blank?
+  end
+
+  def actions
+    %w(capture void credit)
+  end
+
+  # @param payment [Spree::Payment] the payment we want to know if can be captured
+  # @return [Boolean] true when the payment is in the pending or checkout states
+  def can_capture?(payment)
+    payment.pending? || payment.checkout?
+  end
+
+  def capture(amount, authorization_code, order_currency, options = {})
+    return false unless authorize(amount, order_currency, action_authorization_code: authorization_code)
+
+    auth_event = events.find_by!(action: AUTHORIZE_ACTION, authorization_code:)
+
+    if amount <= auth_event.amount
+      if currency != order_currency
+        errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+        false
+      else
+        update!({
+          action: CAPTURE_ACTION,
+          action_amount: amount,
+          action_originator: options[:action_originator],
+          action_authorization_code: authorization_code,
+
+          amount_used: amount_used + amount,
+          amount_authorized: amount_authorized - auth_event.amount
+        })
+        authorization_code
+      end
+    else
+      errors.add(:base, I18n.t('spree.virtual_gift_card.insufficient_authorized_amount'))
+      false
+    end
+  end
+
   private
+
+  def store_event
+    return unless saved_change_to_amount? || saved_change_to_amount_used? || saved_change_to_amount_authorized? || [ELIGIBLE_ACTION, INVALIDATE_ACTION].include?(action)
+
+    event = if action
+              events.build(action:)
+            else
+              events.where(action: ALLOCATION_ACTION).first_or_initialize
+            end
+
+    event.update!({
+      amount: action_amount || amount,
+      authorization_code: action_authorization_code || event.authorization_code || generate_authorization_code,
+      amount_remaining:,
+      originator: action_originator
+    })
+  end
 
   def cancel_and_reimburse_inventory_unit
     cancellation = Spree::OrderCancellations.new(line_item.order)

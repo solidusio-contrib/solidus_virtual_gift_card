@@ -1,0 +1,7 @@
+<% if @order.gift_card_codes.present? %>
+  <dt data-hook='admin_order_tab_gift_card_codes'><%= t('spree.admin.gift_cards.codes') %>:</dt>
+  <dd id='gift-card-codes'><%= @order.gift_card_codes.join(', ') %></dd>
+
+  <dt data-hook='admin_order_tab_gift_card_total_applicable'><%= t('spree.admin.gift_cards.applicable_total') %>:</dt>
+  <dd id='gift-card-codes'><%= @order.display_total_applicable_gift_card %></dd>
+<% end %>
