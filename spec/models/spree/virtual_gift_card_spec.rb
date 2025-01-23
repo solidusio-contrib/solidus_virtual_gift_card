@@ -518,4 +518,75 @@ describe Spree::VirtualGiftCard do
       end
     end
   end
+
+  describe "#void" do
+    subject(:void_payment) do
+      virtual_gift_card.void(auth_code, action_originator: originator)
+    end
+
+    let(:auth_code) { "1-SC-20141111111111" }
+    let(:virtual_gift_card) { create(:virtual_gift_card, amount: 150) }
+    let(:originator) { nil }
+
+    context "without event for auth_code" do
+      it "returns false" do
+        expect(void_payment).to be false
+      end
+
+      it "adds an error to the model" do
+        void_payment
+        expect(virtual_gift_card.errors.full_messages).to include("Unable to void code: #{auth_code}")
+      end
+    end
+
+    context "with capture event for auth_code" do
+      let(:captured_amount) { 10.0 }
+      let!(:capture_event) {
+        create(:virtual_gift_card_auth_event,
+          action: Spree::VirtualGiftCard::CAPTURE_ACTION,
+          authorization_code: auth_code,
+          amount: captured_amount,
+          virtual_gift_card:)
+      }
+
+      it "returns false" do
+        expect(void_payment).to be false
+      end
+
+      it "does not change the amount used on the store credit" do
+        expect { void_payment }.not_to change{ virtual_gift_card.amount_used.to_f }
+      end
+    end
+
+    context "with auth event for auth_code" do
+      let(:authorized_amount) { 10.0 }
+      let(:auth_event) {
+        create(:virtual_gift_card_auth_event,
+          authorization_code: auth_code,
+          amount: authorized_amount,
+          virtual_gift_card:)
+      }
+
+      before do
+        auth_event
+      end
+
+      it "returns true" do
+        expect(void_payment).to be true
+      end
+
+      it "returns the authorized amount to the virtual gift card" do
+        expect { void_payment }.to change{ virtual_gift_card.amount_authorized.to_f }.by(-authorized_amount)
+      end
+
+      context "when originator is present" do
+        let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
+
+        it "records the originator" do
+          expect { void_payment }.to change(Spree::VirtualGiftCardEvent, :count).by(1)
+          expect(Spree::VirtualGiftCardEvent.last.originator).to eq originator
+        end
+      end
+    end
+  end
 end
