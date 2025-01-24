@@ -158,4 +158,47 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
       expect(resp.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::CAPTURE_ACTION)
     end
   end
+
+  describe "#void" do
+    subject(:void_payment) do
+      described_class.new.void(auth_code, gateway_options)
+    end
+
+    let(:auth_code) { auth_event.authorization_code }
+    let(:gateway_options) { super().merge(originator:) }
+    let(:auth_event) { create(:virtual_gift_card_auth_event) }
+    let(:originator) { nil }
+
+    context 'with an invalid auth code' do
+      let(:auth_code) { 1 }
+
+      it "declines an unknown gift card" do
+        expect(void_payment.success?).to be false
+        expect(void_payment.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+      end
+    end
+
+    context 'when the gift card is not voided successfully' do
+      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(void: false) } # rubocop:disable RSpec/AnyInstance
+
+      it "returns an error response" do
+        expect(void_payment.success?).to be false
+      end
+    end
+
+    it "voids a valid gift card void request" do
+      expect(void_payment.success?).to be true
+      expect(void_payment.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::VOID_ACTION)
+    end
+
+    context 'with an originator' do
+      let(:originator) { double('originator') } # rubocop:disable RSpec/VerifiedDoubles
+
+      it 'passes the originator' do
+        expect_any_instance_of(Spree::VirtualGiftCard).to receive(:void) # rubocop:disable RSpec/AnyInstance
+          .with(anything, action_originator: originator)
+        void_payment
+      end
+    end
+  end
 end

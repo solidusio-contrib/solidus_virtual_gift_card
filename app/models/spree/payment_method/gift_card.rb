@@ -48,6 +48,13 @@ module Spree
       handle_action(action, :capture, auth_code)
     end
 
+    def void(auth_code, gateway_options = {})
+      action = ->(virtual_gift_card) {
+        virtual_gift_card.void(auth_code, action_originator: gateway_options[:originator])
+      }
+      handle_action(action, :void, auth_code)
+    end
+
     def gift_card?
       true
     end
@@ -62,15 +69,15 @@ module Spree
 
     private
 
-    def handle_action_call(store_credit, action, action_name, auth_code = nil)
-      store_credit.with_lock do
-        if response = action.call(store_credit)
+    def handle_action_call(gift_card, action, action_name, auth_code = nil)
+      gift_card.with_lock do
+        if response = action.call(gift_card)
           # note that we only need to return the auth code on an 'auth', but it's innocuous to always return
           ActiveMerchant::Billing::Response.new(true,
             I18n.t('spree.virtual_gift_card.successful_action', action: action_name),
             {}, { authorization: auth_code || response })
         else
-          ActiveMerchant::Billing::Response.new(false, store_credit.errors.full_messages.join, {}, {})
+          ActiveMerchant::Billing::Response.new(false, gift_card.errors.full_messages.join, {}, {})
         end
       end
     end

@@ -225,6 +225,23 @@ class Spree::VirtualGiftCard < Spree::Base
     end
   end
 
+  def void(authorization_code, options = {})
+    if auth_event = events.find_by(action: AUTHORIZE_ACTION, authorization_code:)
+      update!({
+        action: VOID_ACTION,
+        action_amount: auth_event.amount,
+        action_authorization_code: authorization_code,
+        action_originator: options[:action_originator],
+
+        amount_authorized: amount_authorized - auth_event.amount
+      })
+      true
+    else
+      errors.add(:base, I18n.t('spree.virtual_gift_card.unable_to_void', auth_code: authorization_code))
+      false
+    end
+  end
+
   private
 
   def store_event
