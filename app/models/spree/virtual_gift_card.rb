@@ -225,6 +225,10 @@ class Spree::VirtualGiftCard < Spree::Base
     end
   end
 
+  def can_void?(payment)
+    payment.pending?
+  end
+
   def void(authorization_code, options = {})
     if auth_event = events.find_by(action: AUTHORIZE_ACTION, authorization_code:)
       update!({

@@ -519,6 +519,51 @@ describe Spree::VirtualGiftCard do
     end
   end
 
+  describe "#can_void?" do
+    let(:virtual_gift_card) { create(:virtual_gift_card) }
+    let(:payment) { create(:payment, state: payment_state) }
+
+    context "with pending payment" do
+      let(:payment_state) { 'pending' }
+
+      it "returns true" do
+        expect(virtual_gift_card.can_void?(payment)).to be true
+      end
+    end
+
+    context "with checkout payment" do
+      let(:payment_state) { 'checkout' }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_void?(payment)).to be false
+      end
+    end
+
+    context "with void payment" do
+      let(:payment_state) { Spree::StoreCredit::VOID_ACTION }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_void?(payment)).to be false
+      end
+    end
+
+    context "with invalid payment" do
+      let(:payment_state) { 'invalid' }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_void?(payment)).to be false
+      end
+    end
+
+    context "with complete payment" do
+      let(:payment_state) { 'completed' }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_void?(payment)).to be false
+      end
+    end
+  end
+
   describe "#void" do
     subject(:void_payment) do
       virtual_gift_card.void(auth_code, action_originator: originator)
