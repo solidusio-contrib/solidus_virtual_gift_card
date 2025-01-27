@@ -55,6 +55,17 @@ module Spree
       handle_action(action, :void, auth_code)
     end
 
+    def credit(amount_in_cents, auth_code, gateway_options = {})
+      action = ->(virtual_gift_card) do
+        currency = gateway_options[:currency] || virtual_gift_card.currency
+        originator = gateway_options[:originator]
+
+        virtual_gift_card.credit(amount_in_cents / BigDecimal('100.0'), auth_code, currency, action_originator: originator)
+      end
+
+      handle_action(action, :credit, auth_code)
+    end
+
     def gift_card?
       true
     end

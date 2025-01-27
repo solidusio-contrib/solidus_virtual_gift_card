@@ -702,4 +702,137 @@ describe Spree::VirtualGiftCard do
       end
     end
   end
+
+  describe "#credit" do
+    subject { virtual_gift_card.credit(credit_amount, auth_code, currency, action_originator: originator) }
+
+    let(:event_auth_code) { "1-GC-20141111111111" }
+    let(:amount_used) { 10.0 }
+    let(:virtual_gift_card) { create(:virtual_gift_card, amount_used:) }
+    let!(:capture_event) {
+      create(:virtual_gift_card_auth_event,
+        action: Spree::VirtualGiftCard::CAPTURE_ACTION,
+        authorization_code: event_auth_code,
+        amount: captured_amount,
+        virtual_gift_card:)
+    }
+    let(:originator) { nil }
+
+    context "when currency does not match" do
+      let(:currency)        { "AUD" }
+      let(:credit_amount)   { 5.0 }
+      let(:captured_amount) { 100.0 }
+      let(:auth_code)       { event_auth_code }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error message about the currency mismatch" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Gift Card currency does not match order currency")
+      end
+    end
+
+    context "when unable to find capture event" do
+      let(:currency)        { "USD" }
+      let(:credit_amount)   { 5.0 }
+      let(:captured_amount) { 100.0 }
+      let(:auth_code)       { "UNKNOWN_CODE" }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error message about the currency mismatch" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Unable to credit code: #{auth_code}")
+      end
+    end
+
+    context "with amount greater than what is captured" do
+      let(:currency)        { "USD" }
+      let(:credit_amount)   { 100.0 }
+      let(:captured_amount) { 5.0 }
+      let(:auth_code)       { event_auth_code }
+
+      it "returns false" do
+        expect(subject).to be false
+      end
+
+      it "adds an error message about the currency mismatch" do
+        subject
+        expect(virtual_gift_card.errors.full_messages).to include("Unable to credit code: #{auth_code}")
+      end
+    end
+
+    context "when amount is successfully credited" do
+      let(:originator) { create(:user) }
+      let(:currency)        { "USD" }
+      let(:credit_amount)   { 5.0 }
+      let(:captured_amount) { 100.0 }
+      let(:auth_code)       { event_auth_code }
+
+      context "when credit_to_new_gift_card is set" do
+        before { allow(SolidusVirtualGiftCard.configuration).to receive(:credit_to_new_gift_card).and_return(true) }
+
+        it "returns true" do
+          expect(subject).to be true
+        end
+
+        it "creates a new Gift Card record" do
+          expect { subject }.to change(described_class, :count).by(1)
+        end
+
+        it "does not create a new gift card event on the parent gift card" do
+          expect { subject }.not_to change { virtual_gift_card.events.count }
+        end
+
+        context "with credits the passed amount to a new store credit record" do
+          before do
+            subject
+            @new_virtual_gift_card = described_class.last
+          end
+
+          it "does not set the amount used on the originating store credit" do
+            expect(virtual_gift_card.reload.amount_used).to eq amount_used
+          end
+
+          it "sets the correct amount on the new store credit" do
+            expect(@new_virtual_gift_card.amount).to eq credit_amount # rubocop:disable RSpec/InstanceVariable
+          end
+
+          [:created_by_id, :currency].each do |attr|
+            it "sets attribute #{attr} inherited from the originating store credit" do
+              expect(@new_virtual_gift_card.send(attr)).to eq virtual_gift_card.send(attr) # rubocop:disable RSpec/InstanceVariable
+            end
+          end
+        end
+
+        context "with originator" do
+          let(:originator) { create(:user) } # won't actually be a user. just giving it a valid model here
+
+          it "records the originator" do
+            expect { subject }.to change(Spree::VirtualGiftCardEvent, :count).by(1)
+            expect(Spree::VirtualGiftCardEvent.last.originator).to eq originator
+          end
+        end
+      end
+
+      context "when credit_to_new_gift_card is not set" do
+        it "returns true" do
+          expect(subject).to be true
+        end
+
+        it "credits the passed amount to the gift card amount used" do
+          subject
+          expect(virtual_gift_card.reload.amount_used).to eq(amount_used - credit_amount)
+        end
+
+        it "creates a new gift card event" do
+          expect { subject }.to change { virtual_gift_card.events.count }.by(1)
+        end
+      end
+    end
+  end
 end
