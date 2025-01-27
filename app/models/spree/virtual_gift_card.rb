@@ -246,6 +246,10 @@ class Spree::VirtualGiftCard < Spree::Base
     end
   end
 
+  def can_credit?(payment)
+    payment.completed? && payment.credit_allowed > 0
+  end
+
   private
 
   def store_event

@@ -665,4 +665,41 @@ describe Spree::VirtualGiftCard do
       end
     end
   end
+
+  describe "#can_credit?" do
+    let(:virtual_gift_card) { create(:virtual_gift_card) }
+    let(:payment) { create(:payment, state: payment_state) }
+
+    context "when payment is not completed" do
+      let(:payment_state) { "pending" }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_credit?(payment)).to be false
+      end
+    end
+
+    context "when payment is completed" do
+      let(:payment_state) { "completed" }
+
+      context "credit is owed on the order" do
+        before { allow(payment.order).to receive_messages(payment_state: 'credit_owed') }
+
+        context "when payment doesn't have allowed credit" do
+          before { allow(payment).to receive_messages(credit_allowed: 0.0) }
+
+          it "returns false" do
+            expect(virtual_gift_card.can_credit?(payment)).to be false
+          end
+        end
+
+        context "when payment has allowed credit" do
+          before { allow(payment).to receive_messages(credit_allowed: 5.0) }
+
+          it "returns true" do
+            expect(virtual_gift_card.can_credit?(payment)).to be true
+          end
+        end
+      end
+    end
+  end
 end
