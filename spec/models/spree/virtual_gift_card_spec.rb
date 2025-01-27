@@ -634,4 +634,35 @@ describe Spree::VirtualGiftCard do
       end
     end
   end
+
+  describe "#store_event" do
+    context "when create" do
+      context "when gift card has an amount" do
+        let(:gift_card_amount) { 100.0 }
+        let(:gift_card) { create(:virtual_gift_card, amount: gift_card_amount) }
+
+        it "creates a virtual gift card event" do
+          expect { gift_card }.to change(Spree::VirtualGiftCardEvent, :count).by(1)
+        end
+
+        it "makes the virtual gift card event an allocation event" do
+          expect(gift_card.events.first.action).to eq Spree::StoreCredit::ALLOCATION_ACTION
+        end
+
+        it "saves the amount_remaining in the event" do
+          expect(gift_card.events.first.amount_remaining).to eq gift_card_amount
+        end
+      end
+
+      context "when an action is specified" do
+        it "creates an event with the set action" do
+          virtual_gift_card = build(:virtual_gift_card)
+          virtual_gift_card.action = Spree::StoreCredit::VOID_ACTION
+          virtual_gift_card.action_authorization_code = "1-SC-TEST"
+
+          expect { virtual_gift_card.save! }.to change { Spree::VirtualGiftCardEvent.where(action: Spree::VirtualGiftCard::VOID_ACTION).count }.by(1)
+        end
+      end
+    end
+  end
 end
