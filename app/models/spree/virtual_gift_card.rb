@@ -54,9 +54,10 @@ class Spree::VirtualGiftCard < Spree::Base
 
   def redeem(redeemer)
     return false if redeemed? || !redeemable?
+    return false if amount_remaining <= 0
 
     create_store_credit!(
-      amount: amount,
+      amount: amount_remaining,
       currency: currency,
       memo: memo,
       user: redeemer,
