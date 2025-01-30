@@ -19,6 +19,7 @@ class Spree::VirtualGiftCard < Spree::Base
   belongs_to :redeemer, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
   belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
+  belongs_to :created_by, class_name: Spree::UserClassHandle.new, optional: true
   has_one :order, through: :line_item
   has_many :events, class_name: 'Spree::VirtualGiftCardEvent', dependent: :destroy
 
@@ -67,7 +68,7 @@ class Spree::VirtualGiftCard < Spree::Base
     update( redeemed_at: Time.zone.now, redeemer: redeemer )
   end
 
-  def make_redeemable!(purchaser:, inventory_unit:)
+  def make_redeemable!(purchaser:, inventory_unit: nil)
     update!(redeemable: true, purchaser: purchaser, inventory_unit: inventory_unit, redemption_code: redemption_code || generate_unique_redemption_code)
   end
 
@@ -225,6 +226,10 @@ class Spree::VirtualGiftCard < Spree::Base
     end
   end
 
+  def can_void?(payment)
+    payment.pending?
+  end
+
   def void(authorization_code, options = {})
     if auth_event = events.find_by(action: AUTHORIZE_ACTION, authorization_code:)
       update!({
@@ -242,7 +247,57 @@ class Spree::VirtualGiftCard < Spree::Base
     end
   end
 
+  def can_credit?(payment)
+    payment.completed? && payment.credit_allowed > 0
+  end
+
+  def credit(amount, authorization_code, order_currency, options = {})
+    # Find the amount related to this authorization_code in order to add the store credit back
+    capture_event = events.find_by(action: CAPTURE_ACTION, authorization_code:)
+
+    if currency != order_currency # sanity check to make sure the order currency hasn't changed since the auth
+      errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+      false
+    elsif capture_event && amount <= capture_event.amount
+      action_attributes = {
+        action: CREDIT_ACTION,
+        action_amount: amount,
+        action_originator: options[:action_originator],
+        action_authorization_code: authorization_code
+      }
+      create_credit_record(amount, action_attributes)
+      true
+    else
+      errors.add(:base, I18n.t('spree.virtual_gift_card.unable_to_credit', auth_code: authorization_code))
+      false
+    end
+  end
+
   private
+
+  def create_credit_record(amount, action_attributes = {})
+    # Setting credit_to_new_allocation to true will create a new allocation anytime #credit is called
+    # If it is not set, it will update the store credit's amount in place
+    credit = if SolidusVirtualGiftCard.configuration.credit_to_new_gift_card
+               Spree::VirtualGiftCard.new(create_gift_card_record_params(amount))
+             else
+               self.amount_used = amount_used - amount
+               self
+             end
+
+    credit.assign_attributes(action_attributes)
+    credit.make_redeemable!(purchaser: action_attributes[:action_originator]) if !credit.persisted?
+
+    credit.save!
+  end
+
+  def create_gift_card_record_params(amount)
+    {
+      amount:,
+      created_by_id:,
+      currency:
+    }
+  end
 
   def store_event
     return unless saved_change_to_amount? || saved_change_to_amount_used? || saved_change_to_amount_authorized? || [ELIGIBLE_ACTION, INVALIDATE_ACTION].include?(action)

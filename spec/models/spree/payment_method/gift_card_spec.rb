@@ -201,4 +201,52 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
       end
     end
   end
+
+  describe "#credit" do
+    subject(:call_credit) do
+      described_class.new.credit(credit_amount, auth_code, gateway_options)
+    end
+
+    let(:credit_amount) { 100.0 }
+    let(:auth_code) { auth_event.authorization_code }
+    let(:gateway_options) { super().merge(originator:) }
+    let(:auth_event) { create(:virtual_gift_card_auth_event) }
+    let(:originator) { nil }
+
+    context 'with an invalid auth code' do
+      let(:auth_code) { 1 }
+
+      it "declines an unknown gift card" do
+        expect(call_credit.success?).to be false
+        expect(call_credit.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+      end
+    end
+
+    context "when the gift card isn't credited successfully" do
+      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(credit: false) } # rubocop:disable RSpec/AnyInstance
+
+      it "returns an error response" do
+        expect(call_credit.success?).to be false
+      end
+    end
+
+    context 'with a valid credit request' do
+      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(credit: true) } # rubocop:disable RSpec/AnyInstance
+
+      it "credits a valid store credit credit request" do
+        expect(call_credit.success?).to be true
+        expect(call_credit.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
+      end
+    end
+
+    context 'with an originator' do
+      let(:originator) { double('originator') } # rubocop:disable RSpec/VerifiedDoubles
+
+      it 'passes the originator' do
+        expect_any_instance_of(Spree::VirtualGiftCard).to receive(:credit) # rubocop:disable RSpec/AnyInstance
+          .with(anything, anything, anything, action_originator: originator)
+        call_credit
+      end
+    end
+  end
 end
