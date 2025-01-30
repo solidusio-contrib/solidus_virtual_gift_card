@@ -287,6 +287,22 @@ describe Spree::VirtualGiftCard do
         it 'sets a memo on store credit for admins to reference the redemption code' do
           expect(store_credit.memo).to eq gift_card.memo
         end
+
+        context "when it has already been used but still have a remaining amount" do
+          let(:gift_card) { create(:redeemable_virtual_gift_card, amount: 10, amount_used: 5) }
+
+          it 'sets the store credit amount with the amount_used' do
+            expect(store_credit.amount).to eq 5
+          end
+        end
+
+        context "when it has already been totally used" do
+          let(:gift_card) { create(:redeemable_virtual_gift_card, amount: 10, amount_used: 10) }
+
+          it 'returns false' do
+            expect(subject).to be_falsey
+          end
+        end
       end
 
       it 'returns true' do
