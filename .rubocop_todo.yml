@@ -41,7 +41,7 @@ Lint/AmbiguousOperator:
 # Configuration parameters: AutoCorrect.
 Lint/UselessAssignment:
   Exclude:
-    - 'spec/models/spree/order_contents_spec.rb'
+    - 'spec/models/spree/simple_order_contents_spec.rb'
 
 # Offense count: 3
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.
@@ -73,7 +73,7 @@ RSpec/ContextWording:
     - 'spec/controllers/spree/api/gift_cards_controller_spec.rb'
     - 'spec/mailers/spree/gift_card_mailer_spec.rb'
     - 'spec/models/concerns/spree/redemption_code_generator_spec.rb'
-    - 'spec/models/spree/order_contents_spec.rb'
+    - 'spec/models/spree/simple_order_contents_spec.rb'
     - 'spec/models/spree/order_spec.rb'
     - 'spec/models/spree/store_credit_category_spec.rb'
     - 'spec/models/spree/virtual_gift_card_spec.rb'
@@ -94,7 +94,7 @@ RSpec/ExpectInHook:
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
   Exclude:
-    - 'spec/models/spree/order_contents_spec.rb'
+    - 'spec/models/spree/simple_order_contents_spec.rb'
 
 # Offense count: 10
 RSpec/LetSetup:
@@ -118,6 +118,8 @@ RSpec/MultipleExpectations:
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
   Max: 14
+  Exclude:
+    - 'spec/models/spree/simple_order_contents_spec.rb'
 
 # Offense count: 100
 # Configuration parameters: EnforcedStyle, IgnoreSharedExamples.
@@ -130,7 +132,7 @@ RSpec/NamedSubject:
     - 'spec/mailers/spree/gift_card_mailer_spec.rb'
     - 'spec/models/concerns/spree/redemption_code_generator_spec.rb'
     - 'spec/models/spree/line_item_spec.rb'
-    - 'spec/models/spree/order_contents_spec.rb'
+    - 'spec/models/spree/simple_order_contents_spec.rb'
     - 'spec/models/spree/order_spec.rb'
     - 'spec/models/spree/store_credit_category_spec.rb'
     - 'spec/models/spree/virtual_gift_card_spec.rb'
@@ -184,7 +186,7 @@ Rails/Date:
     - 'app/decorators/models/solidus_virtual_gift_card/spree/order_contents_decorator.rb'
     - 'lib/tasks/send_gift_card_emails.rake'
     - 'spec/lib/tasks/send_gift_card_emails_spec.rb'
-    - 'spec/models/spree/order_contents_spec.rb'
+    - 'spec/models/spree/simple_order_contents_spec.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
