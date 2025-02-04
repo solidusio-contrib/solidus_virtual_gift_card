@@ -74,7 +74,8 @@ module SolidusVirtualGiftCard
         end
       end
 
-      ::Spree::OrderContents.prepend self
+      ::Spree::SimpleOrderContents.prepend self if Object.const_defined?('::Spree::SimpleOrderContents')
+      ::Spree::OrderContents.prepend self if Object.const_defined?('::Spree::OrderContents')
     end
   end
 end

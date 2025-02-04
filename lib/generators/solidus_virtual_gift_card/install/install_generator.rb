@@ -19,13 +19,19 @@ module SolidusVirtualGiftCard
       end
 
       def add_javascripts
-        append_file 'vendor/assets/javascripts/spree/frontend/all.js', "//= require spree/frontend/solidus_virtual_gift_card\n"
-        append_file 'vendor/assets/javascripts/spree/backend/all.js', "//= require spree/backend/solidus_virtual_gift_card\n"
+        file_path = 'vendor/assets/javascripts/spree/frontend/all.js'
+        append_file file_path, "\n//= require spree/frontend/solidus_virtual_gift_card\n" if File.exist?(file_path)
+
+        file_path = 'vendor/assets/javascripts/spree/backend/all.js'
+        append_file file_path, "\n//= require spree/backend/solidus_virtual_gift_card\n" if File.exist?(file_path)
       end
 
       def add_stylesheets
-        inject_into_file 'vendor/assets/stylesheets/spree/frontend/all.css', " *= require spree/frontend/solidus_virtual_gift_card\n", before: %r{\*/}, verbose: true
-        inject_into_file 'vendor/assets/stylesheets/spree/backend/all.css', " *= require spree/backend/solidus_virtual_gift_card\n", before: %r{\*/}, verbose: true
+        file_path = 'vendor/assets/stylesheets/spree/frontend/all.css'
+        inject_into_file file_path, " *= require spree/frontend/solidus_virtual_gift_card\n", before: %r{\*/}, verbose: true if File.exist?(file_path)
+
+        file_path = 'vendor/assets/stylesheets/spree/backend/all.css'
+        inject_into_file file_path, " *= require spree/backend/solidus_virtual_gift_card\n", before: %r{\*/}, verbose: true if File.exist?(file_path)
       end
 
       def add_migrations
