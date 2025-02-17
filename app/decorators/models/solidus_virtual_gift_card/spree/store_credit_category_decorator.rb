@@ -3,10 +3,10 @@
 module SolidusVirtualGiftCard
   module Spree
     module StoreCreditCategoryDecorator
-      GIFT_CARD_CATEGORY_NAME = 'Gift Card'
-
       def self.prepended(base)
-        base.non_expiring_credit_types |= [GIFT_CARD_CATEGORY_NAME]
+        gift_card_category_name = 'Gift Card'
+        base.const_set(:GIFT_CARD_CATEGORY_NAME, gift_card_category_name) unless base.const_defined?(:GIFT_CARD_CATEGORY_NAME)
+        base.non_expiring_credit_types |= [gift_card_category_name]
       end
 
       ::Spree::StoreCreditCategory.prepend self
