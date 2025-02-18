@@ -1,26 +1,28 @@
 # frozen_string_literal: true
 
 Spree::Core::Engine.routes.draw do
-  namespace :admin do
-    resources :gift_cards, only: [:index, :edit, :update]
+  if defined?(Spree::Backend)
+    namespace :admin do
+      resources :gift_cards, only: [:index, :edit, :update]
 
-    resources :users, only: [] do
-      resources :gift_cards, only: [] do
+      resources :users, only: [] do
+        resources :gift_cards, only: [] do
+          collection do
+            get :lookup
+            post :redeem
+          end
+        end
         collection do
-          get :lookup
-          post :redeem
+          resources :gift_cards, only: [:index]
         end
       end
-      collection do
-        resources :gift_cards, only: [:index]
-      end
-    end
 
-    resources :orders, only: [] do
-      resources :gift_cards, only: [:edit, :update] do
-        member do
-          put :send_email
-          put :deactivate
+      resources :orders, only: [] do
+        resources :gift_cards, only: [:edit, :update] do
+          member do
+            put :send_email
+            put :deactivate
+          end
         end
       end
     end

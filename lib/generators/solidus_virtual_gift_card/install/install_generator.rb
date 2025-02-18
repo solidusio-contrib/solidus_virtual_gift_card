@@ -12,6 +12,7 @@ module SolidusVirtualGiftCard
 
       def copy_initializer
         template 'initializer.rb', 'config/initializers/solidus_virtual_gift_card.rb'
+        empty_directory 'app/assets/javascripts'
       end
 
       def copy_gift_card_views
