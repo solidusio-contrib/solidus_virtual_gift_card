@@ -26,6 +26,10 @@ module SolidusVirtualGiftCard
       paths["app/controllers"] << "lib/solidus_virtual_gift_card/controllers/backend"
     end
 
+    initializer 'solidus_virtual_gift_card.environment', before: :load_config_initializers do
+      SolidusVirtualGiftCard::Config = SolidusVirtualGiftCard::Configuration.new
+    end
+
     initializer "virtual_gift_card.add_static_preference", after: "spree.register.payment_methods" do |app|
       app.config.spree.payment_methods << 'Spree::PaymentMethod::GiftCard'
       app.config.to_prepare do

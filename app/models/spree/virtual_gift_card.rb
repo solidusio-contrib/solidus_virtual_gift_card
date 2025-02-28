@@ -279,7 +279,7 @@ class Spree::VirtualGiftCard < Spree::Base
   def create_credit_record(amount, action_attributes = {})
     # Setting credit_to_new_allocation to true will create a new allocation anytime #credit is called
     # If it is not set, it will update the store credit's amount in place
-    credit = if SolidusVirtualGiftCard.configuration.credit_to_new_gift_card
+    credit = if SolidusVirtualGiftCard::Config.credit_to_new_gift_card
                Spree::VirtualGiftCard.new(create_gift_card_record_params(amount))
              else
                self.amount_used = amount_used - amount

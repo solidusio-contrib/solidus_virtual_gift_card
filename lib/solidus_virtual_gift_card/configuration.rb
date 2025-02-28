@@ -1,22 +1,11 @@
 # frozen_string_literal: true
 
+require 'spree/preferences/configuration'
+require 'active_support/all'
+
 module SolidusVirtualGiftCard
-  class Configuration
-    attr_accessor :send_gift_card_emails, :credit_to_new_gift_card
-
-    def initialize(send_gift_card_emails: true, credit_to_new_allocation: false)
-      @send_gift_card_emails = send_gift_card_emails
-      @credit_to_new_allocation = credit_to_new_allocation
-    end
-  end
-
-  class << self
-    def configuration
-      @configuration ||= Configuration.new
-    end
-
-    def configure
-      yield(configuration)
-    end
+  class Configuration < Spree::Preferences::Configuration
+    preference :send_gift_card_emails, :string, default: ''
+    preference :credit_to_new_gift_card, :boolean, default: true
   end
 end
