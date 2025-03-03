@@ -29,8 +29,23 @@ bundle exec rails g solidus_virtual_gift_card:install
 Use Gift Card during Checkout
 -----------------------------
 
-1) Visit /admin/payment_methods and add Gift Card payment method. It shouldn't be available for User and Admin.
-2)
+1) Visit /admin/payment_methods and add the Gift Card payment method. It should not be available to Users or Admins.
+2) During checkout, you can call the API POST /api/orders/:order_id/gift_card_codes(.:format) to add gift card codes to the order.
+3) At the finalization step, the gift cards listed on the order will be used as payment.
+
+Add expire job
+--------------
+
+If you want to change the configuration, you can add the following to an initializer:
+
+SolidusVirtualGiftCard::Config.tap do |config|
+  # Amount of time after which the authorized transaction should be voided
+  config.authorize_timeout = 1.month
+
+  config.schedule_job_class = 'SolidusVirtualGiftCard::VoidExpiredAuthorizedEventsJob'
+end
+
+The last step in the installation process is to configure the SolidusVirtualGiftCard::VoidExpiredAuthorizedEventsJob background job to run regularly. There are different ways to do this depending on the environment your application is running in: Heroku Scheduler, cron etc.
 
 Authorization
 -------------
