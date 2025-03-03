@@ -39,7 +39,7 @@ module SolidusVirtualGiftCard
       end
 
       def send_gift_card_emails
-        return unless SolidusVirtualGiftCard.configuration.send_gift_card_emails
+        return unless SolidusVirtualGiftCard::Config.send_gift_card_emails
 
         gift_cards.each do |gift_card|
           if gift_card.send_email_at.nil? || gift_card.send_email_at <= DateTime.now

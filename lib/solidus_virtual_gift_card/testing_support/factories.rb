@@ -31,7 +31,7 @@ FactoryBot.define do
     virtual_gift_card
     amount             { 100.00 }
     authorization_code { "#{virtual_gift_card.id}-GC-20140602164814476128" }
-    action               { Spree::VirtualGiftCard::AUTHORIZE_ACTION }
+    action               { Spree::VirtualGiftCard::ALLOCATION_ACTION }
 
     factory :virtual_gift_card_auth_event, class: 'Spree::VirtualGiftCardEvent' do
       action             { Spree::VirtualGiftCard::AUTHORIZE_ACTION }

@@ -790,7 +790,7 @@ describe Spree::VirtualGiftCard do
       let(:auth_code)       { event_auth_code }
 
       context "when credit_to_new_gift_card is set" do
-        before { allow(SolidusVirtualGiftCard.configuration).to receive(:credit_to_new_gift_card).and_return(true) }
+        before { allow(SolidusVirtualGiftCard::Config).to receive(:credit_to_new_gift_card).and_return(true) }
 
         it "returns true" do
           expect(subject).to be true
