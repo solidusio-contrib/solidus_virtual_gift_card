@@ -8,6 +8,7 @@ module SolidusVirtualGiftCard
       # Subquery to get the latest 'created_at' timestamp for each virtual_gift_card_event_id
       subquery = ::Spree::VirtualGiftCardEvent
                  .group(:virtual_gift_card_id)
+                 .where('spree_virtual_gift_card_events.created_at < ?', Time.current - ::SolidusVirtualGiftCard::Config.authorize_timeout)
                  .select('virtual_gift_card_id, MAX(created_at) AS max_created_at')
 
       # Main query:
@@ -17,8 +18,8 @@ module SolidusVirtualGiftCard
       ::Spree::VirtualGiftCardEvent
         .joins("INNER JOIN (#{subquery.to_sql}) AS subquery ON spree_virtual_gift_card_events.virtual_gift_card_id = subquery.virtual_gift_card_id")
         .where('spree_virtual_gift_card_events.created_at = subquery.max_created_at')
-        .where('spree_virtual_gift_card_events.created_at < ?', Time.current - ::SolidusVirtualGiftCard::Config.authorize_timeout)
-        .where(action: 'authorize').find_each do |event|
+        .where(action: 'authorize')
+        .find_each do |event|
           # Void the event for the associated virtual gift card using its authorization code
           event.virtual_gift_card.void(event.authorization_code)
         end
