@@ -20,8 +20,14 @@ module SolidusVirtualGiftCard
         .where('spree_virtual_gift_card_events.created_at = subquery.max_created_at')
         .where(action: 'authorize')
         .find_each do |event|
-          # Void the event for the associated virtual gift card using its authorization code
-          event.virtual_gift_card.void(event.authorization_code)
+          payment = ::Spree::Payment.find_by(source: event.virtual_gift_card)
+
+          Rails.logger.error("Payment not found for event #{event.authorization_code}") && next if payment.nil?
+
+          payment_source = payment.source
+
+          # Void the payment
+          payment_source.void(event.authorization_code)
         end
     end
   end
