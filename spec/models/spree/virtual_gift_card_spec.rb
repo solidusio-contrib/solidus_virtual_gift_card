@@ -456,6 +456,62 @@ describe Spree::VirtualGiftCard do
     end
   end
 
+  describe "#can_capture?" do
+    let(:virtual_gift_card) { create(:virtual_gift_card) }
+    let(:payment) { create(:gift_card_payment, state: payment_state) }
+
+    context "with pending payment" do
+      let(:payment_state) { 'pending' }
+
+      it "returns true" do
+        expect(virtual_gift_card.can_capture?(payment)).to be true
+      end
+
+      context "when payment is older than expiration period" do
+        before do
+          payment.source.events.update_all(created_at: 2.months.ago) # rubocop:disable Rails/SkipsModelValidations
+          payment.update!(created_at: 2.months.ago)
+        end
+
+        it "returns true" do
+          expect(virtual_gift_card.can_capture?(payment)).to be false
+        end
+      end
+    end
+
+    context "with checkout payment" do
+      let(:payment_state) { 'checkout' }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_capture?(payment)).to be true
+      end
+    end
+
+    context "with void payment" do
+      let(:payment_state) { Spree::StoreCredit::VOID_ACTION }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_capture?(payment)).to be false
+      end
+    end
+
+    context "with invalid payment" do
+      let(:payment_state) { 'invalid' }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_capture?(payment)).to be false
+      end
+    end
+
+    context "with complete payment" do
+      let(:payment_state) { 'completed' }
+
+      it "returns false" do
+        expect(virtual_gift_card.can_capture?(payment)).to be false
+      end
+    end
+  end
+
   describe "#capture" do
     let(:virtual_gift_card) { create(:virtual_gift_card, amount: authorized_amount * 2, amount_authorized: authorized_amount) }
     let(:authorized_amount) { 10.00 }

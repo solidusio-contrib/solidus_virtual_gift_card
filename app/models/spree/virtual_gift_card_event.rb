@@ -47,6 +47,10 @@ module Spree
       I18n.t("spree.virtual_gift_card.display_action.#{action}")
     end
 
+    def expired?
+      created_at < SolidusVirtualGiftCard::Config.authorize_timeout.ago
+    end
+
     def order
       Spree::Payment.find_by(response_code: authorization_code).try(:order)
     end

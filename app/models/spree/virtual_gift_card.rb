@@ -12,7 +12,7 @@ class Spree::VirtualGiftCard < Spree::Base
   ADJUSTMENT_ACTION = 'adjustment'
   INVALIDATE_ACTION = 'invalidate'
 
-  attr_accessor :action, :action_amount, :action_originator, :action_authorization_code
+  attr_accessor :action, :action_amount, :action_originator, :action_authorization_code, :imported
 
   belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
   belongs_to :purchaser, class_name: Spree::UserClassHandle.new, optional: true
@@ -197,7 +197,7 @@ class Spree::VirtualGiftCard < Spree::Base
   # @param payment [Spree::Payment] the payment we want to know if can be captured
   # @return [Boolean] true when the payment is in the pending or checkout states
   def can_capture?(payment)
-    payment.pending? || payment.checkout?
+    (payment.pending? && !payment.expired?) || payment.checkout?
   end
 
   def capture(amount, authorization_code, order_currency, options = {})
