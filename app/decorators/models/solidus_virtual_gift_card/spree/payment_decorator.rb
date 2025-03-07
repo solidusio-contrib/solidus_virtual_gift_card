@@ -12,6 +12,12 @@ module SolidusVirtualGiftCard
         payment_method.try(:gift_card?)
       end
 
+      def expired?
+        gift_card_event = source.events.last
+
+        gift_card_event.present? && gift_card_event.expired?
+      end
+
       def invalidate_old_payments
         return unless !store_credit? && !gift_card? && !['invalid', 'failed'].include?(state)
 
