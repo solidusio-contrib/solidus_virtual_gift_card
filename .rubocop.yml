@@ -3,5 +3,26 @@ require:
 
 inherit_from: .rubocop_todo.yml
 
+FactoryBot/CreateList:
+  Enabled: false
+
+FactoryBot/AssociationStyle:
+  Enabled: false
+
+FactoryBot/FactoryNameStyle:
+  Enabled: false
+
+FactoryBot/ConsistentParenthesesStyle:
+  Enabled: false
+
+FactoryBot/FactoryClassName:
+  Enabled: false
+
+FactoryBot/RedundantFactoryOption:
+  Enabled: false
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
 AllCops:
-  TargetRubyVersion: 3.1
+  TargetRubyVersion: 3.2
