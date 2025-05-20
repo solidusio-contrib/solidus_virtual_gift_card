@@ -39,7 +39,7 @@ describe "Gift Cards", type: :feature do
       fill_in "virtual_gift_card_gift_message", with: new_gift_message
       fill_in "virtual_gift_card_send_email_at", with: Date.tomorrow
 
-      click_on "Update"
+      click_button "Update"
       expect(page).to have_content("Gift card updated!")
       expect(gift_card.reload.recipient_name).to eq(new_recipient_name)
       expect(gift_card.recipient_email).to eq(new_recipient_email)
@@ -61,7 +61,7 @@ describe "Gift Cards", type: :feature do
       visit spree.admin_gift_cards_path
 
       fill_in "q[recipient_email_cont]", with: gift_card.recipient_email
-      click_on "Lookup Gift Card"
+      click_button "Lookup Gift Card"
 
       expect(page).to have_content(gift_card.purchaser.email)
       expect(page).not_to have_content(other_gift_card.purchaser.email)
@@ -71,7 +71,7 @@ describe "Gift Cards", type: :feature do
       visit spree.admin_gift_cards_path
 
       fill_in "q[order_number_cont]", with: order.number
-      click_on "Lookup Gift Card"
+      click_button "Lookup Gift Card"
 
       expect(page).to have_content(gift_card.purchaser.email)
       expect(page).not_to have_content(other_gift_card.purchaser.email)

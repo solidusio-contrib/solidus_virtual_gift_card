@@ -29,11 +29,6 @@ Gem::Specification.new do |spec|
   spec.executables = files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  if spec.respond_to?(:metadata)
-    spec.metadata["homepage_uri"] = spec.homepage if spec.homepage
-    spec.metadata["source_code_uri"] = spec.homepage if spec.homepage
-  end
-
   spec.add_dependency 'coffee-rails'
   spec.add_dependency 'deface'
   spec.add_dependency 'solidus_core', ['>= 2.0.0', '< 5']

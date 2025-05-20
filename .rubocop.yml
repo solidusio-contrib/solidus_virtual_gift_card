@@ -24,5 +24,12 @@ FactoryBot/RedundantFactoryOption:
 Gemspec/RequiredRubyVersion:
   Enabled: false
 
+Capybara/RSpec/PredicateMatcher:
+  Enabled: false
+
+Capybara/ClickLinkOrButtonStyle:
+  Enabled: false
+
 AllCops:
   TargetRubyVersion: 3.2
+  NewCops: disable
