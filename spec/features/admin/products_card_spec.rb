@@ -19,7 +19,7 @@ describe 'Gift Cards', type: :feature, js: true do
 
       find('#product_gift_card').click
 
-      click_on 'Update'
+      click_button 'Update'
 
       expect(page).to have_content('successfully updated!')
       expect(page).to have_field('product_gift_card', checked: true)
