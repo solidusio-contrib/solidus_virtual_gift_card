@@ -9,7 +9,7 @@ module SolidusVirtualGiftCard
           state_machine.before_transition to: :confirm, do: :add_gift_card_payments
 
           has_many :gift_cards, through: :line_items
-          has_many :valid_gift_card_payments, -> { gift_cards.valid }, inverse_of: :order, class_name: 'Spree::Payment', foreign_key: :order_id
+          has_many :valid_gift_card_payments, -> { gift_cards.valid }, inverse_of: :order, class_name: "Spree::Payment", foreign_key: :order_id
 
           serialize :gift_card_codes, type: Array, coder: YAML
         end
@@ -21,11 +21,11 @@ module SolidusVirtualGiftCard
 
       def gift_card_match(line_item, options)
         return true unless line_item.gift_card?
-        return true unless options['gift_card_details']
+        return true unless options["gift_card_details"]
 
         line_item.gift_cards.any? do |gift_card|
-          gc_detail_set = gift_card.details.stringify_keys.except('send_email_at').to_set
-          options_set = options['gift_card_details'].except('send_email_at').to_set
+          gc_detail_set = gift_card.details.stringify_keys.except("send_email_at").to_set
+          options_set = options["gift_card_details"].except("send_email_at").to_set
           gc_detail_set.superset?(options_set)
         end
       end
@@ -71,7 +71,7 @@ module SolidusVirtualGiftCard
             payments.create!(source: credit,
               payment_method:,
               amount: amount_to_take,
-              state: 'checkout',
+              state: "checkout",
               response_code: credit.generate_authorization_code)
             remaining_total -= amount_to_take
           end
@@ -86,17 +86,17 @@ module SolidusVirtualGiftCard
 
         payments.reset
 
-        return unless payments.where(state: %w(checkout pending completed)).sum(:amount) != total
+        return unless payments.where(state: %w[checkout pending completed]).sum(:amount) != total
 
-        errors.add(:base, I18n.t('spree.virtual_gift_card.errors.unable_to_fund')) && (return false)
+        errors.add(:base, I18n.t("spree.virtual_gift_card.errors.unable_to_fund")) && (return false)
       end
 
       def matching_gift_cards
         @matching_gift_cards = ::Spree::VirtualGiftCard
-                               .where(currency:, redemption_code: format_redemption_codes_for_lookup)
-                               .sort_by do |virtual_gift_card|
-                                 gift_card_codes.index(virtual_gift_card.redemption_code)
-                               end
+          .where(currency:, redemption_code: format_redemption_codes_for_lookup)
+          .sort_by do |virtual_gift_card|
+            gift_card_codes.index(virtual_gift_card.redemption_code)
+          end
       end
 
       def format_redemption_codes_for_lookup
@@ -125,7 +125,7 @@ module SolidusVirtualGiftCard
       end
 
       def display_total_applicable_gift_card
-        ::Spree::Money.new(-total_applicable_gift_card, { currency: })
+        ::Spree::Money.new(-total_applicable_gift_card, {currency:})
       end
 
       ::Spree::Order.prepend self

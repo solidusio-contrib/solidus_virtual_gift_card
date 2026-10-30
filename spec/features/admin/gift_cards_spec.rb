@@ -9,9 +9,9 @@ describe "Gift Cards", type: :feature do
   let(:product) { gift_card.line_item.product }
   let!(:order) do
     create(:order_ready_to_ship,
-           number: "R100",
-           state: "complete",
-           line_items: [gift_card.line_item])
+      number: "R100",
+      state: "complete",
+      line_items: [gift_card.line_item])
   end
   let(:admin_user) { create(:admin_user) }
 
@@ -51,8 +51,8 @@ describe "Gift Cards", type: :feature do
   describe "lookup a gift card" do
     let(:gift_card) {
       create(:redeemable_virtual_gift_card,
-             recipient_name: "Daeva",
-             recipient_email: "dog@example.com")
+        recipient_name: "Daeva",
+        recipient_email: "dog@example.com")
     }
     let(:other_gift_card) { create(:redeemable_virtual_gift_card) }
     let(:order) { gift_card.line_item.order }

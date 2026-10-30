@@ -5,7 +5,7 @@ module SolidusVirtualGiftCard
     module OrderContentsDecorator
       def add(variant, quantity = 1, options = {})
         line_item = super
-        create_gift_cards(line_item, quantity, options['gift_card_details'] || {})
+        create_gift_cards(line_item, quantity, options["gift_card_details"] || {})
         line_item
       end
 
@@ -16,7 +16,7 @@ module SolidusVirtualGiftCard
       end
 
       def update_cart(params)
-        update_success = super(params)
+        update_success = super
 
         if update_success && params[:line_items_attributes]
           line_item = ::Spree::LineItem.find_by(id: params[:line_items_attributes][:id])
@@ -36,11 +36,11 @@ module SolidusVirtualGiftCard
               amount: line_item.price,
               currency: line_item.currency,
               line_item: line_item,
-              recipient_name: gift_card_details['recipient_name'],
-              recipient_email: gift_card_details['recipient_email'],
-              purchaser_name: gift_card_details['purchaser_name'],
-              gift_message: gift_card_details['gift_message'],
-              send_email_at: format_date(gift_card_details['send_email_at'])
+              recipient_name: gift_card_details["recipient_name"],
+              recipient_email: gift_card_details["recipient_email"],
+              purchaser_name: gift_card_details["purchaser_name"],
+              gift_message: gift_card_details["gift_message"],
+              send_email_at: format_date(gift_card_details["send_email_at"])
             )
           end
         end
@@ -74,8 +74,8 @@ module SolidusVirtualGiftCard
         end
       end
 
-      ::Spree::SimpleOrderContents.prepend self if Object.const_defined?('::Spree::SimpleOrderContents')
-      ::Spree::OrderContents.prepend self if Object.const_defined?('::Spree::OrderContents')
+      ::Spree::SimpleOrderContents.prepend self if Object.const_defined?("::Spree::SimpleOrderContents")
+      ::Spree::OrderContents.prepend self if Object.const_defined?("::Spree::OrderContents")
     end
   end
 end

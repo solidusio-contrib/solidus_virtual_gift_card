@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 RSpec.describe Spree::VirtualGiftCardEvent do
   describe ".exposed_events" do
@@ -110,7 +110,7 @@ RSpec.describe Spree::VirtualGiftCardEvent do
     end
 
     it "uses the events amount attribute" do
-      expect(auth_event.display_amount).to eq Spree::Money.new(event_amount, { currency: auth_event.currency })
+      expect(auth_event.display_amount).to eq Spree::Money.new(event_amount, {currency: auth_event.currency})
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe Spree::VirtualGiftCardEvent do
     end
 
     it "uses the events user_total_amount attribute" do
-      expect(auth_event.display_user_total_amount).to eq Spree::Money.new(user_total_amount, { currency: auth_event.currency })
+      expect(auth_event.display_user_total_amount).to eq Spree::Money.new(user_total_amount, {currency: auth_event.currency})
     end
   end
 
@@ -138,7 +138,7 @@ RSpec.describe Spree::VirtualGiftCardEvent do
     end
 
     it "uses the events amount_remaining attribute" do
-      expect(auth_event.display_remaining_amount).to eq Spree::Money.new(amount_remaining, { currency: auth_event.currency })
+      expect(auth_event.display_remaining_amount).to eq Spree::Money.new(amount_remaining, {currency: auth_event.currency})
     end
   end
 
@@ -221,7 +221,7 @@ RSpec.describe Spree::VirtualGiftCardEvent do
       subject(:auth_event) { create(:virtual_gift_card_auth_event, action: Spree::VirtualGiftCard::CAPTURE_ACTION, authorization_code:) }
 
       let(:authorization_code) { "1-GC-TEST" }
-      let(:order)              { create(:order) }
+      let(:order) { create(:order) }
 
       before do
         create(:gift_card_payment, order:, response_code: authorization_code)

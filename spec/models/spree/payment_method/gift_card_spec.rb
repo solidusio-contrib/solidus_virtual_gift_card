@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 RSpec.describe Spree::PaymentMethod::GiftCard do
-  let(:order)           { create(:order) }
-  let(:payment)         { create(:payment, order:) }
+  let(:order) { create(:order) }
+  let(:payment) { create(:payment, order:) }
   let(:gateway_options) { payment.gateway_options }
 
   describe "#authorize" do
@@ -15,45 +15,45 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
     let(:gateway_options) { super().merge(originator:) }
     let(:originator) { nil }
 
-    context 'without an invalid virtual gift card' do
+    context "without an invalid virtual gift card" do
       let(:virtual_gift_card) { nil }
       let(:auth_amount) { 10 }
 
       it "declines an unknown store gift card" do
         expect(authorize).not_to be_success
-        expect(authorize.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+        expect(authorize.message).to include I18n.t("spree.virtual_gift_card.unable_to_find")
       end
     end
 
-    context 'with insuffient funds' do
+    context "with insuffient funds" do
       let(:auth_amount) { (virtual_gift_card.amount_remaining * 100) + 1 }
 
       it "declines a gift card" do
         expect(authorize).not_to be_success
-        expect(authorize.message).to include I18n.t('spree.virtual_gift_card.insufficient_funds')
+        expect(authorize.message).to include I18n.t("spree.virtual_gift_card.insufficient_funds")
       end
     end
 
-    context 'when the currency does not match the order currency' do
-      let(:virtual_gift_card) { create(:virtual_gift_card, currency: 'AUD') }
+    context "when the currency does not match the order currency" do
+      let(:virtual_gift_card) { create(:virtual_gift_card, currency: "AUD") }
 
       it "declines the credit" do
         expect(authorize).not_to be_success
-        expect(authorize.message).to include I18n.t('spree.virtual_gift_card.currency_mismatch')
+        expect(authorize.message).to include I18n.t("spree.virtual_gift_card.currency_mismatch")
       end
     end
 
-    context 'with a valid request' do
+    context "with a valid request" do
       it "authorizes a valid gift card" do
         expect(authorize).to be_success
         expect(authorize.authorization).not_to be_nil
       end
 
-      context 'with an originator' do
-        let(:originator) { double('originator') } # rubocop:disable RSpec/VerifiedDoubles
+      context "with an originator" do
+        let(:originator) { double("originator") }
 
-        it 'passes the originator' do
-          expect_any_instance_of(Spree::VirtualGiftCard).to receive(:authorize) # rubocop:disable RSpec/AnyInstance
+        it "passes the originator" do
+          expect_any_instance_of(Spree::VirtualGiftCard).to receive(:authorize)
             .with(anything, anything, action_originator: originator)
           authorize
         end
@@ -75,48 +75,48 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
     let(:virtual_gift_card) { create(:virtual_gift_card, amount_authorized: authorized_amount) }
     let(:originator) { nil }
 
-    context 'with an invalid auth code' do
+    context "with an invalid auth code" do
       let(:auth_code) { -1 }
 
       it "declines an unknown virtual gift card" do
         expect(capture).not_to be_success
-        expect(capture.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+        expect(capture.message).to include I18n.t("spree.virtual_gift_card.unable_to_find")
       end
     end
 
-    context 'when unable to authorize the amount' do
+    context "when unable to authorize the amount" do
       let(:authorized_amount) { (capture_amount - 1) / 100 }
 
       before do
-        allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(authorize: true) # rubocop:disable RSpec/AnyInstance
+        allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(authorize: true)
       end
 
       it "declines a store credit" do
         expect(capture).not_to be_success
-        expect(capture.message).to include I18n.t('spree.virtual_gift_card.insufficient_authorized_amount')
+        expect(capture.message).to include I18n.t("spree.virtual_gift_card.insufficient_authorized_amount")
       end
     end
 
-    context 'when the currency does not match the order currency' do
-      let(:virtual_gift_card) { create(:virtual_gift_card, currency: 'AUD', amount_authorized: authorized_amount) }
+    context "when the currency does not match the order currency" do
+      let(:virtual_gift_card) { create(:virtual_gift_card, currency: "AUD", amount_authorized: authorized_amount) }
 
       it "declines the credit" do
         expect(capture).not_to be_success
-        expect(capture.message).to include I18n.t('spree.virtual_gift_card.currency_mismatch')
+        expect(capture.message).to include I18n.t("spree.virtual_gift_card.currency_mismatch")
       end
     end
 
-    context 'with a valid request' do
+    context "with a valid request" do
       it "captures the gift card" do
-        expect(capture.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::CAPTURE_ACTION)
+        expect(capture.message).to include I18n.t("spree.virtual_gift_card.successful_action", action: Spree::VirtualGiftCard::CAPTURE_ACTION)
         expect(capture).to be_success
       end
 
-      context 'with an originator' do
-        let(:originator) { double('originator') } # rubocop:disable RSpec/VerifiedDoubles
+      context "with an originator" do
+        let(:originator) { double("originator") }
 
-        it 'passes the originator' do
-          expect_any_instance_of(Spree::VirtualGiftCard).to receive(:capture) # rubocop:disable RSpec/AnyInstance
+        it "passes the originator" do
+          expect_any_instance_of(Spree::VirtualGiftCard).to receive(:capture)
             .with(anything, anything, anything, action_originator: originator)
           capture
         end
@@ -142,7 +142,7 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
 
       resp = gift_card_payment_method.purchase(amount * 100.0, virtual_gift_card, gateway_options)
       expect(resp.success?).to be false
-      expect(resp.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+      expect(resp.message).to include I18n.t("spree.virtual_gift_card.unable_to_find")
     end
 
     it "captures a purchase if it can find a pending credit for the correct amount" do
@@ -155,7 +155,7 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
 
       resp = gift_card_payment_method.purchase(amount * 100.0, virtual_gift_card, gateway_options)
       expect(resp.success?).to be true
-      expect(resp.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::CAPTURE_ACTION)
+      expect(resp.message).to include I18n.t("spree.virtual_gift_card.successful_action", action: Spree::VirtualGiftCard::CAPTURE_ACTION)
     end
   end
 
@@ -169,17 +169,17 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
     let(:auth_event) { create(:virtual_gift_card_auth_event) }
     let(:originator) { nil }
 
-    context 'with an invalid auth code' do
+    context "with an invalid auth code" do
       let(:auth_code) { 1 }
 
       it "declines an unknown gift card" do
         expect(void_payment.success?).to be false
-        expect(void_payment.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+        expect(void_payment.message).to include I18n.t("spree.virtual_gift_card.unable_to_find")
       end
     end
 
-    context 'when the gift card is not voided successfully' do
-      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(void: false) } # rubocop:disable RSpec/AnyInstance
+    context "when the gift card is not voided successfully" do
+      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(void: false) }
 
       it "returns an error response" do
         expect(void_payment.success?).to be false
@@ -188,14 +188,14 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
 
     it "voids a valid gift card void request" do
       expect(void_payment.success?).to be true
-      expect(void_payment.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::VirtualGiftCard::VOID_ACTION)
+      expect(void_payment.message).to include I18n.t("spree.virtual_gift_card.successful_action", action: Spree::VirtualGiftCard::VOID_ACTION)
     end
 
-    context 'with an originator' do
-      let(:originator) { double('originator') } # rubocop:disable RSpec/VerifiedDoubles
+    context "with an originator" do
+      let(:originator) { double("originator") }
 
-      it 'passes the originator' do
-        expect_any_instance_of(Spree::VirtualGiftCard).to receive(:void) # rubocop:disable RSpec/AnyInstance
+      it "passes the originator" do
+        expect_any_instance_of(Spree::VirtualGiftCard).to receive(:void)
           .with(anything, action_originator: originator)
         void_payment
       end
@@ -213,37 +213,37 @@ RSpec.describe Spree::PaymentMethod::GiftCard do
     let(:auth_event) { create(:virtual_gift_card_auth_event) }
     let(:originator) { nil }
 
-    context 'with an invalid auth code' do
+    context "with an invalid auth code" do
       let(:auth_code) { 1 }
 
       it "declines an unknown gift card" do
         expect(call_credit.success?).to be false
-        expect(call_credit.message).to include I18n.t('spree.virtual_gift_card.unable_to_find')
+        expect(call_credit.message).to include I18n.t("spree.virtual_gift_card.unable_to_find")
       end
     end
 
     context "when the gift card isn't credited successfully" do
-      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(credit: false) } # rubocop:disable RSpec/AnyInstance
+      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(credit: false) }
 
       it "returns an error response" do
         expect(call_credit.success?).to be false
       end
     end
 
-    context 'with a valid credit request' do
-      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(credit: true) } # rubocop:disable RSpec/AnyInstance
+    context "with a valid credit request" do
+      before { allow_any_instance_of(Spree::VirtualGiftCard).to receive_messages(credit: true) }
 
       it "credits a valid store credit credit request" do
         expect(call_credit.success?).to be true
-        expect(call_credit.message).to include I18n.t('spree.virtual_gift_card.successful_action', action: Spree::StoreCredit::CREDIT_ACTION)
+        expect(call_credit.message).to include I18n.t("spree.virtual_gift_card.successful_action", action: Spree::StoreCredit::CREDIT_ACTION)
       end
     end
 
-    context 'with an originator' do
-      let(:originator) { double('originator') } # rubocop:disable RSpec/VerifiedDoubles
+    context "with an originator" do
+      let(:originator) { double("originator") }
 
-      it 'passes the originator' do
-        expect_any_instance_of(Spree::VirtualGiftCard).to receive(:credit) # rubocop:disable RSpec/AnyInstance
+      it "passes the originator" do
+        expect_any_instance_of(Spree::VirtualGiftCard).to receive(:credit)
           .with(anything, anything, anything, action_originator: originator)
         call_credit
       end

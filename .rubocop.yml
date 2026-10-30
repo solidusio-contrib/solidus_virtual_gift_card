@@ -3,31 +3,7 @@ require:
 
 inherit_from: .rubocop_todo.yml
 
-FactoryBot/CreateList:
-  Enabled: false
-
-FactoryBot/AssociationStyle:
-  Enabled: false
-
-FactoryBot/FactoryNameStyle:
-  Enabled: false
-
-FactoryBot/ConsistentParenthesesStyle:
-  Enabled: false
-
-FactoryBot/FactoryClassName:
-  Enabled: false
-
-FactoryBot/RedundantFactoryOption:
-  Enabled: false
-
 Gemspec/RequiredRubyVersion:
-  Enabled: false
-
-Capybara/RSpec/PredicateMatcher:
-  Enabled: false
-
-Capybara/ClickLinkOrButtonStyle:
   Enabled: false
 
 AllCops:

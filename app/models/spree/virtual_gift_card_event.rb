@@ -11,7 +11,7 @@ module Spree
 
     scope :exposed_events, -> { exposable_actions.not_invalidated }
     scope :exposable_actions, -> { where.not(action: NON_EXPOSED_ACTIONS) }
-    scope :not_invalidated, -> { joins(:virtual_gift_card).where(spree_virtual_gift_cards: { deactivated_at: nil }) }
+    scope :not_invalidated, -> { joins(:virtual_gift_card).where(spree_virtual_gift_cards: {deactivated_at: nil}) }
     scope :chronological, -> { order(:created_at) }
     scope :reverse_chronological, -> { order(created_at: :desc) }
 
@@ -26,15 +26,15 @@ module Spree
     end
 
     def display_amount
-      Spree::Money.new(amount, { currency: })
+      Spree::Money.new(amount, {currency:})
     end
 
     def display_user_total_amount
-      Spree::Money.new(user_total_amount, { currency: })
+      Spree::Money.new(user_total_amount, {currency:})
     end
 
     def display_remaining_amount
-      Spree::Money.new(amount_remaining, { currency: })
+      Spree::Money.new(amount_remaining, {currency:})
     end
 
     def display_event_date

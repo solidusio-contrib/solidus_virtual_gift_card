@@ -51,7 +51,7 @@ Spree::Core::Engine.routes.draw do
     resources :customer_returns, except: :destroy
   end
 
-  namespace :api, defaults: { format: 'json' } do
+  namespace :api, defaults: {format: "json"} do
     resources :gift_cards, only: [] do
       collection do
         post :redeem

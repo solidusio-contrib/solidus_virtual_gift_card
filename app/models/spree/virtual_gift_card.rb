@@ -3,29 +3,29 @@
 class Spree::VirtualGiftCard < Spree::Base
   include ActiveSupport::NumberHelper
 
-  VOID_ACTION       = 'void'
-  CREDIT_ACTION     = 'credit'
-  CAPTURE_ACTION    = 'capture'
-  ELIGIBLE_ACTION   = 'eligible'
-  AUTHORIZE_ACTION  = 'authorize'
-  ALLOCATION_ACTION = 'allocation'
-  ADJUSTMENT_ACTION = 'adjustment'
-  INVALIDATE_ACTION = 'invalidate'
+  VOID_ACTION = "void"
+  CREDIT_ACTION = "credit"
+  CAPTURE_ACTION = "capture"
+  ELIGIBLE_ACTION = "eligible"
+  AUTHORIZE_ACTION = "authorize"
+  ALLOCATION_ACTION = "allocation"
+  ADJUSTMENT_ACTION = "adjustment"
+  INVALIDATE_ACTION = "invalidate"
 
   attr_accessor :action, :action_amount, :action_originator, :action_authorization_code, :imported
 
-  belongs_to :store_credit, class_name: 'Spree::StoreCredit', optional: true
+  belongs_to :store_credit, class_name: "Spree::StoreCredit", optional: true
   belongs_to :purchaser, class_name: Spree::UserClassHandle.new, optional: true
   belongs_to :redeemer, class_name: Spree::UserClassHandle.new, optional: true
-  belongs_to :line_item, class_name: 'Spree::LineItem', optional: true
-  belongs_to :inventory_unit, class_name: 'Spree::InventoryUnit', optional: true
+  belongs_to :line_item, class_name: "Spree::LineItem", optional: true
+  belongs_to :inventory_unit, class_name: "Spree::InventoryUnit", optional: true
   belongs_to :created_by, class_name: Spree::UserClassHandle.new, optional: true
   has_one :order, through: :line_item
-  has_many :events, class_name: 'Spree::VirtualGiftCardEvent', dependent: :destroy
+  has_many :events, class_name: "Spree::VirtualGiftCardEvent", dependent: :destroy
 
-  validates :amount, numericality: { greater_than: 0 }
-  validates :redemption_code, uniqueness: { conditions: -> { where(redeemed_at: nil, redeemable: true) } }
-  validates :purchaser_id, presence: { if: proc { |gc| gc.redeemable? } }
+  validates :amount, numericality: {greater_than: 0}
+  validates :redemption_code, uniqueness: {conditions: -> { where(redeemed_at: nil, redeemable: true) }}
+  validates :purchaser_id, presence: {if: proc { |gc| gc.redeemable? }}
 
   scope :unredeemed, -> { where(redeemed_at: nil) }
   scope :by_redemption_code, ->(redemption_code) { where(redemption_code: redemption_code) }
@@ -42,7 +42,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   ransacker :sent_at do
-    Arel.sql('date(sent_at)')
+    Arel.sql("date(sent_at)")
   end
 
   def redeemed?
@@ -64,9 +64,9 @@ class Spree::VirtualGiftCard < Spree::Base
       user: redeemer,
       created_by: redeemer,
       action_originator: self,
-      category: store_credit_category,
+      category: store_credit_category
     )
-    update( redeemed_at: Time.zone.now, redeemer: redeemer )
+    update(redeemed_at: Time.zone.now, redeemer: redeemer)
   end
 
   def make_redeemable!(purchaser:, inventory_unit: nil)
@@ -100,7 +100,7 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def formatted_redemption_code
-    redemption_code.present? ? redemption_code.scan(/.{4}/).join('-') : ''
+    redemption_code.present? ? redemption_code.scan(/.{4}/).join("-") : ""
   end
 
   def formatted_amount
@@ -108,23 +108,23 @@ class Spree::VirtualGiftCard < Spree::Base
   end
 
   def formatted_send_email_at
-    send_email_at&.strftime('%-m/%-d/%y')
+    send_email_at&.strftime("%-m/%-d/%y")
   end
 
   def formatted_sent_at
-    sent_at&.strftime('%-m/%-d/%y')
+    sent_at&.strftime("%-m/%-d/%y")
   end
 
   def formatted_created_at
-    created_at.localtime.strftime('%F %I:%M%p')
+    created_at.localtime.strftime("%F %I:%M%p")
   end
 
   def formatted_redeemed_at
-    redeemed_at&.localtime&.strftime('%F %I:%M%p')
+    redeemed_at&.localtime&.strftime("%F %I:%M%p")
   end
 
   def formatted_deactivated_at
-    deactivated_at&.localtime&.strftime('%F %I:%M%p')
+    deactivated_at&.localtime&.strftime("%F %I:%M%p")
   end
 
   def store_credit_category
@@ -143,14 +143,14 @@ class Spree::VirtualGiftCard < Spree::Base
   def generate_authorization_code
     [
       id,
-      'GC',
-      Time.current.utc.strftime('%Y%m%d%H%M%S%6N'),
+      "GC",
+      Time.current.utc.strftime("%Y%m%d%H%M%S%6N"),
       SecureRandom.uuid
-    ].join('-')
+    ].join("-")
   end
 
   def amount_remaining
-    return BigDecimal('0.0') if deactivated?
+    return BigDecimal("0.0") if deactivated?
 
     amount - amount_used - amount_authorized
   end
@@ -183,15 +183,15 @@ class Spree::VirtualGiftCard < Spree::Base
 
   def validate_authorization(amount, order_currency)
     if amount_remaining.to_d < amount.to_d
-      errors.add(:base, I18n.t('spree.virtual_gift_card.insufficient_funds'))
+      errors.add(:base, I18n.t("spree.virtual_gift_card.insufficient_funds"))
     elsif currency != order_currency
-      errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+      errors.add(:base, I18n.t("spree.virtual_gift_card.currency_mismatch"))
     end
     errors.blank?
   end
 
   def actions
-    %w(capture void credit)
+    %w[capture void credit]
   end
 
   # @param payment [Spree::Payment] the payment we want to know if can be captured
@@ -207,7 +207,7 @@ class Spree::VirtualGiftCard < Spree::Base
 
     if amount <= auth_event.amount
       if currency != order_currency
-        errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+        errors.add(:base, I18n.t("spree.virtual_gift_card.currency_mismatch"))
         false
       else
         update!({
@@ -222,7 +222,7 @@ class Spree::VirtualGiftCard < Spree::Base
         authorization_code
       end
     else
-      errors.add(:base, I18n.t('spree.virtual_gift_card.insufficient_authorized_amount'))
+      errors.add(:base, I18n.t("spree.virtual_gift_card.insufficient_authorized_amount"))
       false
     end
   end
@@ -243,7 +243,7 @@ class Spree::VirtualGiftCard < Spree::Base
       })
       true
     else
-      errors.add(:base, I18n.t('spree.virtual_gift_card.unable_to_void', auth_code: authorization_code))
+      errors.add(:base, I18n.t("spree.virtual_gift_card.unable_to_void", auth_code: authorization_code))
       false
     end
   end
@@ -257,7 +257,7 @@ class Spree::VirtualGiftCard < Spree::Base
     capture_event = events.find_by(action: CAPTURE_ACTION, authorization_code:)
 
     if currency != order_currency # sanity check to make sure the order currency hasn't changed since the auth
-      errors.add(:base, I18n.t('spree.virtual_gift_card.currency_mismatch'))
+      errors.add(:base, I18n.t("spree.virtual_gift_card.currency_mismatch"))
       false
     elsif capture_event && amount <= capture_event.amount
       action_attributes = {
@@ -269,7 +269,7 @@ class Spree::VirtualGiftCard < Spree::Base
       create_credit_record(amount, action_attributes)
       true
     else
-      errors.add(:base, I18n.t('spree.virtual_gift_card.unable_to_credit', auth_code: authorization_code))
+      errors.add(:base, I18n.t("spree.virtual_gift_card.unable_to_credit", auth_code: authorization_code))
       false
     end
   end
@@ -280,11 +280,11 @@ class Spree::VirtualGiftCard < Spree::Base
     # Setting credit_to_new_allocation to true will create a new allocation anytime #credit is called
     # If it is not set, it will update the store credit's amount in place
     credit = if SolidusVirtualGiftCard::Config.credit_to_new_gift_card
-               Spree::VirtualGiftCard.new(create_gift_card_record_params(amount))
-             else
-               self.amount_used = amount_used - amount
-               self
-             end
+      Spree::VirtualGiftCard.new(create_gift_card_record_params(amount))
+    else
+      self.amount_used = amount_used - amount
+      self
+    end
 
     credit.assign_attributes(action_attributes)
     credit.make_redeemable!(purchaser: action_attributes[:action_originator]) if !credit.persisted?
@@ -304,10 +304,10 @@ class Spree::VirtualGiftCard < Spree::Base
     return unless saved_change_to_amount? || saved_change_to_amount_used? || saved_change_to_amount_authorized? || [ELIGIBLE_ACTION, INVALIDATE_ACTION].include?(action)
 
     event = if action
-              events.build(action:)
-            else
-              events.where(action: ALLOCATION_ACTION).first_or_initialize
-            end
+      events.build(action:)
+    else
+      events.where(action: ALLOCATION_ACTION).first_or_initialize
+    end
 
     event.update!({
       amount: action_amount || amount,

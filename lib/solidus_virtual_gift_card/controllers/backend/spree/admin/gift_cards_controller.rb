@@ -13,41 +13,43 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController # rubocop
     @gift_cards = @search.result.page(params[:page]).per(params[:per_page])
   end
 
-  def edit; end
+  def edit
+  end
 
-  def lookup; end
+  def lookup
+  end
 
   def update
     if @gift_card.update(gift_card_params)
-      flash[:success] = I18n.t('spree.admin.gift_cards.gift_card_updated')
+      flash[:success] = I18n.t("spree.admin.gift_cards.gift_card_updated")
       redirect_path = @order.present? ? edit_admin_order_path(@order) : edit_admin_gift_card_path(@gift_card)
       redirect_to redirect_path
     else
-      flash[:error] = @gift_card.errors.full_messages.join(', ')
+      flash[:error] = @gift_card.errors.full_messages.join(", ")
       redirect_to :back
     end
   end
 
   def redeem
     if @gift_card.redeem(@user)
-      flash[:success] = I18n.t('spree.admin.gift_cards.redeemed_gift_card')
+      flash[:success] = I18n.t("spree.admin.gift_cards.redeemed_gift_card")
       redirect_to admin_user_store_credits_path(@user)
     else
-      flash[:error] = I18n.t('spree.admin.gift_cards.errors.unable_to_redeem_gift_card')
+      flash[:error] = I18n.t("spree.admin.gift_cards.errors.unable_to_redeem_gift_card")
       render :lookup
     end
   end
 
   def deactivate
     if @gift_card.deactivate
-      flash[:success] = I18n.t('spree.admin.gift_cards.deactivated_gift_card')
+      flash[:success] = I18n.t("spree.admin.gift_cards.deactivated_gift_card")
       redirect_to edit_admin_order_path(@order)
     else
-      flash[:error] = @gift_card.errors.full_messages.join(', ').presence || I18n.t('spree.admin.gift_cards.errors.unable_to_reimburse_gift_card')
+      flash[:error] = @gift_card.errors.full_messages.join(", ").presence || I18n.t("spree.admin.gift_cards.errors.unable_to_reimburse_gift_card")
       redirect_to edit_admin_order_gift_card_path(@order, @gift_card)
     end
   rescue Spree::Reimbursement::IncompleteReimbursementError
-    flash[:error] = I18n.t('spree.admin.gift_cards.errors.unable_to_reimburse_gift_card')
+    flash[:error] = I18n.t("spree.admin.gift_cards.errors.unable_to_reimburse_gift_card")
     redirect_to edit_admin_order_gift_card_path(@order, @gift_card)
   end
 
@@ -64,7 +66,7 @@ class Spree::Admin::GiftCardsController < Spree::Admin::BaseController # rubocop
 
     return if @gift_card.present?
 
-    flash[:error] = I18n.t('spree.admin.gift_cards.errors.not_found')
+    flash[:error] = I18n.t("spree.admin.gift_cards.errors.not_found")
     render :lookup
   end
 
