@@ -1,0 +1,24 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 4" # every Thursday
+
+concurrency:
+  group: test-${{ github.ref_name }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: solidusio/test-solidus-extension/.github/workflows/test.yml@main
+    with:
+      solidus_branches: '["v4.8", "v4.7", "v4.6"]'
+      ruby_versions: '["3.4"]'
