@@ -8,11 +8,11 @@ module Spree
 
     def authorize(amount_in_cents, provided_store_credit, gateway_options = {})
       if provided_store_credit.nil?
-        ActiveMerchant::Billing::Response.new(false, I18n.t('spree.virtual_gift_card.unable_to_find'), {}, {})
+        ActiveMerchant::Billing::Response.new(false, I18n.t("spree.virtual_gift_card.unable_to_find"), {}, {})
       else
         action = ->(virtual_gift_card) {
           virtual_gift_card.authorize(
-            amount_in_cents / BigDecimal('100.0'),
+            amount_in_cents / BigDecimal("100.0"),
             gateway_options[:currency],
             action_originator: gateway_options[:originator]
           )
@@ -22,14 +22,14 @@ module Spree
     end
 
     def purchase(amount_in_cents, virtual_gift_card, gateway_options = {})
-      eligible_events = virtual_gift_card.events.where(amount: amount_in_cents / BigDecimal('100.0'), action: Spree::VirtualGiftCard::ELIGIBLE_ACTION)
+      eligible_events = virtual_gift_card.events.where(amount: amount_in_cents / BigDecimal("100.0"), action: Spree::VirtualGiftCard::ELIGIBLE_ACTION)
       event = eligible_events.find do |eligible_event|
         virtual_gift_card.events.where(authorization_code: eligible_event.authorization_code)
-                         .where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION).empty?
+          .where.not(action: Spree::StoreCredit::ELIGIBLE_ACTION).empty?
       end
 
       if event.blank?
-        ActiveMerchant::Billing::Response.new(false, I18n.t('spree.virtual_gift_card.unable_to_find'), {}, {})
+        ActiveMerchant::Billing::Response.new(false, I18n.t("spree.virtual_gift_card.unable_to_find"), {}, {})
       else
         capture(amount_in_cents, event.authorization_code, gateway_options)
       end
@@ -38,7 +38,7 @@ module Spree
     def capture(amount_in_cents, auth_code, gateway_options = {})
       action = ->(virtual_gift_card) {
         virtual_gift_card.capture(
-          amount_in_cents / BigDecimal('100.0'),
+          amount_in_cents / BigDecimal("100.0"),
           auth_code,
           gateway_options[:currency],
           action_originator: gateway_options[:originator]
@@ -60,7 +60,7 @@ module Spree
         currency = gateway_options[:currency] || virtual_gift_card.currency
         originator = gateway_options[:originator]
 
-        virtual_gift_card.credit(amount_in_cents / BigDecimal('100.0'), auth_code, currency, action_originator: originator)
+        virtual_gift_card.credit(amount_in_cents / BigDecimal("100.0"), auth_code, currency, action_originator: originator)
       end
 
       handle_action(action, :credit, auth_code)
@@ -75,7 +75,7 @@ module Spree
     end
 
     def can_capture?(payment)
-      ['checkout', 'pending'].include?(payment.state)
+      ["checkout", "pending"].include?(payment.state)
     end
 
     private
@@ -85,8 +85,8 @@ module Spree
         if response = action.call(gift_card)
           # note that we only need to return the auth code on an 'auth', but it's innocuous to always return
           ActiveMerchant::Billing::Response.new(true,
-            I18n.t('spree.virtual_gift_card.successful_action', action: action_name),
-            {}, { authorization: auth_code || response })
+            I18n.t("spree.virtual_gift_card.successful_action", action: action_name),
+            {}, {authorization: auth_code || response})
         else
           ActiveMerchant::Billing::Response.new(false, gift_card.errors.full_messages.join, {}, {})
         end
@@ -98,7 +98,7 @@ module Spree
       virtual_gift_card = Spree::VirtualGiftCardEvent.find_by(authorization_code: auth_code).try(:virtual_gift_card)
 
       if virtual_gift_card.nil?
-        ActiveMerchant::Billing::Response.new(false, I18n.t('spree.virtual_gift_card.unable_to_find_for_action', auth_code:, action: action_name), {}, {})
+        ActiveMerchant::Billing::Response.new(false, I18n.t("spree.virtual_gift_card.unable_to_find_for_action", auth_code:, action: action_name), {}, {})
       else
         handle_action_call(virtual_gift_card, action, action_name, auth_code)
       end

@@ -11,7 +11,7 @@ module Spree
         @order.gift_card_codes << params[:gift_card_code].strip
 
         if @order.save
-          respond_with(@order, default_template: 'spree/api/orders/show', status: 201)
+          respond_with(@order, default_template: "spree/api/orders/show", status: 201)
         else
           logger.error("apply_gift_card_code_error=#{@order.error.inspect}")
           invalid_resource!(@order)
@@ -24,7 +24,7 @@ module Spree
         @order.gift_card_codes = @order.gift_card_codes - [params[:id]]
 
         if @order.save
-          respond_with(@order, default_template: 'spree/api/orders/show', status: 204)
+          respond_with(@order, default_template: "spree/api/orders/show", status: 204)
         else
           logger.error("remove_gift_card_code_error=#{@order.error.inspect}")
           invalid_resource!(@order)

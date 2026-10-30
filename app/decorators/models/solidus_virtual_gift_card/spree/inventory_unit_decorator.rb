@@ -5,7 +5,7 @@ module SolidusVirtualGiftCard
     module InventoryUnitDecorator
       def self.prepended(base)
         base.class_eval do
-          has_one :gift_card, class_name: 'Spree::VirtualGiftCard'
+          has_one :gift_card, class_name: "Spree::VirtualGiftCard"
         end
       end
 
